@@ -1,5 +1,15 @@
 # Historique
 
+## 1.3.1 — 26 août 2026
+
+- remplacement de l'ouverture de Chrome par une mise à jour directement intégrée au logiciel ;
+- téléchargement en arrière-plan avec progression visible dans l'onglet **Mises à jour** ;
+- validation obligatoire de la taille, de l'origine GitHub et de l'empreinte SHA-256 ;
+- remplacement de l'exécutable après fermeture, copie de secours et redémarrage automatique ;
+- désactivation d'UPX et ajout des métadonnées Windows pour réduire les faux positifs antivirus ;
+- prise en charge facultative de la signature Authenticode dans GitHub Actions ;
+- publication atomique de l'EXE et de son manifeste d'intégrité par le workflow Windows.
+
 ## 1.3.0 — 26 août 2026
 
 - navigation recentrée sur les fonctions essentielles ;

@@ -16,9 +16,11 @@ on:
       - "core/**"
       - "data/**"
       - "assets/**"
+      - "tests/**"
       - "requirements*.txt"
       - "AsteriaxVerse.spec"
       - "UPDATE_MANIFEST.json"
+      - "UPDATE_MANIFEST.example.json"
       - ".github/workflows/build-windows.yml"
 
 permissions:
@@ -34,21 +36,78 @@ jobs:
           python-version: "3.12"
       - name: Installer les dépendances
         run: python -m pip install -r requirements-build.txt
+      - name: Tester le catalogue et l'auto-updater
+        run: |
+          python -m unittest discover -v
+          python validate_data.py
+      - name: Valider le script de remplacement Windows
+        shell: pwsh
+        run: |
+          python -c "from pathlib import Path; from core.updater import build_update_script; Path('update-test.ps1').write_text(build_update_script(Path('C:/Temp/new.exe'), Path('C:/Temp/AsteriaxVerse.exe'), 'a' * 64, 1234, Path('C:/Temp/update.log')), encoding='utf-8-sig')"
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Join-Path $PWD "update-test.ps1"),
+            [ref]$tokens,
+            [ref]$errors
+          ) > $null
+          if ($errors.Count) {
+            $errors | Format-List
+            exit 1
+          }
       - name: Construire l'exécutable
         run: pyinstaller --noconfirm --clean AsteriaxVerse.spec
+      - name: Signer l'exécutable si un certificat Authenticode est configuré
+        shell: pwsh
+        env:
+          ASTERIAX_CERTIFICATE_BASE64: ${{ secrets.ASTERIAX_CERTIFICATE_BASE64 }}
+          ASTERIAX_CERTIFICATE_PASSWORD: ${{ secrets.ASTERIAX_CERTIFICATE_PASSWORD }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:ASTERIAX_CERTIFICATE_BASE64)) {
+            Write-Host "Aucun certificat Authenticode configuré : l'exécutable restera non signé."
+            exit 0
+          }
+          $certificatePath = Join-Path $env:RUNNER_TEMP "asteriax-signing.pfx"
+          [IO.File]::WriteAllBytes(
+            $certificatePath,
+            [Convert]::FromBase64String($env:ASTERIAX_CERTIFICATE_BASE64)
+          )
+          $signTool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Filter signtool.exe -Recurse |
+            Sort-Object FullName -Descending |
+            Select-Object -First 1
+          if (-not $signTool) { throw "signtool.exe est introuvable sur le runner Windows." }
+          & $signTool.FullName sign /f $certificatePath /p $env:ASTERIAX_CERTIFICATE_PASSWORD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 "dist/AsteriaxVerse.exe"
+          if ($LASTEXITCODE -ne 0) { throw "La signature Authenticode a échoué." }
+          Remove-Item $certificatePath -Force
       - name: Publier l'exécutable sur la branche principale
         if: github.ref == 'refs/heads/main'
         shell: pwsh
         run: |
+          $version = (python -c "from core.constants import APP_VERSION; print(APP_VERSION)").Trim()
           Copy-Item "dist/AsteriaxVerse.exe" "AsteriaxVerse.exe" -Force
+          $hash = (Get-FileHash "AsteriaxVerse.exe" -Algorithm SHA256).Hash.ToLowerInvariant()
+          $size = (Get-Item "AsteriaxVerse.exe").Length
+          $manifest = Get-Content "UPDATE_MANIFEST.example.json" -Raw | ConvertFrom-Json
+          if ($manifest.version -ne $version) {
+            throw "La version du manifeste exemple ($($manifest.version)) ne correspond pas à l'application ($version)."
+          }
+          $manifest.download_url = "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe"
+          $manifest.sha256 = $hash
+          $manifest.size = $size
+          $json = $manifest | ConvertTo-Json -Depth 5
+          [IO.File]::WriteAllText(
+            (Join-Path $PWD "UPDATE_MANIFEST.json"),
+            $json + "`n",
+            [Text.UTF8Encoding]::new($false)
+          )
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add AsteriaxVerse.exe
+          git add AsteriaxVerse.exe UPDATE_MANIFEST.json
           if (git diff --cached --quiet) {
             Write-Host "L'exécutable publié est déjà à jour."
             exit 0
           }
-          git commit -m "Build Windows Asteriax Verse 1.3.0"
+          git commit -m "Build Windows Asteriax Verse $version [skip ci]"
           git push
       - uses: actions/upload-artifact@v4
         with:

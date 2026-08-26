@@ -8,16 +8,16 @@ having to touch the UI or the database layer.
 from __future__ import annotations
 
 APP_NAME = "Asteriax Verse"
-APP_VERSION = "1.3.0"
+APP_VERSION = "1.3.1"
 APP_AUTHOR = "AsteriaxTTV"
 USER_AGENT = f"AsteriaxTTV-StarCitizen-Companion/{APP_VERSION}"
 
 DISCORD_URL = "https://discord.com/invite/YSK3aJwATH"
 TWITCH_URL = "https://www.twitch.tv/asteriaxttv/about"
 
-# Official AsteriaxTTV release channel. The manifest is deliberately small and
-# only tells the application whether a newer version exists and where the user
-# can download it; no executable is ever launched automatically.
+# Official AsteriaxTTV release channel. New executables are downloaded inside
+# the application and installed only after their size and SHA-256 fingerprint
+# match the values published by the GitHub build workflow.
 APP_UPDATE_MANIFEST_URL = (
     "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/"
     "main/UPDATE_MANIFEST.json"

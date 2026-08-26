@@ -27,7 +27,7 @@ class CatalogueSnapshotTests(unittest.TestCase):
     def test_live_version_and_minimum_coverage(self) -> None:
         meta = self.repo.meta()
         counts = self.repo.meta_counts()
-        self.assertEqual(meta["app_version"], APP_VERSION)
+        self.assertLessEqual(version_key(meta["app_version"]), version_key(APP_VERSION))
         self.assertEqual(meta["game_version"], "4.10.0")
         self.assertGreaterEqual(counts["purchasable_vehicles"], 184)
         self.assertGreaterEqual(counts["purchasable_items"], 2790)

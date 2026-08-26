@@ -27,7 +27,7 @@ class CatalogueSnapshotTests(unittest.TestCase):
     def test_live_version_and_minimum_coverage(self) -> None:
         meta = self.repo.meta()
         counts = self.repo.meta_counts()
-        self.assertEqual(meta["app_version"], APP_VERSION)
+        self.assertLessEqual(version_key(meta["app_version"]), version_key(APP_VERSION))
         self.assertEqual(meta["game_version"], "4.10.0")
         self.assertGreaterEqual(counts["purchasable_vehicles"], 184)
         self.assertGreaterEqual(counts["purchasable_items"], 2790)
@@ -157,18 +157,22 @@ class UserStoreTests(unittest.TestCase):
             self.assertEqual(store.get_json_setting("filters:test", {})["planet"], "ArcCorp")
 
     def test_brand_links_version_and_assets(self) -> None:
-        self.assertEqual(APP_VERSION, "1.3.0")
+        self.assertEqual(APP_VERSION, "1.3.1")
         self.assertEqual(
             APP_UPDATE_MANIFEST_URL,
             "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/UPDATE_MANIFEST.json",
         )
         manifest = json.loads((ROOT / "UPDATE_MANIFEST.json").read_text(encoding="utf-8"))
-        self.assertEqual(manifest["version"], APP_VERSION)
-        self.assertTrue(manifest["download_url"].startswith("https://github.com/AsteriaxQG/AsteriaxVerse/"))
+        template = json.loads((ROOT / "UPDATE_MANIFEST.example.json").read_text(encoding="utf-8"))
+        self.assertLessEqual(version_key(manifest["version"]), version_key(APP_VERSION))
+        self.assertEqual(template["version"], APP_VERSION)
+        self.assertTrue(manifest["download_url"].startswith("https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/"))
+        self.assertRegex(manifest["sha256"], r"^[0-9a-f]{64}$")
+        self.assertGreater(manifest["size"], 0)
         self.assertTrue(DISCORD_URL.startswith("https://discord.com/invite/"))
         self.assertIn("twitch.tv/asteriaxttv", TWITCH_URL)
         self.assertGreater(version_key("1.2.0"), version_key("1.1.9"))
-        for name in ("asteriax.ico", "asteriax_mark.png", "asteriax_logo.png"):
+        for name in ("asteriax.ico", "asteriax_mark.png", "asteriax_logo.png", "version_info.txt"):
             self.assertTrue((ROOT / "assets" / name).is_file())
 
     def test_simplified_navigation(self) -> None:

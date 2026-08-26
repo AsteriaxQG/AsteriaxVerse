@@ -21,7 +21,7 @@ Après avoir lancé une première fois `LANCER.bat`, double-cliquez sur **CONSTR
 
 Une action GitHub est aussi incluse pour construire automatiquement l'exécutable sur un véritable environnement Windows.
 
-## Fonctions de la version 1.3.0
+## Fonctions de la version 1.3.1
 
 - 184 vaisseaux et véhicules actuellement achetables en jeu ;
 - 2 796 objets achetables et 23 679 relevés de prix actifs ;
@@ -38,6 +38,9 @@ Une action GitHub est aussi incluse pour construire automatiquement l'exécutabl
 - barre latérale rétractable et interface adaptée aux fenêtres plus petites ;
 - fonctionnement hors ligne grâce au cache SQLite ;
 - onglet **Mises à jour** séparant le logiciel et les données Star Citizen ;
+- téléchargement et installation des futures versions directement dans le logiciel, sans ouvrir Chrome ;
+- contrôle SHA-256 et contrôle de taille avant remplacement de l'exécutable ;
+- fermeture, remplacement et redémarrage automatiques avec copie de secours ;
 - détection discrète d'un nouveau patch LIVE et synchronisation en arrière-plan ;
 - accès aux notes de patch, à l'état des serveurs, aux problèmes connus et à la roadmap RSI ;
 - logo et identité **AsteriaxTTV** dans l'interface, l'écran de lancement et l'exécutable ;
@@ -49,7 +52,15 @@ L'onglet **Mises à jour** vérifie d'abord le numéro de la version LIVE. Le bo
 
 Pour Alpha 4.10, les cinq nouvelles ventes annoncées dans le patch officiel sont garanties dans le catalogue même pendant le délai de mise à jour du flux UEX. Une offre publiée ensuite par UEX remplace automatiquement le correctif correspondant.
 
-Le même onglet contient le canal officiel de mise à jour d'Asteriax Verse, hébergé sur le dépôt GitHub AsteriaxTTV. L'application lit `UPDATE_MANIFEST.json`, compare la version disponible et ouvre le téléchargement officiel lorsqu'une nouveauté existe. Aucun exécutable n'est lancé automatiquement.
+Le même onglet contient le canal officiel de mise à jour d'Asteriax Verse, hébergé sur le dépôt GitHub AsteriaxTTV. À partir de la version 1.3.1, l'application télécharge elle-même le nouvel exécutable dans son dossier local, contrôle sa taille et son empreinte SHA-256, ferme l'ancienne version, remplace le fichier puis redémarre automatiquement. Les réglages et la base personnelle restent séparés dans le dossier utilisateur et sont conservés.
+
+La version 1.3.0 ne contient pas encore ce mécanisme : son passage vers la 1.3.1 nécessite donc un dernier téléchargement manuel. Toutes les mises à jour suivantes pourront être installées directement depuis l'onglet **Mises à jour**.
+
+### Alertes antivirus et signature Windows
+
+Le build 1.3.1 désactive UPX et ajoute les informations de version Windows afin de limiter les faux positifs. Une alerte peut néanmoins rester possible tant que l'exécutable n'est pas signé par un certificat Authenticode reconnu. Le téléchargement intégré évite Chrome, mais ne contourne pas et ne désactive jamais Windows Defender.
+
+Le workflow GitHub sait signer automatiquement le build lorsqu'un certificat est configuré dans les secrets `ASTERIAX_CERTIFICATE_BASE64` et `ASTERIAX_CERTIFICATE_PASSWORD`.
 
 Les prix UEX sont communautaires. Ils peuvent évoluer après un hotfix, une remise locale ou un nouveau relevé en jeu. La version LIVE est recoupée avec les publications officielles de Roberts Space Industries.
 
@@ -66,4 +77,4 @@ Les prix UEX sont communautaires. Ils peuvent évoluer après un hotfix, une rem
 
 Les sources et avertissements complets sont indiqués dans [ATTRIBUTION.md](ATTRIBUTION.md). Ce projet est un outil communautaire non officiel et n'est ni affilié ni approuvé par Cloud Imperium Games.
 
-Créé par **AsteriaxTTV** — version 1.3.0.
+Créé par **AsteriaxTTV** — version 1.3.1.

@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Iterator
 
 
 def format_price(value: float | int | None) -> str:
@@ -70,11 +71,16 @@ class DataRepository:
     def __init__(self, database_path: str | Path):
         self.path = Path(database_path)
 
-    def _connect(self) -> sqlite3.Connection:
+    @contextmanager
+    def _connect(self) -> Iterator[sqlite3.Connection]:
         connection = sqlite3.connect(self.path, timeout=15)
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA query_only = ON")
-        return connection
+        try:
+            with connection:
+                yield connection
+        finally:
+            connection.close()
 
     @staticmethod
     def _dicts(rows: Iterable[sqlite3.Row]) -> list[dict[str, Any]]:
@@ -651,10 +657,15 @@ class UserStore:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._initialise()
 
-    def _connect(self) -> sqlite3.Connection:
+    @contextmanager
+    def _connect(self) -> Iterator[sqlite3.Connection]:
         connection = sqlite3.connect(self.path, timeout=10)
         connection.row_factory = sqlite3.Row
-        return connection
+        try:
+            with connection:
+                yield connection
+        finally:
+            connection.close()
 
     def _initialise(self) -> None:
         with self._connect() as connection:

@@ -35,7 +35,9 @@ exe = EXE(
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
-    upx=True,
+    # UPX compression is deliberately disabled: packed PyInstaller binaries
+    # generate more antivirus false positives and bring little benefit here.
+    upx=False,
     upx_exclude=[],
     runtime_tmpdir=None,
     console=False,
@@ -45,4 +47,5 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon=["assets/asteriax.ico"],
+    version="assets/version_info.txt",
 )

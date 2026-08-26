@@ -1,8 +1,9 @@
-"""Asteriax Verse 1.2 planning, comparison and discovery interfaces."""
+"""Asteriax Verse advanced comparison, discovery and update interfaces."""
 
 from __future__ import annotations
 
 import json
+import threading
 import tkinter as tk
 import webbrowser
 from tkinter import messagebox
@@ -25,6 +26,7 @@ from core.constants import (
 )
 from core.database import format_price, location_label
 from core.paths import user_data_dir
+from core.updater import can_self_update, download_app_update, launch_app_update
 from ui.widgets import EmptyState, SectionTitle, TreeTable, labelled_combo
 
 
@@ -1142,6 +1144,7 @@ class UpdatesPage(AdvancedPage):
     def __init__(self, master: Any, app: Any):
         super().__init__(master, app)
         self.app_update_info: dict[str, Any] = {}
+        self._app_installing = False
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
         scroll = ctk.CTkScrollableFrame(self, fg_color="transparent", corner_radius=0)
@@ -1344,6 +1347,7 @@ class UpdatesPage(AdvancedPage):
     def on_show(self) -> None:
         self.refresh_data()
         self.check_game()
+        self.check_app()
 
     def refresh_data(self) -> None:
         try:
@@ -1385,6 +1389,8 @@ class UpdatesPage(AdvancedPage):
             self.update_game_button.pack()
 
     def check_app(self) -> None:
+        if self._app_installing:
+            return
         self.check_app_button.configure(state="disabled", text="Vérification…")
         self.app_status.configure(text="Recherche d’une publication Asteriax Verse…", text_color=COLORS["muted"])
         self.app.check_app_update(self._app_result)
@@ -1403,17 +1409,90 @@ class UpdatesPage(AdvancedPage):
             self.install_app_button.configure(state="disabled", text="Canal à configurer")
         elif self.app_update_info.get("available"):
             latest = self.app_update_info.get("latest_version") or "nouvelle version"
-            self.app_status.configure(text=f"Asteriax Verse {latest} est disponible.", text_color=COLORS["warning"])
-            state = "normal" if self.app_update_info.get("download_url") else "disabled"
+            size = int(self.app_update_info.get("size") or 0)
+            size_label = f" · {size / 1024 / 1024:.1f} Mo" if size else ""
+            notes = str(self.app_update_info.get("release_notes") or "").strip()
+            detail = f"\n{notes}" if notes else ""
+            self.app_status.configure(
+                text=f"Asteriax Verse {latest} est disponible{size_label}.{detail}",
+                text_color=COLORS["warning"],
+            )
+            ready = bool(
+                self.app_update_info.get("download_url")
+                and self.app_update_info.get("sha256")
+                and self.app_update_info.get("size")
+                and can_self_update()
+            )
+            state = "normal" if ready else "disabled"
             self.install_app_button.configure(state=state, text=f"Mettre à jour vers {latest}")
         else:
             self.app_status.configure(text="Vous utilisez la dernière version disponible.", text_color=COLORS["success"])
             self.install_app_button.configure(state="disabled", text="Logiciel à jour")
 
     def install_app_update(self) -> None:
-        url = str(self.app_update_info.get("download_url") or "")
-        if url:
-            webbrowser.open(url)
+        if self._app_installing or not self.app_update_info.get("available"):
+            return
+        if not can_self_update():
+            messagebox.showinfo(
+                "Mise à jour Asteriax Verse",
+                "La mise à jour intégrée fonctionne depuis AsteriaxVerse.exe. "
+                "Cette session a été lancée depuis les sources Python.",
+                parent=self,
+            )
+            return
+        latest = str(self.app_update_info.get("latest_version") or "nouvelle version")
+        size = int(self.app_update_info.get("size") or 0)
+        confirmed = messagebox.askyesno(
+            "Installer la mise à jour",
+            f"Télécharger et installer Asteriax Verse {latest} ({size / 1024 / 1024:.1f} Mo) ?\n\n"
+            "Le fichier sera vérifié, puis le logiciel se fermera et redémarrera automatiquement. "
+            "Vos réglages et vos données personnelles seront conservés.",
+            parent=self,
+        )
+        if not confirmed:
+            return
+
+        self._app_installing = True
+        self.check_app_button.configure(state="disabled")
+        self.install_app_button.configure(state="disabled", text="Téléchargement… 0 %")
+        self.app_status.configure(text="Téléchargement sécurisé depuis GitHub…", text_color=COLORS["accent"])
+
+        def progress(fraction: float, message: str) -> None:
+            percentage = max(0, min(100, round(float(fraction) * 100)))
+            self.after(
+                0,
+                lambda p=percentage, m=message: (
+                    self.install_app_button.configure(text=f"Téléchargement… {p} %"),
+                    self.app_status.configure(text=m, text_color=COLORS["accent"]),
+                ),
+            )
+
+        def worker() -> None:
+            try:
+                package = download_app_update(self.app_update_info, progress)
+                launch_app_update(package, self.app_update_info)
+                self.after(0, self._app_update_ready)
+            except Exception as exc:
+                self.after(0, lambda error=exc: self._app_update_failed(error))
+
+        threading.Thread(target=worker, name="asteriax-self-update", daemon=True).start()
+
+    def _app_update_ready(self) -> None:
+        latest = str(self.app_update_info.get("latest_version") or "")
+        self.app_status.configure(
+            text=f"Asteriax Verse {latest} est vérifié. Redémarrage automatique…",
+            text_color=COLORS["success"],
+        )
+        self.install_app_button.configure(text="Redémarrage…", state="disabled")
+        self.app.show_notice("Mise à jour vérifiée · redémarrage en cours", COLORS["success"], 5000)
+        self.app.after(700, self.app.destroy)
+
+    def _app_update_failed(self, error: Exception) -> None:
+        self._app_installing = False
+        latest = str(self.app_update_info.get("latest_version") or "nouvelle version")
+        self.check_app_button.configure(state="normal", text="Réessayer la vérification")
+        self.install_app_button.configure(state="normal", text=f"Réessayer {latest}")
+        self.app_status.configure(text=f"Mise à jour impossible : {error}", text_color=COLORS["danger"])
 
 
 class SettingsPage(AdvancedPage):

@@ -1,0 +1,123 @@
+from __future__ import annotations
+
+import hashlib
+import io
+import json
+import tempfile
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+from core.updater import build_update_script, check_app_update, download_app_update, version_key
+
+
+OFFICIAL_EXE_URL = "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe"
+
+
+class FakeResponse:
+    def __init__(self, payload: bytes, url: str):
+        self.stream = io.BytesIO(payload)
+        self.headers = {"Content-Length": str(len(payload))}
+        self.url = url
+
+    def read(self, size: int = -1) -> bytes:
+        return self.stream.read(size)
+
+    def geturl(self) -> str:
+        return self.url
+
+    def __enter__(self) -> "FakeResponse":
+        return self
+
+    def __exit__(self, *_args: object) -> None:
+        self.stream.close()
+
+
+class UpdaterTests(unittest.TestCase):
+    def test_version_comparison(self) -> None:
+        self.assertGreater(version_key("v1.3.10"), version_key("1.3.9"))
+
+    def test_manifest_requires_integrity_data_for_new_release(self) -> None:
+        payload = json.dumps({"version": "1.3.2", "download_url": OFFICIAL_EXE_URL}).encode()
+        with patch("core.updater.urllib.request.urlopen", return_value=FakeResponse(payload, "https://example.test/manifest.json")):
+            with self.assertRaisesRegex(ValueError, "SHA-256"):
+                check_app_update("https://example.test/manifest.json")
+
+    def test_manifest_accepts_verified_new_release(self) -> None:
+        checksum = "a" * 64
+        payload = json.dumps(
+            {
+                "version": "1.3.2",
+                "download_url": OFFICIAL_EXE_URL,
+                "sha256": checksum,
+                "size": 12345,
+                "release_notes": "Test",
+            }
+        ).encode()
+        with patch("core.updater.urllib.request.urlopen", return_value=FakeResponse(payload, "https://example.test/manifest.json")):
+            result = check_app_update("https://example.test/manifest.json")
+        self.assertTrue(result["available"])
+        self.assertEqual(result["sha256"], checksum)
+        self.assertEqual(result["size"], 12345)
+
+    def test_download_is_kept_only_after_size_hash_and_pe_checks(self) -> None:
+        payload = b"MZ" + (b"Asteriax" * 2048)
+        checksum = hashlib.sha256(payload).hexdigest()
+        info = {
+            "latest_version": "1.3.2",
+            "download_url": OFFICIAL_EXE_URL,
+            "sha256": checksum,
+            "size": len(payload),
+        }
+        progress: list[float] = []
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with (
+                patch("core.updater.can_self_update", return_value=True),
+                patch("core.updater.user_data_dir", return_value=root),
+                patch("core.updater.urllib.request.urlopen", return_value=FakeResponse(payload, OFFICIAL_EXE_URL)),
+            ):
+                result = download_app_update(info, lambda fraction, _message: progress.append(fraction))
+            self.assertEqual(result.read_bytes(), payload)
+            self.assertEqual(result.name, "AsteriaxVerse-1.3.2.exe")
+            self.assertEqual(progress[-1], 1.0)
+
+    def test_corrupt_download_is_deleted(self) -> None:
+        payload = b"MZcorrupt"
+        info = {
+            "latest_version": "1.3.2",
+            "download_url": OFFICIAL_EXE_URL,
+            "sha256": "0" * 64,
+            "size": len(payload),
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with (
+                patch("core.updater.can_self_update", return_value=True),
+                patch("core.updater.user_data_dir", return_value=root),
+                patch("core.updater.urllib.request.urlopen", return_value=FakeResponse(payload, OFFICIAL_EXE_URL)),
+            ):
+                with self.assertRaisesRegex(ValueError, "SHA-256"):
+                    download_app_update(info)
+            update_dir = root / "updates"
+            self.assertFalse(any(update_dir.glob("*.part")))
+            self.assertFalse(any(update_dir.glob("*.exe")))
+
+    def test_restart_script_rechecks_hash_and_relaunches_target(self) -> None:
+        checksum = "b" * 64
+        script = build_update_script(
+            Path("C:/Users/O'Brien/update.exe"),
+            Path("C:/Apps/AsteriaxVerse.exe"),
+            checksum,
+            4242,
+            Path("C:/Temp/update.log"),
+        )
+        self.assertIn("Get-Process -Id 4242", script)
+        self.assertIn("Get-FileHash", script)
+        self.assertIn(checksum, script)
+        self.assertIn("O''Brien", script)
+        self.assertIn("Start-Process -FilePath $target", script)
+
+
+if __name__ == "__main__":
+    unittest.main()

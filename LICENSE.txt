@@ -1,0 +1,10 @@
+Copyright (c) 2026 AsteriaxTTV
+Tous droits réservés.
+
+Ce logiciel et son code source sont fournis à AsteriaxTTV. Toute reproduction,
+distribution commerciale, revente ou suppression de l'attribution sans son
+autorisation écrite est interdite.
+
+Les données, noms et marques de Star Citizen restent la propriété de leurs
+ayants droit respectifs et ne sont pas couverts par cette déclaration.
+

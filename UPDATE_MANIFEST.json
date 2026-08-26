@@ -1,7 +1,7 @@
 {
-  "version": "1.3.0",
+  "version": "1.3.1",
   "download_url": "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe",
-  "sha256": "42f35850a6487aa143b5afafc7023124d3a408746e7bf77fe13324e34d1867e7",
-  "size": 21812195,
-  "release_notes": "Navigation simplifiée, onglets redondants supprimés et textes agrandis dans toutes les pages."
+  "sha256": "34f397c221dd377bd48fe0ba529c312d46b229e829a981b0a83e80c87784e55b",
+  "size": 21822958,
+  "release_notes": "Mise à jour intégrée sans navigateur, contrôle SHA-256 et redémarrage automatique."
 }

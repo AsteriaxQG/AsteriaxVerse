@@ -1,7 +1,7 @@
 {
-  "version": "1.3.2",
+  "version": "1.3.3",
   "download_url": "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe",
   "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
   "size": 0,
-  "release_notes": "Redimensionnement plus fluide, pages chargées à la demande et une seule page recalculée à l’écran."
+  "release_notes": "Bouton de vérification renforcé : retour immédiat, absence de cache, délai visible et résultat traité sur le thread graphique."
 }

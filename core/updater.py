@@ -9,6 +9,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -88,9 +89,20 @@ def check_app_update(
             "size": 0,
         }
     _validate_https_url(url)
+    parsed = urllib.parse.urlsplit(url)
+    query = urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
+    query.append(("asteriax_cache", str(time.time_ns())))
+    request_url = urllib.parse.urlunsplit(
+        (parsed.scheme, parsed.netloc, parsed.path, urllib.parse.urlencode(query), parsed.fragment)
+    )
     request = urllib.request.Request(
-        url,
-        headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+        request_url,
+        headers={
+            "User-Agent": USER_AGENT,
+            "Accept": "application/json",
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache",
+        },
     )
     with urllib.request.urlopen(request, timeout=timeout) as response:
         payload = json.load(response)

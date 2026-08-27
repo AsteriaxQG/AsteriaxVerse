@@ -1,5 +1,13 @@
 # Historique
 
+## 1.3.3 — 27 août 2026
+
+- retour visuel immédiat lorsque l’utilisateur clique sur **Vérifier maintenant** ;
+- ajout d’un délai de 15 secondes avec message explicite si le réseau ne répond pas ;
+- contournement des copies périmées du manifeste GitHub avec cache désactivé ;
+- transfert du résultat réseau vers l’interface par une file sûre pour Tkinter ;
+- bouton **Réessayer** automatiquement réactivé après une erreur ou un délai dépassé.
+
 ## 1.3.2 — 27 août 2026
 
 - chargement des pages à la demande au lieu de construire les dix écrans au démarrage ;

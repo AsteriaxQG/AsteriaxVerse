@@ -1145,6 +1145,8 @@ class UpdatesPage(AdvancedPage):
         super().__init__(master, app)
         self.app_update_info: dict[str, Any] = {}
         self._app_installing = False
+        self._app_check_sequence = 0
+        self._app_check_timeout_id: str | None = None
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
         scroll = ctk.CTkScrollableFrame(self, fg_color="transparent", corner_radius=0)
@@ -1191,7 +1193,7 @@ class UpdatesPage(AdvancedPage):
         self.check_app_button = ctk.CTkButton(
             app_actions,
             text="Vérifier maintenant",
-            command=self.check_app,
+            command=lambda: self.check_app(manual=True),
             width=175,
             height=36,
             fg_color=COLORS["panel_alt"],
@@ -1347,7 +1349,7 @@ class UpdatesPage(AdvancedPage):
     def on_show(self) -> None:
         self.refresh_data()
         self.check_game()
-        self.check_app()
+        self.check_app(manual=False)
 
     def refresh_data(self) -> None:
         try:
@@ -1388,14 +1390,51 @@ class UpdatesPage(AdvancedPage):
             self.update_game_button.configure(state="normal", text="Actualiser tout le catalogue")
             self.update_game_button.pack()
 
-    def check_app(self) -> None:
+    def check_app(self, *, manual: bool = True) -> None:
         if self._app_installing:
             return
+        self._app_check_sequence += 1
+        sequence = self._app_check_sequence
         self.check_app_button.configure(state="disabled", text="Vérification…")
         self.app_status.configure(text="Recherche d’une publication Asteriax Verse…", text_color=COLORS["muted"])
-        self.app.check_app_update(self._app_result)
+        self.update_idletasks()
+        if manual:
+            self.app.show_notice("Vérification de la version Asteriax Verse…", COLORS["accent"], 2200)
+        if self._app_check_timeout_id:
+            try:
+                self.after_cancel(self._app_check_timeout_id)
+            except tk.TclError:
+                pass
+        self._app_check_timeout_id = self.after(15000, lambda: self._app_check_timed_out(sequence))
+        self.app.check_app_update(
+            lambda result, error, token=sequence: self._app_result(result, error, token)
+        )
 
-    def _app_result(self, result: dict[str, Any] | None, error: Exception | None) -> None:
+    def _app_check_timed_out(self, sequence: int) -> None:
+        if sequence != self._app_check_sequence:
+            return
+        self._app_check_sequence += 1
+        self._app_check_timeout_id = None
+        self.check_app_button.configure(state="normal", text="Réessayer")
+        self.app_status.configure(
+            text="La vérification n’a pas répondu après 15 secondes. Vérifiez la connexion ou le pare-feu, puis réessayez.",
+            text_color=COLORS["danger"],
+        )
+
+    def _app_result(
+        self,
+        result: dict[str, Any] | None,
+        error: Exception | None,
+        sequence: int,
+    ) -> None:
+        if sequence != self._app_check_sequence:
+            return
+        if self._app_check_timeout_id:
+            try:
+                self.after_cancel(self._app_check_timeout_id)
+            except tk.TclError:
+                pass
+        self._app_check_timeout_id = None
         self.check_app_button.configure(state="normal", text="Vérifier maintenant")
         if error:
             self.app_status.configure(text=f"Vérification impossible : {error}", text_color=COLORS["danger"])

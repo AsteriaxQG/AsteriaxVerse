@@ -7,6 +7,7 @@ import hmac
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -21,6 +22,7 @@ from .paths import user_data_dir
 
 MAX_UPDATE_BYTES = 250 * 1024 * 1024
 OFFICIAL_DOWNLOAD_HOSTS = {"github.com", "raw.githubusercontent.com"}
+APPLY_UPDATE_FLAG = "--asteriax-apply-update"
 ProgressCallback = Callable[[float, str], None]
 
 
@@ -213,56 +215,138 @@ def download_app_update(
     return final_path
 
 
-def _powershell_literal(value: str | Path) -> str:
-    return "'" + str(value).replace("'", "''") + "'"
+def _append_update_log(log_path: Path, message: str) -> None:
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+    with log_path.open("a", encoding="utf-8") as stream:
+        stream.write(f"[{timestamp}] {message}\n")
 
 
-def build_update_script(source: Path, target: Path, checksum: str, process_id: int, log_path: Path) -> str:
-    """Build the detached PowerShell script that atomically replaces the app."""
+def _process_exists(process_id: int) -> bool:
+    if process_id <= 0:
+        return False
+    try:
+        if os.name == "nt":
+            import ctypes
 
+            handle = ctypes.windll.kernel32.OpenProcess(0x1000, False, process_id)
+            if not handle:
+                return False
+            ctypes.windll.kernel32.CloseHandle(handle)
+            return True
+        os.kill(process_id, 0)
+        return True
+    except (OSError, ValueError):
+        return False
+
+
+def apply_downloaded_update(
+    source: Path,
+    target: Path,
+    checksum: str,
+    old_process_id: int,
+    log_path: Path,
+    *,
+    wait_timeout: float = 120.0,
+) -> Path:
+    """Replace the old executable from the newly downloaded executable itself."""
+
+    source = Path(source).resolve()
+    target = Path(target).resolve()
     expected_hash = _normalise_sha256(checksum)
-    return f"""$ErrorActionPreference = 'Stop'
-$source = {_powershell_literal(source)}
-$target = {_powershell_literal(target)}
-$stage = $target + '.new'
-$backup = $target + '.old'
-$log = {_powershell_literal(log_path)}
-$expectedHash = '{expected_hash}'
+    stage = target.with_name(target.name + ".new")
+    backup = target.with_name(target.name + ".old")
+    _append_update_log(log_path, f"Moteur intégré démarré depuis {source}")
 
-for ($wait = 0; $wait -lt 240; $wait++) {{
-    if (-not (Get-Process -Id {int(process_id)} -ErrorAction SilentlyContinue)) {{ break }}
-    Start-Sleep -Milliseconds 500
-}}
+    if not source.is_file() or source.suffix.casefold() != ".exe":
+        raise FileNotFoundError("Le nouvel exécutable est introuvable.")
+    if not hmac.compare_digest(_file_sha256(source), expected_hash):
+        raise ValueError("Le nouvel exécutable ne correspond plus au SHA-256 publié.")
 
-for ($attempt = 1; $attempt -le 30; $attempt++) {{
-    try {{
-        if (-not (Test-Path -LiteralPath $source)) {{ throw 'Le fichier de mise à jour est introuvable.' }}
-        $sourceHash = (Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash.ToLowerInvariant()
-        if ($sourceHash -ne $expectedHash) {{ throw 'La vérification SHA-256 a échoué avant installation.' }}
-        Copy-Item -LiteralPath $source -Destination $stage -Force
-        $stageHash = (Get-FileHash -LiteralPath $stage -Algorithm SHA256).Hash.ToLowerInvariant()
-        if ($stageHash -ne $expectedHash) {{ throw 'La copie temporaire est corrompue.' }}
-        if (Test-Path -LiteralPath $target) {{ Copy-Item -LiteralPath $target -Destination $backup -Force }}
-        if (Test-Path -LiteralPath $target) {{ Remove-Item -LiteralPath $target -Force }}
-        Move-Item -LiteralPath $stage -Destination $target -Force
-        Start-Process -FilePath $target -WorkingDirectory (Split-Path -Parent $target)
-        Remove-Item -LiteralPath $source -Force -ErrorAction SilentlyContinue
-        Remove-Item -LiteralPath $backup -Force -ErrorAction SilentlyContinue
-        exit 0
-    }} catch {{
-        ('[' + (Get-Date -Format o) + '] ' + $_.Exception.Message) | Add-Content -LiteralPath $log -Encoding UTF8
-        Start-Sleep -Seconds 1
-    }}
-}}
+    deadline = time.monotonic() + max(1.0, float(wait_timeout))
+    while _process_exists(int(old_process_id)):
+        if time.monotonic() >= deadline:
+            raise TimeoutError("L’ancienne version ne s’est pas fermée dans le délai prévu.")
+        time.sleep(0.25)
 
-if (Test-Path -LiteralPath $backup) {{ Copy-Item -LiteralPath $backup -Destination $target -Force }}
-if (Test-Path -LiteralPath $target) {{ Start-Process -FilePath $target -WorkingDirectory (Split-Path -Parent $target) }}
-exit 1
-"""
+    last_error: OSError | None = None
+    for attempt in range(1, 31):
+        try:
+            stage.unlink(missing_ok=True)
+            shutil.copy2(source, stage)
+            if not hmac.compare_digest(_file_sha256(stage), expected_hash):
+                raise OSError("La copie temporaire est corrompue.")
+            if target.exists():
+                shutil.copy2(target, backup)
+            os.replace(stage, target)
+            last_error = None
+            break
+        except OSError as exc:
+            last_error = exc
+            _append_update_log(log_path, f"Tentative {attempt}/30 : {exc}")
+            time.sleep(0.5)
+    if last_error is not None:
+        raise last_error
+    if not hmac.compare_digest(_file_sha256(target), expected_hash):
+        raise ValueError("Le fichier installé ne correspond pas au SHA-256 publié.")
+
+    creation_flags = getattr(subprocess, "DETACHED_PROCESS", 0) | getattr(
+        subprocess, "CREATE_NEW_PROCESS_GROUP", 0
+    )
+    process = subprocess.Popen(
+        [str(target)],
+        cwd=str(target.parent),
+        close_fds=True,
+        creationflags=creation_flags,
+    )
+    _append_update_log(log_path, f"Version installée et relancée (PID {process.pid}).")
+    backup.unlink(missing_ok=True)
+    return target
+
+
+def run_update_bootstrap(arguments: list[str] | None = None) -> int | None:
+    """Handle the hidden updater mode before importing the graphical interface."""
+
+    args = list(sys.argv[1:] if arguments is None else arguments)
+    if not args or args[0] != APPLY_UPDATE_FLAG:
+        return None
+    if len(args) != 5:
+        return 2
+
+    target = Path(args[1])
+    checksum = args[2]
+    try:
+        old_process_id = int(args[3])
+    except ValueError:
+        return 2
+    log_path = Path(args[4])
+    try:
+        apply_downloaded_update(
+            Path(sys.executable),
+            target,
+            checksum,
+            old_process_id,
+            log_path,
+        )
+        return 0
+    except Exception as exc:
+        _append_update_log(log_path, f"ÉCHEC : {type(exc).__name__}: {exc}")
+        backup = target.with_name(target.name + ".old")
+        stage = target.with_name(target.name + ".new")
+        try:
+            stage.unlink(missing_ok=True)
+            if backup.exists():
+                os.replace(backup, target)
+                _append_update_log(log_path, "Ancienne version restaurée.")
+            if target.exists():
+                subprocess.Popen([str(target)], cwd=str(target.parent), close_fds=True)
+        except OSError as recovery_error:
+            _append_update_log(log_path, f"Restauration impossible : {recovery_error}")
+        return 1
 
 
 def launch_app_update(package_path: Path, update_info: dict[str, Any]) -> Path:
-    """Start the detached installer; the caller must then close the application."""
+    """Start the downloaded EXE in integrated updater mode."""
 
     if not can_self_update():
         raise RuntimeError("La mise à jour intégrée est disponible uniquement depuis AsteriaxVerse.exe.")
@@ -281,27 +365,23 @@ def launch_app_update(package_path: Path, update_info: dict[str, Any]) -> Path:
 
     update_dir = user_data_dir() / "updates"
     update_dir.mkdir(parents=True, exist_ok=True)
-    script_path = update_dir / "apply_asteriax_update.ps1"
     installer_log = update_dir / "update_error.log"
-    script = build_update_script(source, target, checksum, os.getpid(), installer_log)
-    script_path.write_text(script, encoding="utf-8-sig")
-
-    creation_flags = getattr(subprocess, "CREATE_NO_WINDOW", 0) | getattr(subprocess, "DETACHED_PROCESS", 0)
-    subprocess.Popen(
+    installer_log.unlink(missing_ok=True)
+    creation_flags = getattr(subprocess, "DETACHED_PROCESS", 0) | getattr(
+        subprocess, "CREATE_NEW_PROCESS_GROUP", 0
+    )
+    process = subprocess.Popen(
         [
-            "powershell.exe",
-            "-NoLogo",
-            "-NoProfile",
-            "-NonInteractive",
-            "-ExecutionPolicy",
-            "Bypass",
-            "-WindowStyle",
-            "Hidden",
-            "-File",
-            str(script_path),
+            str(source),
+            APPLY_UPDATE_FLAG,
+            str(target),
+            checksum,
+            str(os.getpid()),
+            str(installer_log),
         ],
         cwd=str(update_dir),
         close_fds=True,
         creationflags=creation_flags,
     )
-    return script_path
+    _append_update_log(installer_log, f"Moteur intégré lancé (PID {process.pid}).")
+    return installer_log

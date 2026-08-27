@@ -7,6 +7,11 @@ import traceback
 
 
 def main() -> int:
+    from core.updater import run_update_bootstrap
+
+    bootstrap_result = run_update_bootstrap()
+    if bootstrap_result is not None:
+        return bootstrap_result
     try:
         from ui.app import run
     except ModuleNotFoundError as exc:

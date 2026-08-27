@@ -40,21 +40,6 @@ jobs:
         run: |
           python -m unittest discover -v
           python validate_data.py
-      - name: Valider le script de remplacement Windows
-        shell: pwsh
-        run: |
-          python -c "from pathlib import Path; from core.updater import build_update_script; Path('update-test.ps1').write_text(build_update_script(Path('C:/Temp/new.exe'), Path('C:/Temp/AsteriaxVerse.exe'), 'a' * 64, 1234, Path('C:/Temp/update.log')), encoding='utf-8-sig')"
-          $tokens = $null
-          $errors = $null
-          [System.Management.Automation.Language.Parser]::ParseFile(
-            (Join-Path $PWD "update-test.ps1"),
-            [ref]$tokens,
-            [ref]$errors
-          ) > $null
-          if ($errors.Count) {
-            $errors | Format-List
-            exit 1
-          }
       - name: Construire l'exécutable
         run: pyinstaller --noconfirm --clean AsteriaxVerse.spec
       - name: Signer l'exécutable si un certificat Authenticode est configuré

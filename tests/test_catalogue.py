@@ -191,7 +191,7 @@ class UserStoreTests(unittest.TestCase):
             self.assertEqual(store.get_json_setting("filters:test", {})["planet"], "ArcCorp")
 
     def test_brand_links_version_and_assets(self) -> None:
-        self.assertEqual(APP_VERSION, "1.3.4")
+        self.assertEqual(APP_VERSION, "1.3.5")
         self.assertEqual(
             APP_UPDATE_MANIFEST_URL,
             "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/UPDATE_MANIFEST.json",

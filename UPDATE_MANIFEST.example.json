@@ -1,7 +1,7 @@
 {
-  "version": "1.3.4",
+  "version": "1.3.5",
   "download_url": "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe",
   "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
   "size": 0,
-  "release_notes": "Constructeurs de vaisseaux normalisés avec les marques officielles RSI, MISC, ARGO, CNOU et contrôle des modèles récents."
+  "release_notes": "Moteur de mise à jour intégré au nouvel EXE : remplacement et redémarrage sans PowerShell, avec journal et restauration automatique."
 }

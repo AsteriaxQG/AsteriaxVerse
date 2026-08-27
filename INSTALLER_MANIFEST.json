@@ -1,8 +1,8 @@
 {
-  "version": "1.4.1",
+  "version": "1.4.2",
   "download_url": "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse-Setup.exe",
-  "sha256": "62a0d97c42901b862034fa445ad038b385082a0bd79f3f4490505af5a63e82c8",
-  "size": 23568969,
+  "sha256": "4e100f1417b75a0b7d4db84f39c6a679cd612acbffa87a88c4ec1dbd95d89897",
+  "size": 23570780,
   "install_scope": "current_user",
   "install_directory": "%LOCALAPPDATA%\\Programs\\Asteriax Verse"
 }

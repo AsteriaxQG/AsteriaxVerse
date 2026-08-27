@@ -29,6 +29,7 @@ from .constants import (
     USER_AGENT,
     VERIFIED_LIVE_VERSION,
 )
+from .manufacturers import vehicle_manufacturer_label
 
 ProgressCallback = Callable[[float, str], None]
 
@@ -551,7 +552,11 @@ def _build_database(
                     _as_int(vehicle.get("id_parent")),
                     vehicle.get("name") or f"Véhicule #{vehicle_id}",
                     vehicle.get("name_full"),
-                    vehicle.get("company_name"),
+                    vehicle_manufacturer_label(
+                        vehicle.get("company_name"),
+                        vehicle_name=vehicle.get("name"),
+                        name_full=vehicle.get("name_full"),
+                    ),
                     vehicle.get("slug"),
                     vehicle.get("uuid"),
                     _as_float(vehicle.get("scu")),

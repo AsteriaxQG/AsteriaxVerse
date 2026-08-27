@@ -1,4 +1,4 @@
-# Rapport de validation — Asteriax Verse 1.3.5
+# Rapport de validation — Asteriax Verse 1.3.6
 
 Contrôle effectué le **26 août 2026** sur l'instantané livré.
 

@@ -8,9 +8,16 @@ having to touch the UI or the database layer.
 from __future__ import annotations
 
 APP_NAME = "Asteriax Verse"
-APP_VERSION = "1.3.5"
+APP_VERSION = "1.3.6"
 APP_AUTHOR = "AsteriaxTTV"
 USER_AGENT = f"AsteriaxTTV-StarCitizen-Companion/{APP_VERSION}"
+
+APP_RELEASE_NOTES = (
+    "Confirmation visible après le redémarrage automatique.",
+    "Progression détaillée du téléchargement, de la vérification et de l’installation.",
+    "Dernière vérification et dernière installation affichées dans l’onglet Mises à jour.",
+    "Bouton Voir les nouveautés disponible directement dans le logiciel.",
+)
 
 DISCORD_URL = "https://discord.com/invite/YSK3aJwATH"
 TWITCH_URL = "https://www.twitch.tv/asteriaxttv/about"

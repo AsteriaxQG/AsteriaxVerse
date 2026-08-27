@@ -21,7 +21,7 @@ Après avoir lancé une première fois `LANCER.bat`, double-cliquez sur **CONSTR
 
 Une action GitHub est aussi incluse pour construire automatiquement l'exécutable sur un véritable environnement Windows.
 
-## Fonctions de la version 1.3.1
+## Fonctions de la version 1.3.2
 
 - 184 vaisseaux et véhicules actuellement achetables en jeu ;
 - 2 796 objets achetables et 23 679 relevés de prix actifs ;
@@ -41,6 +41,8 @@ Une action GitHub est aussi incluse pour construire automatiquement l'exécutabl
 - téléchargement et installation des futures versions directement dans le logiciel, sans ouvrir Chrome ;
 - contrôle SHA-256 et contrôle de taille avant remplacement de l'exécutable ;
 - fermeture, remplacement et redémarrage automatiques avec copie de secours ;
+- pages chargées seulement à leur première ouverture et une seule page redimensionnée à la fois ;
+- passage plein écran/fenêtre plus fluide avec moins de recalculs graphiques ;
 - détection discrète d'un nouveau patch LIVE et synchronisation en arrière-plan ;
 - accès aux notes de patch, à l'état des serveurs, aux problèmes connus et à la roadmap RSI ;
 - logo et identité **AsteriaxTTV** dans l'interface, l'écran de lancement et l'exécutable ;
@@ -77,4 +79,4 @@ Les prix UEX sont communautaires. Ils peuvent évoluer après un hotfix, une rem
 
 Les sources et avertissements complets sont indiqués dans [ATTRIBUTION.md](ATTRIBUTION.md). Ce projet est un outil communautaire non officiel et n'est ni affilié ni approuvé par Cloud Imperium Games.
 
-Créé par **AsteriaxTTV** — version 1.3.1.
+Créé par **AsteriaxTTV** — version 1.3.2.

@@ -8,6 +8,12 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Iterable, Iterator
 
+from .manufacturers import (
+    official_vehicle_names,
+    vehicle_manufacturer_label,
+    vehicle_manufacturer_sources,
+)
+
 
 def format_price(value: float | int | None) -> str:
     """Format an aUEC amount with French grouping."""
@@ -85,6 +91,20 @@ class DataRepository:
     @staticmethod
     def _dicts(rows: Iterable[sqlite3.Row]) -> list[dict[str, Any]]:
         return [dict(row) for row in rows]
+
+    @staticmethod
+    def _vehicle_record(row: sqlite3.Row | dict[str, Any]) -> dict[str, Any]:
+        record = dict(row)
+        record["manufacturer"] = vehicle_manufacturer_label(
+            record.get("manufacturer"),
+            vehicle_name=record.get("name"),
+            name_full=record.get("name_full"),
+        )
+        return record
+
+    @classmethod
+    def _vehicle_dicts(cls, rows: Iterable[sqlite3.Row]) -> list[dict[str, Any]]:
+        return [cls._vehicle_record(row) for row in rows]
 
     def meta(self) -> dict[str, str]:
         with self._connect() as connection:
@@ -313,8 +333,13 @@ class DataRepository:
                 ORDER BY t.star_system COLLATE NOCASE, t.planet COLLATE NOCASE
                 """
             ).fetchall()
+            labels = {
+                vehicle_manufacturer_label(row["value"])
+                for row in manufacturers
+                if row["value"]
+            }
             return {
-                "manufacturers": [row["value"] for row in manufacturers],
+                "manufacturers": sorted(labels, key=str.casefold),
                 "systems": sorted({row["star_system"] for row in locations if row["star_system"]}),
                 "planets": sorted({row["planet"] for row in locations if row["planet"]}),
             }
@@ -353,8 +378,16 @@ class DataRepository:
             )
             params.extend([needle, needle, needle, needle])
         if manufacturer:
-            clauses.append("v.manufacturer = ?")
-            params.append(manufacturer)
+            sources = vehicle_manufacturer_sources(manufacturer)
+            audited_names = official_vehicle_names(manufacturer)
+            manufacturer_parts = [f"v.manufacturer IN ({','.join('?' for _ in sources)})"]
+            params.extend(sources)
+            if audited_names:
+                manufacturer_parts.append(
+                    f"v.name COLLATE NOCASE IN ({','.join('?' for _ in audited_names)})"
+                )
+                params.extend(audited_names)
+            clauses.append(f"({' OR '.join(manufacturer_parts)})")
         if vehicle_type == "Vaisseaux":
             clauses.append("v.is_ground_vehicle = 0")
         elif vehicle_type == "Véhicules terrestres":
@@ -393,12 +426,12 @@ class DataRepository:
         """
         query_params = offer_params + params + [limit]
         with self._connect() as connection:
-            return self._dicts(connection.execute(sql, query_params).fetchall())
+            return self._vehicle_dicts(connection.execute(sql, query_params).fetchall())
 
     def vehicle_detail(self, vehicle_id: int) -> dict[str, Any] | None:
         with self._connect() as connection:
             row = connection.execute("SELECT * FROM vehicles WHERE id = ?", (vehicle_id,)).fetchone()
-            return dict(row) if row else None
+            return self._vehicle_record(row) if row else None
 
     def vehicle_offers(self, vehicle_id: int) -> list[dict[str, Any]]:
         with self._connect() as connection:
@@ -510,7 +543,14 @@ class DataRepository:
                 """,
                 (int(terminal_id), int(terminal_id)),
             ).fetchall()
-        return self._dicts(rows)
+        records = self._dicts(rows)
+        for record in records:
+            if record.get("kind") == "vehicle":
+                record["manufacturer"] = vehicle_manufacturer_label(
+                    record.get("manufacturer"),
+                    vehicle_name=record.get("name"),
+                )
+        return records
 
     def global_search(self, query: str, limit: int = 36) -> list[dict[str, Any]]:
         """Search purchasable items, vehicles and active shops at once."""

@@ -1,5 +1,13 @@
 # Historique
 
+## 1.3.4 — 27 août 2026
+
+- remplacement de **Roberts Space Industries** par la marque officielle **RSI** ;
+- normalisation des constructeurs en marques courtes : MISC, ARGO, CNOU, Aegis, Anvil, Drake, etc. ;
+- correction de l’entité HTML affichée dans **Grey's Market** ;
+- contrôle explicite des modèles récents ou faciles à confondre (Hermes, Meteor, Salvation, Clipper, MOTH, MTC, Shiv, Hull B…) ;
+- filtres constructeur compatibles avec l’ancienne base et les futures synchronisations UEX.
+
 ## 1.3.3 — 27 août 2026
 
 - retour visuel immédiat lorsque l’utilisateur clique sur **Vérifier maintenant** ;

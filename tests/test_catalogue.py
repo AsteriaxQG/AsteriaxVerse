@@ -103,6 +103,40 @@ class CatalogueSnapshotTests(unittest.TestCase):
                 self.assertEqual({int(row["price_buy"]) for row in offers}, prices)
                 self.assertTrue(all(location_label(row) != "Lieu non renseigné" for row in offers))
 
+    def test_canonical_vehicle_manufacturers(self) -> None:
+        options = self.repo.vehicle_filter_options()["manufacturers"]
+        for brand in ("RSI", "MISC", "ARGO", "CNOU", "Grey's Market"):
+            self.assertIn(brand, options)
+        for legal_name in (
+            "Roberts Space Industries",
+            "Musashi Industrial and Starflight Concern",
+            "Argo Astronautics",
+            "Grey&apos;s Market",
+        ):
+            self.assertNotIn(legal_name, options)
+
+        expected = {
+            "Asgard": "Anvil",
+            "MOTH": "ARGO",
+            "MTC": "Greycat",
+            "Prowler Utility": "Esperia",
+            "Shiv": "Grey's Market",
+            "L-22 Alpha Wolf": "Kruger",
+            "Hull B": "MISC",
+            "Clipper": "Drake",
+            "Hermes": "RSI",
+            "Meteor": "RSI",
+            "Salvation": "RSI",
+        }
+        for name, manufacturer in expected.items():
+            with self.subTest(vehicle=name):
+                row = next(row for row in self.repo.search_vehicles(search=name) if row["name"] == name)
+                self.assertEqual(row["manufacturer"], manufacturer)
+
+        rsi_rows = self.repo.search_vehicles(manufacturer="RSI")
+        self.assertGreaterEqual(len(rsi_rows), 20)
+        self.assertTrue(all(row["manufacturer"] == "RSI" for row in rsi_rows))
+
     def test_price_format(self) -> None:
         self.assertEqual(format_price(1290366), "1 290 366 aUEC")
         self.assertEqual(format_price(None), "—")
@@ -157,7 +191,7 @@ class UserStoreTests(unittest.TestCase):
             self.assertEqual(store.get_json_setting("filters:test", {})["planet"], "ArcCorp")
 
     def test_brand_links_version_and_assets(self) -> None:
-        self.assertEqual(APP_VERSION, "1.3.3")
+        self.assertEqual(APP_VERSION, "1.3.4")
         self.assertEqual(
             APP_UPDATE_MANIFEST_URL,
             "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/UPDATE_MANIFEST.json",

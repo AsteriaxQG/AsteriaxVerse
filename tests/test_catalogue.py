@@ -191,7 +191,7 @@ class UserStoreTests(unittest.TestCase):
             self.assertEqual(store.get_json_setting("filters:test", {})["planet"], "ArcCorp")
 
     def test_brand_links_version_and_assets(self) -> None:
-        self.assertEqual(APP_VERSION, "1.3.5")
+        self.assertEqual(APP_VERSION, "1.3.6")
         self.assertEqual(
             APP_UPDATE_MANIFEST_URL,
             "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/UPDATE_MANIFEST.json",
@@ -226,9 +226,14 @@ class UserStoreTests(unittest.TestCase):
 
     def test_update_check_has_visible_feedback_and_timeout(self) -> None:
         source = (ROOT / "ui" / "advanced_pages.py").read_text(encoding="utf-8")
+        app_source = (ROOT / "ui" / "app.py").read_text(encoding="utf-8")
         self.assertIn("self.update_idletasks()", source)
         self.assertIn("_app_check_timed_out", source)
         self.assertIn("Vérification de la version Asteriax Verse", source)
+        self.assertIn("Étape 3/4", source)
+        self.assertIn("Voir les nouveautés", source)
+        self.assertIn("Étape 4/4", app_source)
+        self.assertIn("consume_update_result()", app_source)
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ import threading
 import tkinter as tk
 import webbrowser
 from datetime import datetime
+from tkinter import messagebox
 from typing import Any, Callable
 
 import customtkinter as ctk
@@ -17,6 +18,7 @@ from PIL import Image
 from core.constants import (
     APP_AUTHOR,
     APP_NAME,
+    APP_RELEASE_NOTES,
     APP_VERSION,
     CATEGORY_TRANSLATIONS,
     COLORS,
@@ -46,7 +48,7 @@ from core.database import (
 )
 from core.paths import data_database_path, resource_path, user_database_path
 from core.sync import fetch_json, sync_database
-from core.updater import check_app_update as fetch_app_update
+from core.updater import check_app_update as fetch_app_update, consume_update_result
 from ui.advanced_pages import (
     ComparePage,
     GlobalSearchDialog,
@@ -1551,6 +1553,26 @@ class AsteriaxApp(ctk.CTk):
             self.after(180, self._show_splash)
         if self.user_store.setting_bool("check_patch_startup", True):
             self.after(1200, lambda: self.check_game_update(self._startup_patch_result))
+        self.after(1500, self._announce_completed_app_update)
+
+    def _announce_completed_app_update(self) -> None:
+        result = consume_update_result()
+        if not result:
+            return
+        installed_at = result.get("installed_at") or datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.user_store.set_setting("last_app_update_version", APP_VERSION)
+        self.user_store.set_setting("last_app_update_at", installed_at)
+        self.show_notice(
+            f"Étape 4/4 · Mise à jour {APP_VERSION} installée avec succès.",
+            COLORS["success"],
+            9000,
+        )
+        messagebox.showinfo(
+            "Mise à jour terminée",
+            f"Asteriax Verse {APP_VERSION} a été installé et redémarré avec succès.\n\n"
+            + "\n".join(f"• {line}" for line in APP_RELEASE_NOTES),
+            parent=self,
+        )
 
     def _load_images(self) -> None:
         self.logo_mark: ctk.CTkImage | None = None

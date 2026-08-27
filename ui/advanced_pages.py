@@ -6,6 +6,7 @@ import json
 import threading
 import tkinter as tk
 import webbrowser
+from datetime import datetime
 from tkinter import messagebox
 from typing import Any
 
@@ -14,6 +15,7 @@ import customtkinter as ctk
 from core.constants import (
     APP_AUTHOR,
     APP_NAME,
+    APP_RELEASE_NOTES,
     APP_VERSION,
     COLORS,
     DISCORD_URL,
@@ -1188,8 +1190,26 @@ class UpdatesPage(AdvancedPage):
             anchor="w",
         )
         self.app_status.grid(row=2, column=1, padx=(0, 15), pady=(4, 18), sticky="ew")
+        self.app_meta = ctk.CTkLabel(
+            software,
+            text=self._app_meta_text(),
+            font=("Segoe UI", 9),
+            text_color=COLORS["muted_2"],
+            anchor="w",
+        )
+        self.app_meta.grid(row=3, column=1, padx=(0, 15), pady=(0, 10), sticky="ew")
+        self.app_progress = ctk.CTkProgressBar(
+            software,
+            height=7,
+            corner_radius=4,
+            progress_color=COLORS["accent"],
+            fg_color=COLORS["border"],
+        )
+        self.app_progress.set(0)
+        self.app_progress.grid(row=4, column=1, padx=(0, 15), pady=(0, 18), sticky="ew")
+        self.app_progress.grid_remove()
         app_actions = ctk.CTkFrame(software, fg_color="transparent")
-        app_actions.grid(row=0, column=2, rowspan=4, padx=18, pady=18)
+        app_actions.grid(row=0, column=2, rowspan=5, padx=18, pady=18)
         self.check_app_button = ctk.CTkButton(
             app_actions,
             text="Vérifier maintenant",
@@ -1215,6 +1235,19 @@ class UpdatesPage(AdvancedPage):
             text_color=COLORS["background"],
         )
         self.install_app_button.pack()
+        self.release_notes_button = ctk.CTkButton(
+            app_actions,
+            text="Voir les nouveautés",
+            command=self.show_release_notes,
+            width=175,
+            height=34,
+            fg_color="transparent",
+            hover_color=COLORS["panel_hover"],
+            border_width=1,
+            border_color=COLORS["border"],
+            text_color=COLORS["muted"],
+        )
+        self.release_notes_button.pack(pady=(7, 0))
 
         game = ctk.CTkFrame(
             scroll,
@@ -1357,6 +1390,26 @@ class UpdatesPage(AdvancedPage):
         except Exception:
             version = "—"
         self.game_version_label.configure(text=f"Version locale : {version} LIVE")
+        self.app_meta.configure(text=self._app_meta_text())
+
+    def _app_meta_text(self) -> str:
+        last_check = self.app.user_store.get_setting("last_app_update_check", "jamais")
+        last_version = self.app.user_store.get_setting("last_app_update_version", "—")
+        last_install = self.app.user_store.get_setting("last_app_update_at", "jamais")
+        return (
+            f"Installée : v{APP_VERSION}  ·  Dernière vérification : {last_check}  ·  "
+            f"Dernière installation : v{last_version} ({last_install})"
+        )
+
+    def show_release_notes(self) -> None:
+        remote_version = str(self.app_update_info.get("latest_version") or APP_VERSION)
+        remote_notes = str(self.app_update_info.get("release_notes") or "").strip()
+        notes = remote_notes or "\n".join(f"• {line}" for line in APP_RELEASE_NOTES)
+        messagebox.showinfo(
+            f"Nouveautés Asteriax Verse {remote_version}",
+            notes,
+            parent=self,
+        )
 
     def check_game(self) -> None:
         self.check_game_button.configure(state="disabled", text="Vérification…")
@@ -1436,6 +1489,9 @@ class UpdatesPage(AdvancedPage):
                 pass
         self._app_check_timeout_id = None
         self.check_app_button.configure(state="normal", text="Vérifier maintenant")
+        checked_at = datetime.now().strftime("%d/%m/%Y à %H:%M")
+        self.app.user_store.set_setting("last_app_update_check", checked_at)
+        self.app_meta.configure(text=self._app_meta_text())
         if error:
             self.app_status.configure(text=f"Vérification impossible : {error}", text_color=COLORS["danger"])
             return
@@ -1494,7 +1550,12 @@ class UpdatesPage(AdvancedPage):
         self._app_installing = True
         self.check_app_button.configure(state="disabled")
         self.install_app_button.configure(state="disabled", text="Téléchargement… 0 %")
-        self.app_status.configure(text="Téléchargement sécurisé depuis GitHub…", text_color=COLORS["accent"])
+        self.app_status.configure(
+            text="Étape 1/4 · Téléchargement sécurisé depuis GitHub…",
+            text_color=COLORS["accent"],
+        )
+        self.app_progress.set(0)
+        self.app_progress.grid()
 
         def progress(fraction: float, message: str) -> None:
             percentage = max(0, min(100, round(float(fraction) * 100)))
@@ -1502,13 +1563,21 @@ class UpdatesPage(AdvancedPage):
                 0,
                 lambda p=percentage, m=message: (
                     self.install_app_button.configure(text=f"Téléchargement… {p} %"),
-                    self.app_status.configure(text=m, text_color=COLORS["accent"]),
+                    self.app_progress.set(min(0.68, float(p) / 100 * 0.68)),
+                    self.app_status.configure(text=f"Étape 1/4 · {m}", text_color=COLORS["accent"]),
                 ),
             )
 
         def worker() -> None:
             try:
                 package = download_app_update(self.app_update_info, progress)
+                self.after(
+                    0,
+                    lambda: self._set_app_install_phase(
+                        0.78,
+                        "Étape 2/4 · Fichier téléchargé et vérifié par SHA-256.",
+                    ),
+                )
                 launch_app_update(package, self.app_update_info)
                 self.after(0, self._app_update_ready)
             except Exception as exc:
@@ -1516,12 +1585,17 @@ class UpdatesPage(AdvancedPage):
 
         threading.Thread(target=worker, name="asteriax-self-update", daemon=True).start()
 
+    def _set_app_install_phase(self, fraction: float, message: str) -> None:
+        self.app_progress.set(max(0.0, min(1.0, fraction)))
+        self.app_status.configure(text=message, text_color=COLORS["accent"])
+
     def _app_update_ready(self) -> None:
         latest = str(self.app_update_info.get("latest_version") or "")
         self.app_status.configure(
-            text=f"Asteriax Verse {latest} est vérifié. Redémarrage automatique…",
+            text=f"Étape 3/4 · Asteriax Verse {latest} est installé. Redémarrage automatique…",
             text_color=COLORS["success"],
         )
+        self.app_progress.set(0.94)
         self.install_app_button.configure(text="Redémarrage…", state="disabled")
         self.app.show_notice("Mise à jour vérifiée · redémarrage en cours", COLORS["success"], 5000)
         self.app.after(700, self.app.destroy)
@@ -1532,6 +1606,7 @@ class UpdatesPage(AdvancedPage):
         self.check_app_button.configure(state="normal", text="Réessayer la vérification")
         self.install_app_button.configure(state="normal", text=f"Réessayer {latest}")
         self.app_status.configure(text=f"Mise à jour impossible : {error}", text_color=COLORS["danger"])
+        self.app_progress.grid_remove()
 
 
 class SettingsPage(AdvancedPage):

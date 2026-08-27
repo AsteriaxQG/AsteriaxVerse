@@ -1,5 +1,13 @@
 # Historique
 
+## 1.3.6 — 27 août 2026
+
+- progression de l’installation présentée en quatre étapes clairement identifiées ;
+- création d’un marqueur de réussite par le nouvel EXE avant le redémarrage ;
+- confirmation unique « mise à jour installée avec succès » après la relance ;
+- affichage de la dernière vérification et de la dernière installation ;
+- bouton **Voir les nouveautés** directement dans l’onglet **Mises à jour**.
+
 ## 1.3.5 — 27 août 2026
 
 - suppression complète du script PowerShell bloqué sur certaines configurations Windows ;

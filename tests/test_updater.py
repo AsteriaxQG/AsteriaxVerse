@@ -13,6 +13,7 @@ from core.updater import (
     APPLY_UPDATE_FLAG,
     apply_downloaded_update,
     check_app_update,
+    consume_update_result,
     download_app_update,
     launch_app_update,
     run_update_bootstrap,
@@ -47,7 +48,7 @@ class UpdaterTests(unittest.TestCase):
         self.assertGreater(version_key("v1.3.10"), version_key("1.3.9"))
 
     def test_manifest_requires_integrity_data_for_new_release(self) -> None:
-        payload = json.dumps({"version": "1.3.6", "download_url": OFFICIAL_EXE_URL}).encode()
+        payload = json.dumps({"version": "1.3.7", "download_url": OFFICIAL_EXE_URL}).encode()
         with patch("core.updater.urllib.request.urlopen", return_value=FakeResponse(payload, "https://example.test/manifest.json")):
             with self.assertRaisesRegex(ValueError, "SHA-256"):
                 check_app_update("https://example.test/manifest.json")
@@ -56,7 +57,7 @@ class UpdaterTests(unittest.TestCase):
         checksum = "a" * 64
         payload = json.dumps(
             {
-                "version": "1.3.6",
+                "version": "1.3.7",
                 "download_url": OFFICIAL_EXE_URL,
                 "sha256": checksum,
                 "size": 12345,
@@ -148,6 +149,11 @@ class UpdaterTests(unittest.TestCase):
             self.assertFalse(target.with_name(target.name + ".old").exists())
             popen.assert_called_once()
             self.assertIn("Version installée et relancée", log.read_text(encoding="utf-8"))
+            result_path = root / "update_result.json"
+            result = consume_update_result(result_path)
+            self.assertIsNotNone(result)
+            self.assertEqual(result["version"], "1.3.6")
+            self.assertFalse(result_path.exists())
 
     def test_launcher_starts_downloaded_exe_without_powershell(self) -> None:
         payload = b"MZintegrated-updater" * 128
@@ -197,6 +203,7 @@ class UpdaterTests(unittest.TestCase):
             self.assertEqual(result, 1)
             self.assertEqual(target.read_bytes(), old_payload)
             self.assertIn("Ancienne version restaurée", log.read_text(encoding="utf-8"))
+            self.assertFalse((root / "update_result.json").exists())
 
 
 if __name__ == "__main__":

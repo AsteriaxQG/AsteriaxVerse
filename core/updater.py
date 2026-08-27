@@ -23,6 +23,7 @@ from .paths import user_data_dir
 MAX_UPDATE_BYTES = 250 * 1024 * 1024
 OFFICIAL_DOWNLOAD_HOSTS = {"github.com", "raw.githubusercontent.com"}
 APPLY_UPDATE_FLAG = "--asteriax-apply-update"
+UPDATE_RESULT_FILENAME = "update_result.json"
 ProgressCallback = Callable[[float, str], None]
 
 
@@ -222,6 +223,40 @@ def _append_update_log(log_path: Path, message: str) -> None:
         stream.write(f"[{timestamp}] {message}\n")
 
 
+def _write_update_result(log_path: Path, checksum: str) -> Path:
+    result_path = log_path.parent / UPDATE_RESULT_FILENAME
+    temporary = result_path.with_suffix(".json.tmp")
+    payload = {
+        "version": APP_VERSION,
+        "installed_at": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+        "sha256": checksum,
+    }
+    temporary.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    os.replace(temporary, result_path)
+    return result_path
+
+
+def consume_update_result(result_path: Path | None = None) -> dict[str, str] | None:
+    """Return and remove the success marker created by the integrated updater."""
+
+    path = Path(result_path) if result_path is not None else user_data_dir() / "updates" / UPDATE_RESULT_FILENAME
+    if not path.is_file():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(payload, dict) or str(payload.get("version") or "") != APP_VERSION:
+            return None
+        return {
+            "version": APP_VERSION,
+            "installed_at": str(payload.get("installed_at") or ""),
+            "sha256": str(payload.get("sha256") or ""),
+        }
+    except (OSError, ValueError, json.JSONDecodeError):
+        return None
+    finally:
+        path.unlink(missing_ok=True)
+
+
 def _process_exists(process_id: int) -> bool:
     if process_id <= 0:
         return False
@@ -293,12 +328,17 @@ def apply_downloaded_update(
     creation_flags = getattr(subprocess, "DETACHED_PROCESS", 0) | getattr(
         subprocess, "CREATE_NEW_PROCESS_GROUP", 0
     )
-    process = subprocess.Popen(
-        [str(target)],
-        cwd=str(target.parent),
-        close_fds=True,
-        creationflags=creation_flags,
-    )
+    result_path = _write_update_result(log_path, expected_hash)
+    try:
+        process = subprocess.Popen(
+            [str(target)],
+            cwd=str(target.parent),
+            close_fds=True,
+            creationflags=creation_flags,
+        )
+    except OSError:
+        result_path.unlink(missing_ok=True)
+        raise
     _append_update_log(log_path, f"Version installée et relancée (PID {process.pid}).")
     backup.unlink(missing_ok=True)
     return target
@@ -333,8 +373,10 @@ def run_update_bootstrap(arguments: list[str] | None = None) -> int | None:
         _append_update_log(log_path, f"ÉCHEC : {type(exc).__name__}: {exc}")
         backup = target.with_name(target.name + ".old")
         stage = target.with_name(target.name + ".new")
+        result_path = log_path.parent / UPDATE_RESULT_FILENAME
         try:
             stage.unlink(missing_ok=True)
+            result_path.unlink(missing_ok=True)
             if backup.exists():
                 os.replace(backup, target)
                 _append_update_log(log_path, "Ancienne version restaurée.")

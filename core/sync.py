@@ -224,6 +224,10 @@ def _create_schema(connection: sqlite3.Connection) -> None:
         CREATE INDEX idx_vehicle_offers_vehicle ON vehicle_offers(vehicle_id, price_buy);
         CREATE INDEX idx_vehicle_offers_terminal ON vehicle_offers(terminal_id);
         CREATE INDEX idx_terminals_location ON terminals(star_system, planet, city);
+        CREATE INDEX idx_items_filters ON items(section, category, manufacturer, size);
+        CREATE INDEX idx_item_offers_price ON item_offers(price_buy, item_id, terminal_id);
+        CREATE INDEX idx_vehicle_offers_price ON vehicle_offers(price_buy, vehicle_id, terminal_id);
+        CREATE INDEX idx_terminals_live_location ON terminals(is_available_live, star_system, planet);
 
         PRAGMA user_version = 1;
         """

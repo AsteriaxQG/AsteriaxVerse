@@ -138,6 +138,8 @@ class TreeTable(ctk.CTkFrame):
         *,
         on_select: Callable[[str], None] | None = None,
         on_double_click: Callable[[str], None] | None = None,
+        on_sort: Callable[[int, bool], None] | None = None,
+        page_size: int | None = None,
     ):
         super().__init__(
             master,
@@ -152,6 +154,9 @@ class TreeTable(ctk.CTkFrame):
         self._rows: list[tuple[str, tuple[Any, ...], bool]] = []
         self._sort_column: int | None = None
         self._sort_reverse = False
+        self._on_sort = on_sort
+        self._page_size = max(25, int(page_size)) if page_size else None
+        self._page_index = 0
         ids = [column[0] for column in columns]
         self.tree = ttk.Treeview(
             self,
@@ -184,6 +189,46 @@ class TreeTable(ctk.CTkFrame):
         )
         self.tree.configure(xscrollcommand=horizontal.set)
         horizontal.grid(row=1, column=0, padx=8, pady=(0, 7), sticky="ew")
+        self.page_bar = ctk.CTkFrame(self, fg_color="transparent")
+        self.page_bar.grid(row=2, column=0, columnspan=2, padx=8, pady=(0, 8), sticky="ew")
+        self.page_bar.grid_columnconfigure(1, weight=1)
+        self.previous_page_button = ctk.CTkButton(
+            self.page_bar,
+            text="‹  Précédent",
+            command=lambda: self.change_page(-1),
+            width=105,
+            height=28,
+            fg_color=COLORS["panel_alt"],
+            hover_color=COLORS["panel_hover"],
+            border_width=1,
+            border_color=COLORS["border"],
+            text_color=COLORS["muted"],
+            font=("Segoe UI Semibold", 8),
+        )
+        self.previous_page_button.grid(row=0, column=0)
+        self.page_label = ctk.CTkLabel(
+            self.page_bar,
+            text="",
+            font=("Segoe UI Semibold", 8),
+            text_color=COLORS["muted"],
+        )
+        self.page_label.grid(row=0, column=1, padx=10)
+        self.next_page_button = ctk.CTkButton(
+            self.page_bar,
+            text="Suivant  ›",
+            command=lambda: self.change_page(1),
+            width=105,
+            height=28,
+            fg_color=COLORS["panel_alt"],
+            hover_color=COLORS["panel_hover"],
+            border_width=1,
+            border_color=COLORS["border"],
+            text_color=COLORS["muted"],
+            font=("Segoe UI Semibold", 8),
+        )
+        self.next_page_button.grid(row=0, column=2)
+        if self._page_size is None:
+            self.page_bar.grid_remove()
         self.tree.tag_configure("odd", background=COLORS["panel_alt"])
         self.tree.tag_configure("favourite", foreground=COLORS["warning"])
         if on_select:
@@ -208,8 +253,18 @@ class TreeTable(ctk.CTkFrame):
         if children:
             self.tree.delete(*children)
 
-    def populate(self, rows: Iterable[tuple[str, tuple[Any, ...], bool]]) -> None:
+    def populate(
+        self,
+        rows: Iterable[tuple[str, tuple[Any, ...], bool]],
+        *,
+        keep_page: bool = False,
+    ) -> None:
         self._rows = list(rows)
+        if self._sort_column is not None:
+            self._sort_rows()
+        if not keep_page:
+            self._page_index = 0
+        self._clamp_page()
         self._render_rows()
 
     @staticmethod
@@ -241,12 +296,26 @@ class TreeTable(ctk.CTkFrame):
             self._sort_column = column_index
             self._sort_reverse = False
         selected = self.selected_id()
+        self._sort_rows()
+        self._page_index = 0
+        self._update_headings()
+        self._render_rows()
+        if selected:
+            self.select(selected)
+        if self._on_sort:
+            self._on_sort(self._sort_column, self._sort_reverse)
+
+    def _sort_rows(self) -> None:
+        if self._sort_column is None:
+            return
         self._rows.sort(
             key=lambda row: self._natural_sort_key(
-                row[1][column_index] if column_index < len(row[1]) else None
+                row[1][self._sort_column] if self._sort_column < len(row[1]) else None
             ),
             reverse=self._sort_reverse,
         )
+
+    def _update_headings(self) -> None:
         for index, (column_id, heading, _width, _anchor) in enumerate(self._columns):
             marker = ""
             if index == self._sort_column:
@@ -256,21 +325,75 @@ class TreeTable(ctk.CTkFrame):
                 text=heading + marker,
                 command=lambda position=index: self.sort_by(position),
             )
+
+    def restore_sort(self, column_index: int | None, reverse: bool = False) -> None:
+        if column_index is None or not 0 <= int(column_index) < len(self._columns):
+            return
+        self._sort_column = int(column_index)
+        self._sort_reverse = bool(reverse)
+        self._sort_rows()
+        self._update_headings()
         self._render_rows()
-        if selected:
-            self.select(selected)
+
+    def sort_state(self) -> tuple[int | None, bool]:
+        return self._sort_column, self._sort_reverse
+
+    def _page_count(self) -> int:
+        if self._page_size is None or not self._rows:
+            return 1
+        return max(1, (len(self._rows) + self._page_size - 1) // self._page_size)
+
+    def _clamp_page(self) -> None:
+        self._page_index = max(0, min(self._page_index, self._page_count() - 1))
+
+    def change_page(self, delta: int) -> None:
+        target = self._page_index + int(delta)
+        if 0 <= target < self._page_count():
+            self._page_index = target
+            self._render_rows()
+
+    def _visible_rows(self) -> list[tuple[str, tuple[Any, ...], bool]]:
+        if self._page_size is None:
+            return self._rows
+        start = self._page_index * self._page_size
+        return self._rows[start : start + self._page_size]
+
+    def _update_pager(self) -> None:
+        if self._page_size is None:
+            return
+        total = len(self._rows)
+        start = self._page_index * self._page_size
+        end = min(total, start + self._page_size)
+        if total:
+            label = f"{start + 1:,}–{end:,} sur {total:,}".replace(",", " ")
+        else:
+            label = "Aucun résultat"
+        self.page_label.configure(text=label)
+        self.previous_page_button.configure(state="normal" if self._page_index > 0 else "disabled")
+        self.next_page_button.configure(
+            state="normal" if self._page_index + 1 < self._page_count() else "disabled"
+        )
 
     def _render_rows(self) -> None:
         self.clear()
-        for index, (iid, values, favourite) in enumerate(self._rows):
+        visible = self._visible_rows()
+        first_index = self._page_index * (self._page_size or len(self._rows) or 1)
+        for index, (iid, values, favourite) in enumerate(visible, start=first_index):
             tags = []
             if index % 2:
                 tags.append("odd")
             if favourite:
                 tags.append("favourite")
             self.tree.insert("", "end", iid=iid, values=values, tags=tuple(tags))
+        self._update_pager()
 
     def select(self, iid: str) -> None:
+        if not self.tree.exists(iid) and self._page_size is not None:
+            for index, (row_id, _values, _favourite) in enumerate(self._rows):
+                if row_id == iid:
+                    self._page_index = index // self._page_size
+                    self._render_rows()
+                    break
         if self.tree.exists(iid):
             self.tree.selection_set(iid)
             self.tree.focus(iid)

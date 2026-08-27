@@ -1,4 +1,4 @@
-# Rapport de validation — Asteriax Verse 1.3.6
+# Rapport de validation — Asteriax Verse 1.4.0
 
 Contrôle effectué le **26 août 2026** sur l'instantané livré.
 
@@ -59,6 +59,8 @@ Au moment de la construction, UEX annonçait déjà la version 4.10.0 mais ne pu
 ## Tests automatiques
 
 Les tests contrôlent l'intégrité de la base, la version, la couverture minimale, la résolution de chaque offre, les familles essentielles, la présence des chargeurs, les 184 véhicules, les cinq ajouts 4.10, les boutiques, la recherche globale, les itinéraires, les ressources graphiques, la compatibilité stricte des lanceurs Windows et la sécurité du mécanisme de mise à jour intégré.
+
+La version 1.4.0 ajoute des contrôles dédiés à la création des index de performance, à l’isolation du cache de requêtes, à la pagination des trois grands catalogues, aux recherches en arrière-plan, au mode performances et à l’adaptation responsive de l’interface.
 
 ## Limite connue
 

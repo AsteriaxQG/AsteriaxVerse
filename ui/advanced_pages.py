@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import queue
 import threading
 import tkinter as tk
 import webbrowser
@@ -202,6 +203,8 @@ class LocationsPage(AdvancedPage):
         super().__init__(master, app)
         self._loaded = False
         self._debounce: str | None = None
+        self._query_generation = 0
+        self._saved_filter_state: dict[str, Any] = {}
         self.rows: dict[int, dict[str, Any]] = {}
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
@@ -232,6 +235,12 @@ class LocationsPage(AdvancedPage):
         self.result_label.grid(row=0, column=1, padx=8)
         self.system_var = tk.StringVar(value="Tous")
         self.planet_var = tk.StringVar(value="Toutes")
+        saved = self.app.user_store.get_json_setting("filters:locations", {})
+        if isinstance(saved, dict):
+            self._saved_filter_state = saved
+            self.search_var.set(str(saved.get("search") or ""))
+            self.system_var.set(str(saved.get("system") or "Tous"))
+            self.planet_var.set(str(saved.get("planet") or "Toutes"))
         self.system_wrap = ctk.CTkFrame(panel, fg_color="transparent")
         self.system_wrap.grid(row=0, column=2, padx=5, pady=8)
         self.planet_wrap = ctk.CTkFrame(panel, fg_color="transparent")
@@ -252,8 +261,13 @@ class LocationsPage(AdvancedPage):
                 ("ships", "VAISSEAUX", 85, "center"),
             ],
             on_select=self._show_detail,
+            on_sort=lambda _column, _reverse: self._save_filters(),
+            page_size=self.app.catalog_page_size,
         )
         self.table.grid(row=0, column=0, padx=(0, 10), sticky="nsew")
+        sort_column = self._saved_filter_state.get("sort_column")
+        if isinstance(sort_column, int):
+            self.table.restore_sort(sort_column, bool(self._saved_filter_state.get("sort_reverse")))
         self.detail = ctk.CTkScrollableFrame(
             content,
             fg_color=COLORS["panel"],
@@ -268,7 +282,8 @@ class LocationsPage(AdvancedPage):
     def _schedule_refresh(self, _event: Any = None) -> None:
         if self._debounce:
             self.after_cancel(self._debounce)
-        self._debounce = self.after(220, self.refresh_data)
+        delay = 340 if self.app.performance_mode else 220
+        self._debounce = self.after(delay, self.refresh_data)
 
     def _build_filters(self) -> None:
         for wrap in (self.system_wrap, self.planet_wrap):
@@ -294,23 +309,61 @@ class LocationsPage(AdvancedPage):
 
     def on_show(self) -> None:
         if not self._loaded:
-            saved = self.app.user_store.get_json_setting("filters:locations", {})
-            if isinstance(saved, dict):
-                self.search_var.set(str(saved.get("search") or ""))
-                self.system_var.set(str(saved.get("system") or "Tous"))
-                self.planet_var.set(str(saved.get("planet") or "Toutes"))
             self._build_filters()
             self._loaded = True
         self.refresh_data()
 
     def refresh_data(self, select_id: int | None = None) -> None:
+        self._debounce = None
         if not self._loaded:
             return
-        rows = self.app.repo.search_terminals(
-            search=self.search_var.get(),
-            star_system="" if self.system_var.get() == "Tous" else self.system_var.get(),
-            planet="" if self.planet_var.get() == "Toutes" else self.planet_var.get(),
-        )
+        query = {
+            "search": self.search_var.get(),
+            "star_system": "" if self.system_var.get() == "Tous" else self.system_var.get(),
+            "planet": "" if self.planet_var.get() == "Toutes" else self.planet_var.get(),
+        }
+        self._query_generation += 1
+        generation = self._query_generation
+        selected_before = select_id
+        if selected_before is None:
+            current = self.table.selected_id()
+            selected_before = int(current) if current.isdigit() else None
+        self.result_label.configure(text="Chargement…")
+        self._save_filters()
+        results: queue.SimpleQueue[tuple[list[dict[str, Any]] | None, Exception | None]] = queue.SimpleQueue()
+
+        def worker() -> None:
+            try:
+                results.put((self.app.repo.search_terminals(**query), None))
+            except Exception as exc:
+                results.put((None, exc))
+
+        def poll() -> None:
+            if generation != self._query_generation or not self.winfo_exists():
+                return
+            try:
+                rows, error = results.get_nowait()
+            except queue.Empty:
+                self.after(35, poll)
+                return
+            self._apply_location_results(rows or [], error, generation, selected_before)
+
+        threading.Thread(target=worker, name="asteriax-locations", daemon=True).start()
+        self.after(35, poll)
+
+    def _apply_location_results(
+        self,
+        rows: list[dict[str, Any]],
+        error: Exception | None,
+        generation: int,
+        select_id: int | None,
+    ) -> None:
+        if generation != self._query_generation:
+            return
+        if error:
+            self.result_label.configure(text="Erreur")
+            self.app.show_notice(f"Recherche impossible : {error}", COLORS["danger"])
+            return
         self.rows = {int(row["id"]): row for row in rows}
         self.table.populate(
             (
@@ -327,15 +380,28 @@ class LocationsPage(AdvancedPage):
             for row in rows
         )
         self.result_label.configure(text=f"{len(rows)} lieux")
-        self.app.user_store.set_json_setting(
-            "filters:locations",
-            {"search": self.search_var.get(), "system": self.system_var.get(), "planet": self.planet_var.get()},
-        )
-        target = select_id if select_id in self.rows else (int(rows[0]["id"]) if rows else None)
+        target = select_id if select_id in self.rows else None
+        if target is None and rows and not self.app.performance_mode:
+            target = int(rows[0]["id"])
         if target is not None:
             self.table.select(str(target))
+        elif rows:
+            self._empty_detail("Sélectionnez une boutique", "Les lieux sont chargés par blocs pour garder l’interface fluide.")
         else:
             self._empty_detail("Aucune boutique", "Modifiez la recherche ou les filtres.")
+
+    def _save_filters(self) -> None:
+        sort_column, sort_reverse = self.table.sort_state() if hasattr(self, "table") else (None, False)
+        self.app.user_store.set_json_setting(
+            "filters:locations",
+            {
+                "search": self.search_var.get(),
+                "system": self.system_var.get(),
+                "planet": self.planet_var.get(),
+                "sort_column": sort_column,
+                "sort_reverse": sort_reverse,
+            },
+        )
 
     def open_entity(self, terminal_id: int) -> None:
         if not self._loaded:
@@ -1668,11 +1734,18 @@ class SettingsPage(AdvancedPage):
         self.auto_sync_var = tk.BooleanVar(value=app.user_store.setting_bool("auto_sync_patch", False))
         self.remember_var = tk.BooleanVar(value=app.user_store.setting_bool("remember_state", True))
         self.splash_var = tk.BooleanVar(value=app.user_store.setting_bool("show_splash", True))
+        self.performance_var = tk.BooleanVar(value=app.user_store.setting_bool("performance_mode", False))
         settings = [
             ("Vérifier les nouveaux patchs au démarrage", "Alerte lorsqu’une version LIVE plus récente est détectée.", "check_patch_startup", self.patch_var),
             ("Mettre les données à jour après un nouveau patch", "La synchronisation démarre en arrière-plan et l’ancienne base reste utilisable.", "auto_sync_patch", self.auto_sync_var),
             ("Mémoriser la page, la fenêtre et les filtres", "Retrouvez votre espace de travail au prochain lancement.", "remember_state", self.remember_var),
             ("Afficher l’écran de lancement AsteriaxTTV", "Affiche brièvement le logo lors de l’ouverture du logiciel.", "show_splash", self.splash_var),
+            (
+                "Mode performances",
+                "Charge 100 lignes à la fois, évite la sélection automatique et désactive l’écran de lancement.",
+                "performance_mode",
+                self.performance_var,
+            ),
         ]
         for index, (title, caption, key, variable) in enumerate(settings):
             card = ctk.CTkFrame(
@@ -1694,13 +1767,13 @@ class SettingsPage(AdvancedPage):
                 card,
                 text="",
                 variable=variable,
-                command=lambda k=key, v=variable: app.user_store.set_setting(k, "1" if v.get() else "0"),
+                command=lambda k=key, v=variable: self._save_boolean_setting(k, v),
                 progress_color=COLORS["accent"],
                 button_color=COLORS["text"],
             ).grid(row=0, column=1, rowspan=2, padx=15)
 
         utility = ctk.CTkFrame(self.scroll, fg_color="transparent")
-        utility.grid(row=4, column=0, columnspan=2, pady=(3, 20), sticky="ew")
+        utility.grid(row=5, column=0, columnspan=2, pady=(3, 20), sticky="ew")
         utility.grid_columnconfigure((0, 1), weight=1)
         ctk.CTkButton(
             utility,
@@ -1724,6 +1797,11 @@ class SettingsPage(AdvancedPage):
             hover_color=COLORS["panel_hover"],
             text_color=COLORS["muted"],
         ).grid(row=0, column=1, padx=(5, 0), sticky="ew")
+
+    def _save_boolean_setting(self, key: str, variable: tk.BooleanVar) -> None:
+        self.app.user_store.set_setting(key, "1" if variable.get() else "0")
+        if key == "performance_mode":
+            self.app.show_notice("Le mode performances sera appliqué au prochain démarrage.", COLORS["accent"], 5500)
 
     def reset_filters(self) -> None:
         for key in ("filters:locations", "filters:ships", "filters:ship_gear", "filters:personal_gear", "filters:all"):

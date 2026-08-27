@@ -42,6 +42,7 @@ from core.constants import (
 from core.database import (
     DataRepository,
     UserStore,
+    ensure_performance_indexes,
     format_price,
     format_timestamp,
     location_label,
@@ -326,6 +327,8 @@ class CatalogPage(BasePage):
         self.rows_by_id: dict[int, dict[str, Any]] = {}
         self._loaded = False
         self._debounce_id: str | None = None
+        self._query_generation = 0
+        self._saved_filter_state: dict[str, Any] = {}
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
@@ -394,6 +397,7 @@ class CatalogPage(BasePage):
         self.planet_var = tk.StringVar(value="Toutes")
         saved = self.app.user_store.get_json_setting(f"filters:{self.scope_key}", {})
         if isinstance(saved, dict):
+            self._saved_filter_state = saved
             self.search_var.set(str(saved.get("search") or ""))
             self.section_var.set(str(saved.get("section") or "Toutes"))
             self.category_var.set(str(saved.get("category") or "Toutes"))
@@ -452,8 +456,13 @@ class CatalogPage(BasePage):
                 ("location", "LIEU", 150, "w"),
             ],
             on_select=self._on_select,
+            on_sort=lambda _column, _reverse: self._save_filters(),
+            page_size=self.app.catalog_page_size,
         )
         self.table.grid(row=0, column=0, padx=(0, 10), sticky="nsew")
+        sort_column = self._saved_filter_state.get("sort_column")
+        if isinstance(sort_column, int):
+            self.table.restore_sort(sort_column, bool(self._saved_filter_state.get("sort_reverse")))
         self.detail = ctk.CTkScrollableFrame(
             content,
             fg_color=COLORS["panel"],
@@ -470,9 +479,10 @@ class CatalogPage(BasePage):
     def _schedule_refresh(self, _event: Any = None) -> None:
         if self._debounce_id:
             self.after_cancel(self._debounce_id)
-        self._debounce_id = self.after(260, self.refresh_results)
+        delay = 340 if self.app.performance_mode else 240
+        self._debounce_id = self.after(delay, self.refresh_results)
 
-    def reset_filters(self) -> None:
+    def reset_filters(self, *, refresh: bool = True) -> None:
         self.search_var.set("")
         self.section_var.set("Toutes")
         self.category_var.set("Toutes")
@@ -480,7 +490,8 @@ class CatalogPage(BasePage):
         self.size_var.set("Toutes")
         self.system_var.set("Tous")
         self.planet_var.set("Toutes")
-        self.refresh_results()
+        if refresh:
+            self.refresh_results()
 
     def _render_filter_chips(self) -> None:
         for child in self.chip_row.winfo_children():
@@ -524,6 +535,7 @@ class CatalogPage(BasePage):
             ).pack(side="left", padx=(0, 5))
 
     def _save_filters(self) -> None:
+        sort_column, sort_reverse = self.table.sort_state() if hasattr(self, "table") else (None, False)
         self.app.user_store.set_json_setting(
             f"filters:{self.scope_key}",
             {
@@ -534,6 +546,8 @@ class CatalogPage(BasePage):
                 "size": self.size_var.get(),
                 "system": self.system_var.get(),
                 "planet": self.planet_var.get(),
+                "sort_column": sort_column,
+                "sort_reverse": sort_reverse,
             },
         )
 
@@ -549,19 +563,63 @@ class CatalogPage(BasePage):
             self.on_show()
 
     def refresh_results(self, select_id: int | None = None) -> None:
+        self._debounce_id = None
         section_value = self.section_map.get(self.section_var.get(), "") if hasattr(self, "section_map") else ""
         category_value = self.category_map.get(self.category_var.get(), "") if hasattr(self, "category_map") else ""
-        rows = self.app.repo.search_items(
-            sections=self.sections,
-            search=self.search_var.get(),
-            section=section_value,
-            category=category_value,
-            manufacturer="" if self.manufacturer_var.get() == "Tous" else self.manufacturer_var.get(),
-            size="" if self.size_var.get() == "Toutes" else self.size_var.get(),
-            star_system="" if self.system_var.get() == "Tous" else self.system_var.get(),
-            planet="" if self.planet_var.get() == "Toutes" else self.planet_var.get(),
-            only_purchasable=True,
-        )
+        query = {
+            "sections": list(self.sections),
+            "search": self.search_var.get(),
+            "section": section_value,
+            "category": category_value,
+            "manufacturer": "" if self.manufacturer_var.get() == "Tous" else self.manufacturer_var.get(),
+            "size": "" if self.size_var.get() == "Toutes" else self.size_var.get(),
+            "star_system": "" if self.system_var.get() == "Tous" else self.system_var.get(),
+            "planet": "" if self.planet_var.get() == "Toutes" else self.planet_var.get(),
+            "only_purchasable": True,
+        }
+        self._query_generation += 1
+        generation = self._query_generation
+        selected_before = select_id
+        if selected_before is None:
+            current = self.table.selected_id()
+            selected_before = int(current) if current.isdigit() else None
+        self.result_label.configure(text="Chargement…")
+        self._render_filter_chips()
+        self._save_filters()
+        results: queue.SimpleQueue[tuple[list[dict[str, Any]] | None, Exception | None]] = queue.SimpleQueue()
+
+        def worker() -> None:
+            try:
+                results.put((self.app.repo.search_items(**query), None))
+            except Exception as exc:
+                results.put((None, exc))
+
+        def poll() -> None:
+            if generation != self._query_generation or not self.winfo_exists():
+                return
+            try:
+                rows, error = results.get_nowait()
+            except queue.Empty:
+                self.after(35, poll)
+                return
+            self._apply_item_results(rows or [], error, generation, selected_before)
+
+        threading.Thread(target=worker, name=f"asteriax-items-{self.scope_key}", daemon=True).start()
+        self.after(35, poll)
+
+    def _apply_item_results(
+        self,
+        rows: list[dict[str, Any]],
+        error: Exception | None,
+        generation: int,
+        select_id: int | None,
+    ) -> None:
+        if generation != self._query_generation:
+            return
+        if error:
+            self.result_label.configure(text="Erreur")
+            self.app.show_notice(f"Recherche impossible : {error}", COLORS["danger"])
+            return
         self.rows_by_id = {int(row["id"]): row for row in rows}
         self.table.populate(
             (
@@ -578,17 +636,21 @@ class CatalogPage(BasePage):
             for row in rows
         )
         self.result_label.configure(text=f"{len(rows):,}".replace(",", " ") + " résultats")
-        self._render_filter_chips()
-        self._save_filters()
-        target = select_id if select_id in self.rows_by_id else (int(rows[0]["id"]) if rows else None)
+        target = select_id if select_id in self.rows_by_id else None
+        if target is None and rows and not self.app.performance_mode:
+            target = int(rows[0]["id"])
         if target is not None:
             self.table.select(str(target))
+        elif rows:
+            self._show_empty_detail("Sélectionnez un objet", "Les résultats sont chargés par blocs pour garder l’interface fluide.")
         else:
             self._show_empty_detail("Aucun objet", "Modifiez les filtres pour élargir la recherche.")
 
     def open_entity(self, entity_id: int) -> None:
-        self.reset_filters()
-        self.search_var.set("")
+        self.reset_filters(refresh=False)
+        detail = self.app.repo.item_detail(entity_id)
+        if detail:
+            self.search_var.set(str(detail.get("name") or ""))
         self.refresh_results(select_id=entity_id)
 
     def _on_select(self, iid: str) -> None:
@@ -785,6 +847,8 @@ class ShipsPage(BasePage):
         self.rows_by_id: dict[int, dict[str, Any]] = {}
         self._loaded = False
         self._debounce_id: str | None = None
+        self._query_generation = 0
+        self._saved_filter_state: dict[str, Any] = {}
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
         self._build_filters()
@@ -841,6 +905,7 @@ class ShipsPage(BasePage):
         self.planet_var = tk.StringVar(value="Toutes")
         saved = self.app.user_store.get_json_setting("filters:ships", {})
         if isinstance(saved, dict):
+            self._saved_filter_state = saved
             self.search_var.set(str(saved.get("search") or ""))
             self.manufacturer_var.set(str(saved.get("manufacturer") or "Tous"))
             self.type_var.set(str(saved.get("type") or "Tous"))
@@ -890,8 +955,13 @@ class ShipsPage(BasePage):
                 ("location", "LIEU", 130, "w"),
             ],
             on_select=self._on_select,
+            on_sort=lambda _column, _reverse: self._save_filters(),
+            page_size=self.app.catalog_page_size,
         )
         self.table.grid(row=0, column=0, padx=(0, 10), sticky="nsew")
+        sort_column = self._saved_filter_state.get("sort_column")
+        if isinstance(sort_column, int):
+            self.table.restore_sort(sort_column, bool(self._saved_filter_state.get("sort_reverse")))
         self.detail = ctk.CTkScrollableFrame(
             content,
             fg_color=COLORS["panel"],
@@ -908,15 +978,17 @@ class ShipsPage(BasePage):
     def _schedule_refresh(self, _event: Any = None) -> None:
         if self._debounce_id:
             self.after_cancel(self._debounce_id)
-        self._debounce_id = self.after(260, self.refresh_results)
+        delay = 340 if self.app.performance_mode else 240
+        self._debounce_id = self.after(delay, self.refresh_results)
 
-    def reset_filters(self) -> None:
+    def reset_filters(self, *, refresh: bool = True) -> None:
         self.search_var.set("")
         self.manufacturer_var.set("Tous")
         self.type_var.set("Tous")
         self.system_var.set("Tous")
         self.planet_var.set("Toutes")
-        self.refresh_results()
+        if refresh:
+            self.refresh_results()
 
     def _render_filter_chips(self) -> None:
         for child in self.chip_row.winfo_children():
@@ -953,6 +1025,7 @@ class ShipsPage(BasePage):
             ).pack(side="left", padx=(0, 5))
 
     def _save_filters(self) -> None:
+        sort_column, sort_reverse = self.table.sort_state() if hasattr(self, "table") else (None, False)
         self.app.user_store.set_json_setting(
             "filters:ships",
             {
@@ -961,6 +1034,8 @@ class ShipsPage(BasePage):
                 "type": self.type_var.get(),
                 "system": self.system_var.get(),
                 "planet": self.planet_var.get(),
+                "sort_column": sort_column,
+                "sort_reverse": sort_reverse,
             },
         )
 
@@ -976,13 +1051,57 @@ class ShipsPage(BasePage):
             self.on_show()
 
     def refresh_results(self, select_id: int | None = None) -> None:
-        rows = self.app.repo.search_vehicles(
-            search=self.search_var.get(),
-            manufacturer="" if self.manufacturer_var.get() == "Tous" else self.manufacturer_var.get(),
-            vehicle_type="" if self.type_var.get() == "Tous" else self.type_var.get(),
-            star_system="" if self.system_var.get() == "Tous" else self.system_var.get(),
-            planet="" if self.planet_var.get() == "Toutes" else self.planet_var.get(),
-        )
+        self._debounce_id = None
+        query = {
+            "search": self.search_var.get(),
+            "manufacturer": "" if self.manufacturer_var.get() == "Tous" else self.manufacturer_var.get(),
+            "vehicle_type": "" if self.type_var.get() == "Tous" else self.type_var.get(),
+            "star_system": "" if self.system_var.get() == "Tous" else self.system_var.get(),
+            "planet": "" if self.planet_var.get() == "Toutes" else self.planet_var.get(),
+        }
+        self._query_generation += 1
+        generation = self._query_generation
+        selected_before = select_id
+        if selected_before is None:
+            current = self.table.selected_id()
+            selected_before = int(current) if current.isdigit() else None
+        self.result_label.configure(text="Chargement…")
+        self._render_filter_chips()
+        self._save_filters()
+        results: queue.SimpleQueue[tuple[list[dict[str, Any]] | None, Exception | None]] = queue.SimpleQueue()
+
+        def worker() -> None:
+            try:
+                results.put((self.app.repo.search_vehicles(**query), None))
+            except Exception as exc:
+                results.put((None, exc))
+
+        def poll() -> None:
+            if generation != self._query_generation or not self.winfo_exists():
+                return
+            try:
+                rows, error = results.get_nowait()
+            except queue.Empty:
+                self.after(35, poll)
+                return
+            self._apply_vehicle_results(rows or [], error, generation, selected_before)
+
+        threading.Thread(target=worker, name="asteriax-vehicles", daemon=True).start()
+        self.after(35, poll)
+
+    def _apply_vehicle_results(
+        self,
+        rows: list[dict[str, Any]],
+        error: Exception | None,
+        generation: int,
+        select_id: int | None,
+    ) -> None:
+        if generation != self._query_generation:
+            return
+        if error:
+            self.result_label.configure(text="Erreur")
+            self.app.show_notice(f"Recherche impossible : {error}", COLORS["danger"])
+            return
         self.rows_by_id = {int(row["id"]): row for row in rows}
         self.table.populate(
             (
@@ -1000,16 +1119,21 @@ class ShipsPage(BasePage):
             for row in rows
         )
         self.result_label.configure(text=f"{len(rows)} modèles")
-        self._render_filter_chips()
-        self._save_filters()
-        target = select_id if select_id in self.rows_by_id else (int(rows[0]["id"]) if rows else None)
+        target = select_id if select_id in self.rows_by_id else None
+        if target is None and rows and not self.app.performance_mode:
+            target = int(rows[0]["id"])
         if target is not None:
             self.table.select(str(target))
+        elif rows:
+            self._show_empty_detail("Sélectionnez un modèle", "Les résultats sont chargés par blocs pour garder l’interface fluide.")
         else:
             self._show_empty_detail("Aucun modèle", "Modifiez les filtres pour élargir la recherche.")
 
     def open_entity(self, entity_id: int) -> None:
-        self.reset_filters()
+        self.reset_filters(refresh=False)
+        detail = self.app.repo.vehicle_detail(entity_id)
+        if detail:
+            self.search_var.set(str(detail.get("name") or ""))
         self.refresh_results(select_id=entity_id)
 
     def _on_select(self, iid: str) -> None:
@@ -1514,13 +1638,19 @@ class AsteriaxApp(ctk.CTk):
     def __init__(self) -> None:
         super().__init__(fg_color=COLORS["background"])
         self.database_path = data_database_path()
-        self.repo = DataRepository(self.database_path)
         self.user_store = UserStore(user_database_path())
+        ensure_performance_indexes(self.database_path)
+        self.repo = DataRepository(self.database_path)
+        self.performance_mode = self.user_store.setting_bool("performance_mode", False)
+        self.catalog_page_size = 100 if self.performance_mode else 220
         self._updating = False
         self._remote_game_version = ""
         self._notice_after: str | None = None
         self._search_dialog: GlobalSearchDialog | None = None
-        self._sidebar_collapsed = self.user_store.setting_bool("sidebar_collapsed", False)
+        self._sidebar_user_preference = self.user_store.setting_bool("sidebar_collapsed", False)
+        self._sidebar_collapsed = self._sidebar_user_preference
+        self._responsive_compact = False
+        self._responsive_after: str | None = None
 
         self.title(f"{APP_NAME} — Star Citizen Companion")
         default_geometry = "1440x880"
@@ -1548,12 +1678,33 @@ class AsteriaxApp(ctk.CTk):
         self.show_page(remembered if remembered in self._page_factories else "dashboard")
         self.bind_all("<Control-k>", lambda _event: self.open_global_search(), add="+")
         self.bind_all("<Control-f>", lambda _event: self.open_global_search(), add="+")
+        self.bind("<Configure>", self._schedule_responsive_layout, add="+")
         self.protocol("WM_DELETE_WINDOW", self._on_close)
-        if self.user_store.setting_bool("show_splash", True):
+        if self.user_store.setting_bool("show_splash", True) and not self.performance_mode:
             self.after(180, self._show_splash)
         if self.user_store.setting_bool("check_patch_startup", True):
             self.after(1200, lambda: self.check_game_update(self._startup_patch_result))
         self.after(1500, self._announce_completed_app_update)
+
+    def _schedule_responsive_layout(self, event: Any) -> None:
+        if event.widget is not self:
+            return
+        if self._responsive_after:
+            try:
+                self.after_cancel(self._responsive_after)
+            except tk.TclError:
+                pass
+        self._responsive_after = self.after(160, self._apply_responsive_layout)
+
+    def _apply_responsive_layout(self) -> None:
+        self._responsive_after = None
+        width = self.winfo_width()
+        if width < 1160 and not self._responsive_compact:
+            self._responsive_compact = True
+            self._set_sidebar_collapsed(True, persist=False)
+        elif width > 1280 and self._responsive_compact:
+            self._responsive_compact = False
+            self._set_sidebar_collapsed(self._sidebar_user_preference, persist=False)
 
     def _announce_completed_app_update(self) -> None:
         result = consume_update_result()
@@ -2043,6 +2194,7 @@ class AsteriaxApp(ctk.CTk):
             icon, label = self.nav_meta[name]
             button.configure(text=icon if collapsed else f"{icon}  {label}", anchor="center" if collapsed else "w")
         if persist:
+            self._sidebar_user_preference = bool(collapsed)
             self.user_store.set_setting("sidebar_collapsed", "1" if collapsed else "0")
 
     def _refresh_live_badge(self) -> None:

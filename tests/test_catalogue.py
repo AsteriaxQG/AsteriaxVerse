@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 
 from core.constants import APP_UPDATE_MANIFEST_URL, APP_VERSION, DISCORD_URL, TWITCH_URL
-from core.database import DataRepository, UserStore, format_price, location_label
+from core.database import DataRepository, UserStore, ensure_performance_indexes, format_price, location_label
 from core.updater import version_key
 
 
@@ -23,6 +23,46 @@ class CatalogueSnapshotTests(unittest.TestCase):
     def test_sqlite_integrity(self) -> None:
         with sqlite3.connect(DATABASE) as connection:
             self.assertEqual(connection.execute("PRAGMA integrity_check").fetchone()[0], "ok")
+
+    def test_repeated_catalogue_search_uses_an_isolated_cache_copy(self) -> None:
+        self.repo.clear_cache()
+        first = self.repo.search_items(search="laser")
+        self.assertGreater(len(first), 0)
+        hits_before = self.repo.cache_hits
+        original_name = first[0]["name"]
+        first[0]["name"] = "mutation locale"
+        second = self.repo.search_items(search="laser")
+        self.assertEqual(self.repo.cache_hits, hits_before + 1)
+        self.assertEqual(second[0]["name"], original_name)
+
+    def test_performance_indexes_can_upgrade_an_existing_database(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "catalogue.db"
+            with sqlite3.connect(database) as connection:
+                connection.executescript(
+                    """
+                    CREATE TABLE items(section TEXT, category TEXT, manufacturer TEXT, size INTEGER);
+                    CREATE TABLE item_offers(price_buy REAL, item_id INTEGER, terminal_id INTEGER);
+                    CREATE TABLE vehicle_offers(price_buy REAL, vehicle_id INTEGER, terminal_id INTEGER);
+                    CREATE TABLE terminals(is_available_live INTEGER, star_system TEXT, planet TEXT);
+                    """
+                )
+            ensure_performance_indexes(database)
+            with sqlite3.connect(database) as connection:
+                names = {
+                    row[0]
+                    for row in connection.execute(
+                        "SELECT name FROM sqlite_master WHERE type = 'index' AND name LIKE 'idx_%'"
+                    )
+                }
+            self.assertTrue(
+                {
+                    "idx_items_filters",
+                    "idx_item_offers_price",
+                    "idx_vehicle_offers_price",
+                    "idx_terminals_live_location",
+                }.issubset(names)
+            )
 
     def test_live_version_and_minimum_coverage(self) -> None:
         meta = self.repo.meta()
@@ -191,7 +231,7 @@ class UserStoreTests(unittest.TestCase):
             self.assertEqual(store.get_json_setting("filters:test", {})["planet"], "ArcCorp")
 
     def test_brand_links_version_and_assets(self) -> None:
-        self.assertEqual(APP_VERSION, "1.3.6")
+        self.assertEqual(APP_VERSION, "1.4.0")
         self.assertEqual(
             APP_UPDATE_MANIFEST_URL,
             "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/UPDATE_MANIFEST.json",
@@ -223,6 +263,18 @@ class UserStoreTests(unittest.TestCase):
         self.assertIn("self._page_factories", source)
         self.assertIn("previous.grid_remove()", source)
         self.assertIn("page = self._get_page(name)", source)
+
+    def test_fluid_catalogues_and_responsive_mode_are_wired(self) -> None:
+        source = (ROOT / "ui" / "app.py").read_text(encoding="utf-8")
+        advanced = (ROOT / "ui" / "advanced_pages.py").read_text(encoding="utf-8")
+        widgets = (ROOT / "ui" / "widgets.py").read_text(encoding="utf-8")
+        self.assertGreaterEqual(source.count("page_size=self.app.catalog_page_size"), 2)
+        self.assertIn("page_size=self.app.catalog_page_size", advanced)
+        self.assertIn("threading.Thread(target=worker", source)
+        self.assertIn("threading.Thread(target=worker", advanced)
+        self.assertIn('setting_bool("performance_mode"', source)
+        self.assertIn("_apply_responsive_layout", source)
+        self.assertIn("def _visible_rows", widgets)
 
     def test_update_check_has_visible_feedback_and_timeout(self) -> None:
         source = (ROOT / "ui" / "advanced_pages.py").read_text(encoding="utf-8")

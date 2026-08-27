@@ -1,7 +1,7 @@
 {
-  "version": "1.4.0",
+  "version": "1.4.1",
   "download_url": "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe",
   "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
   "size": 0,
-  "release_notes": "Mise à jour Fluidité : pagination, recherches en arrière-plan, cache SQLite, mode performances et interface responsive."
+  "release_notes": "Installation Windows complète : raccourcis Bureau et Menu Démarrer, désinstalleur propre et mises à jour automatiques conservées."
 }

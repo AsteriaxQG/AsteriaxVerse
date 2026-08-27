@@ -8,15 +8,14 @@ having to touch the UI or the database layer.
 from __future__ import annotations
 
 APP_NAME = "Asteriax Verse"
-APP_VERSION = "1.4.2"
+APP_VERSION = "1.4.3"
 APP_AUTHOR = "AsteriaxTTV"
 USER_AGENT = f"AsteriaxTTV-StarCitizen-Companion/{APP_VERSION}"
 
 APP_RELEASE_NOTES = (
-    "Tableaux intégrés dans de nouvelles surfaces arrondies.",
-    "Suppression des cadres intérieurs carrés hérités de Windows.",
-    "En-têtes plus aérés et barres de défilement mieux intégrées.",
-    "Boutons de pagination harmonisés avec le reste de l’interface.",
+    "Prix centrés sous leur en-tête dans tous les tableaux.",
+    "Lieux centrés et mieux séparés des montants.",
+    "Alignement homogène dans les pages équipement, vaisseaux et recherche.",
 )
 
 DISCORD_URL = "https://discord.com/invite/YSK3aJwATH"

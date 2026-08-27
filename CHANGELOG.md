@@ -1,5 +1,11 @@
 # Historique
 
+## 1.4.3 — 27 août 2026
+
+- centrage des prix sous leurs en-têtes dans tous les tableaux ;
+- centrage des lieux pour mieux les séparer des montants ;
+- alignement homogène appliqué aux équipements, vaisseaux, boutiques et résultats de recherche.
+
 ## 1.4.2 — 27 août 2026
 
 - suppression du cadre intérieur carré des tableaux natifs Windows ;

@@ -139,6 +139,15 @@ class SectionTitle(ctk.CTkFrame):
 class TreeTable(ctk.CTkFrame):
     """Dark ttk.Treeview wrapped in a rounded CustomTkinter panel."""
 
+    _CENTERED_VALUE_COLUMNS = frozenset({"price", "location"})
+
+    @classmethod
+    def display_anchor(cls, column_id: str, requested_anchor: str) -> str:
+        """Keep price and location values centred under their headings."""
+        if column_id in cls._CENTERED_VALUE_COLUMNS:
+            return "center"
+        return requested_anchor
+
     def __init__(
         self,
         master: Any,
@@ -188,7 +197,13 @@ class TreeTable(ctk.CTkFrame):
                 text=heading,
                 command=lambda position=index: self.sort_by(position),
             )
-            self.tree.column(column_id, width=width, minwidth=45, anchor=anchor, stretch=column_id in {"name", "location"})
+            self.tree.column(
+                column_id,
+                width=width,
+                minwidth=45,
+                anchor=self.display_anchor(column_id, anchor),
+                stretch=column_id in {"name", "location"},
+            )
         scrollbar = ttk.Scrollbar(
             self.table_shell,
             orient="vertical",

@@ -60,6 +60,39 @@ def format_timestamp(value: int | float | None) -> str:
         return "—"
 
 
+def price_freshness_label(
+    value: int | float | None,
+    *,
+    now_timestamp: int | float | None = None,
+) -> str:
+    """Return a concise reliability hint for a shop price timestamp."""
+
+    if not value:
+        return "Date du relevé inconnue"
+    from datetime import datetime, timezone
+
+    try:
+        observed = datetime.fromtimestamp(float(value), tz=timezone.utc)
+        now = (
+            datetime.fromtimestamp(float(now_timestamp), tz=timezone.utc)
+            if now_timestamp
+            else datetime.now(timezone.utc)
+        )
+    except (OSError, OverflowError, TypeError, ValueError):
+        return "Date du relevé inconnue"
+    age_days = max(0, (now.date() - observed.date()).days)
+    if age_days == 0:
+        return "Prix relevé aujourd’hui"
+    if age_days == 1:
+        return "Prix relevé hier"
+    if age_days <= 7:
+        return f"Prix relevé il y a {age_days} jours"
+    label = observed.strftime("%d/%m/%Y")
+    if age_days > 30:
+        return f"Prix relevé le {label} · à revérifier"
+    return f"Prix relevé le {label}"
+
+
 def location_label(row: dict[str, Any] | sqlite3.Row, *, include_shop: bool = True) -> str:
     """Build a compact System › Planet › Place › Shop breadcrumb."""
 
@@ -710,6 +743,7 @@ class DataRepository:
                     "category": detail.get("category") if kind == "item" else detail.get("roles"),
                     "size": detail.get("size") if kind == "item" else detail.get("scu"),
                     "price_min": best.get("price_buy"),
+                    "price_date": best.get("date_modified"),
                     "location": location_label(best) if best else "Lieu non renseigné",
                     "detail": detail,
                     "best_offer": best,
@@ -1015,7 +1049,7 @@ class UserStore:
             ).fetchall()
         return [int(row["entity_id"]) for row in rows]
 
-    def add_comparison(self, kind: str, entity_id: int, *, limit: int = 4) -> bool:
+    def add_comparison(self, kind: str, entity_id: int, *, limit: int = 3) -> bool:
         if kind not in self.VALID_KINDS:
             return False
         entity_id = int(entity_id)

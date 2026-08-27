@@ -8,14 +8,16 @@ having to touch the UI or the database layer.
 from __future__ import annotations
 
 APP_NAME = "Asteriax Verse"
-APP_VERSION = "1.4.3"
+APP_VERSION = "1.5.0"
 APP_AUTHOR = "AsteriaxTTV"
 USER_AGENT = f"AsteriaxTTV-StarCitizen-Companion/{APP_VERSION}"
 
 APP_RELEASE_NOTES = (
-    "Prix centrés sous leur en-tête dans tous les tableaux.",
-    "Lieux centrés et mieux séparés des montants.",
-    "Alignement homogène dans les pages équipement, vaisseaux et recherche.",
+    "Comparateur intelligent limité à trois éléments avec écarts de prix et meilleur cargo.",
+    "Date et fiabilité des prix affichées dans les fiches et le comparateur.",
+    "Tableau des actualités LIVE ajouté à la page d’accueil.",
+    "Recherches récentes proposées dès l’ouverture de la recherche globale.",
+    "Résumé des changements affiché après chaque synchronisation du catalogue.",
 )
 
 DISCORD_URL = "https://discord.com/invite/YSK3aJwATH"
@@ -77,6 +79,37 @@ PATCH_410_CATALOGUE_HIGHLIGHTS: tuple[str, ...] = (
     "Fusil HDGW Arlington et optique associée ajoutés au jeu.",
     "Jump drives exposés chez Dumper’s Depot Area18 et cartes AR disponibles.",
     "Vêtements HDTC chez Makau et Aparelli, avec rééquilibrage des prix carburant et munitions de vaisseau.",
+)
+
+NEWS_ITEMS: tuple[dict[str, str], ...] = (
+    {
+        "date": "26/08/2026",
+        "category": "PATCH LIVE",
+        "title": "Star Citizen Alpha 4.10 est disponible sur les serveurs LIVE",
+        "source": "RSI",
+        "url": RSI_LIVE_PATCH_URL,
+    },
+    {
+        "date": "26/08/2026",
+        "category": "VAISSEAUX",
+        "title": "Aurora Mk II, Hull B, L-22 Alpha Wolf, Golem OX et UTV ajoutés aux ventes en jeu",
+        "source": "Catalogue 4.10",
+        "url": RSI_LIVE_PATCH_URL,
+    },
+    {
+        "date": "26/08/2026",
+        "category": "ÉQUIPEMENT",
+        "title": "Nouvelles armes Vendetta, armure BUL-H4 et équipement HDGW répertoriés",
+        "source": "Catalogue 4.10",
+        "url": RSI_LIVE_PATCH_URL,
+    },
+    {
+        "date": "27/08/2026",
+        "category": "CATALOGUE",
+        "title": "184 véhicules et 2 796 objets achetables contrôlés dans Asteriax Verse",
+        "source": "AsteriaxTTV",
+        "url": "",
+    },
 )
 
 COLORS = {

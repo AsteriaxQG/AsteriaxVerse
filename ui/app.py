@@ -24,6 +24,7 @@ from core.constants import (
     COLORS,
     DISCORD_URL,
     ITEM_SCOPES,
+    NEWS_ITEMS,
     RSI_KNOWN_ISSUES_URL,
     RSI_LIVE_PATCH_URL,
     RSI_PATCHES_URL,
@@ -46,6 +47,7 @@ from core.database import (
     format_price,
     format_timestamp,
     location_label,
+    price_freshness_label,
 )
 from core.paths import data_database_path, resource_path, user_database_path
 from core.sync import fetch_json, sync_database
@@ -238,9 +240,44 @@ class DashboardPage(BasePage):
 
         SectionTitle(
             self.scroll,
+            "Actualités LIVE",
+            "Les dernières nouveautés importantes · double-cliquez sur une ligne pour ouvrir sa source.",
+        ).grid(row=4, column=0, columnspan=4, pady=(0, 10), sticky="ew")
+        self._news_urls = {
+            str(index): str(item.get("url") or "")
+            for index, item in enumerate(NEWS_ITEMS)
+        }
+        news_table = TreeTable(
+            self.scroll,
+            [
+                ("date", "DATE", 105, "center"),
+                ("category", "CATÉGORIE", 135, "center"),
+                ("news", "NOUVEAUTÉ", 510, "w"),
+                ("source", "SOURCE", 135, "center"),
+            ],
+            on_double_click=self._open_news,
+        )
+        news_table.grid(row=5, column=0, columnspan=4, pady=(0, 22), sticky="nsew")
+        news_table.configure(height=270)
+        news_table.populate(
+            (
+                str(index),
+                (
+                    item.get("date") or "—",
+                    item.get("category") or "ACTUALITÉ",
+                    item.get("title") or "—",
+                    item.get("source") or "—",
+                ),
+                False,
+            )
+            for index, item in enumerate(NEWS_ITEMS)
+        )
+
+        SectionTitle(
+            self.scroll,
             "Couverture des données",
             "Nombre d'objets actuellement achetables par grande famille.",
-        ).grid(row=4, column=0, columnspan=4, pady=(0, 10), sticky="ew")
+        ).grid(row=6, column=0, columnspan=4, pady=(0, 10), sticky="ew")
         coverage = TreeTable(
             self.scroll,
             [
@@ -250,7 +287,7 @@ class DashboardPage(BasePage):
                 ("price", "PRIX À PARTIR DE", 170, "e"),
             ],
         )
-        coverage.grid(row=5, column=0, columnspan=4, pady=(0, 22), sticky="nsew")
+        coverage.grid(row=7, column=0, columnspan=4, pady=(0, 22), sticky="nsew")
         coverage.configure(height=310)
         coverage.populate(
             (
@@ -272,7 +309,7 @@ class DashboardPage(BasePage):
                 self.scroll,
                 "Consultés récemment",
                 "Retrouvez instantanément vos dernières recherches.",
-            ).grid(row=6, column=0, columnspan=4, pady=(0, 10), sticky="ew")
+            ).grid(row=8, column=0, columnspan=4, pady=(0, 10), sticky="ew")
             recent_table = TreeTable(
                 self.scroll,
                 [
@@ -283,7 +320,7 @@ class DashboardPage(BasePage):
                 ],
                 on_double_click=self._open_recent,
             )
-            recent_table.grid(row=7, column=0, columnspan=4, pady=(0, 22), sticky="ew")
+            recent_table.grid(row=9, column=0, columnspan=4, pady=(0, 22), sticky="ew")
             recent_table.configure(height=245)
             recent_table.populate(
                 (
@@ -305,6 +342,13 @@ class DashboardPage(BasePage):
             self.app.open_entity(kind, int(raw_id))
         except (TypeError, ValueError):
             return
+
+    def _open_news(self, iid: str) -> None:
+        url = getattr(self, "_news_urls", {}).get(iid, "")
+        if url:
+            webbrowser.open(url)
+        else:
+            self.app.show_notice("Cette actualité provient du catalogue Asteriax Verse.")
 
 
 class CatalogPage(BasePage):
@@ -771,7 +815,15 @@ class CatalogPage(BasePage):
                 font=("Segoe UI", 9),
                 text_color=COLORS["muted"],
                 anchor="w",
-            ).grid(row=2, column=0, padx=13, pady=(3, 10), sticky="ew")
+            ).grid(row=2, column=0, padx=13, pady=(3, 1), sticky="ew")
+            freshness = price_freshness_label(best.get("date_modified"))
+            ctk.CTkLabel(
+                price_panel,
+                text=freshness,
+                font=("Segoe UI Semibold", 8),
+                text_color=COLORS["warning"] if "revérifier" in freshness else COLORS["muted_2"],
+                anchor="w",
+            ).grid(row=3, column=0, padx=13, pady=(0, 10), sticky="ew")
             ctk.CTkButton(
                 price_panel,
                 text="Copier",
@@ -785,7 +837,7 @@ class CatalogPage(BasePage):
                 border_color=COLORS["border"],
                 text_color=COLORS["accent"],
                 font=("Segoe UI Semibold", 8),
-            ).grid(row=1, column=1, rowspan=2, padx=(4, 10), pady=(3, 9))
+            ).grid(row=1, column=1, rowspan=3, padx=(4, 10), pady=(3, 9))
 
         ctk.CTkLabel(
             self.detail,
@@ -820,7 +872,15 @@ class CatalogPage(BasePage):
                 font=("Segoe UI", 8),
                 text_color=COLORS["muted"],
                 anchor="w",
-            ).grid(row=1, column=0, padx=11, pady=(2, 8), sticky="ew")
+            ).grid(row=1, column=0, padx=11, pady=(2, 1), sticky="ew")
+            freshness = price_freshness_label(offer.get("date_modified"))
+            ctk.CTkLabel(
+                card,
+                text=freshness,
+                font=("Segoe UI Semibold", 7),
+                text_color=COLORS["warning"] if "revérifier" in freshness else COLORS["muted_2"],
+                anchor="w",
+            ).grid(row=2, column=0, padx=11, pady=(0, 8), sticky="ew")
             row_index += 1
         if detail.get("wiki"):
             ctk.CTkButton(
@@ -1233,8 +1293,16 @@ class ShipsPage(BasePage):
                 row=1, column=0, padx=13, pady=(1, 0), sticky="ew"
             )
             ctk.CTkLabel(price_panel, text=location_label(best), wraplength=285, justify="left", font=("Segoe UI", 9), text_color=COLORS["muted"], anchor="w").grid(
-                row=2, column=0, padx=13, pady=(3, 10), sticky="ew"
+                row=2, column=0, padx=13, pady=(3, 1), sticky="ew"
             )
+            freshness = price_freshness_label(best.get("date_modified"))
+            ctk.CTkLabel(
+                price_panel,
+                text=freshness,
+                font=("Segoe UI Semibold", 8),
+                text_color=COLORS["warning"] if "revérifier" in freshness else COLORS["muted_2"],
+                anchor="w",
+            ).grid(row=3, column=0, padx=13, pady=(0, 10), sticky="ew")
             ctk.CTkButton(
                 price_panel,
                 text="Copier",
@@ -1248,7 +1316,7 @@ class ShipsPage(BasePage):
                 border_color=COLORS["border"],
                 text_color=COLORS["accent"],
                 font=("Segoe UI Semibold", 8),
-            ).grid(row=1, column=1, rowspan=2, padx=(4, 10), pady=(3, 9))
+            ).grid(row=1, column=1, rowspan=3, padx=(4, 10), pady=(3, 9))
 
         ctk.CTkLabel(
             self.detail,
@@ -1272,8 +1340,16 @@ class ShipsPage(BasePage):
                 row=0, column=0, padx=11, pady=(8, 0), sticky="ew"
             )
             ctk.CTkLabel(card, text=location_label(offer), wraplength=285, justify="left", font=("Segoe UI", 8), text_color=COLORS["muted"], anchor="w").grid(
-                row=1, column=0, padx=11, pady=(2, 8), sticky="ew"
+                row=1, column=0, padx=11, pady=(2, 1), sticky="ew"
             )
+            freshness = price_freshness_label(offer.get("date_modified"))
+            ctk.CTkLabel(
+                card,
+                text=freshness,
+                font=("Segoe UI Semibold", 7),
+                text_color=COLORS["warning"] if "revérifier" in freshness else COLORS["muted_2"],
+                anchor="w",
+            ).grid(row=2, column=0, padx=11, pady=(0, 8), sticky="ew")
             row_index += 1
 
 
@@ -2148,7 +2224,7 @@ class AsteriaxApp(ctk.CTk):
             self.refresh_page("compare")
             self.show_notice("Ajouté au comparateur.")
         else:
-            self.show_notice("Le comparateur contient déjà quatre éléments de ce type.", COLORS["warning"])
+            self.show_notice("Le comparateur contient déjà trois éléments de ce type.", COLORS["warning"])
 
     def copy_to_clipboard(self, text: str, notice: str = "Copié") -> None:
         self.clipboard_clear()
@@ -2307,6 +2383,10 @@ class AsteriaxApp(ctk.CTk):
             self.show_notice("Une synchronisation est déjà en cours.", COLORS["warning"])
             return
         self._updating = True
+        try:
+            self._sync_before_counts = self.repo.meta_counts()
+        except Exception:
+            self._sync_before_counts = {}
         self.sync_status.configure(text="Connexion…", text_color=COLORS["muted"])
         self.sync_progress.set(0)
         self.sync_bar.grid()
@@ -2349,6 +2429,19 @@ class AsteriaxApp(ctk.CTk):
                 pass
         version = (result or {}).get("game_version", "—")
         counts = (result or {}).get("counts", {})
+        previous_counts = getattr(self, "_sync_before_counts", {})
+        vehicle_delta = int(counts.get("purchasable_vehicles", 0)) - int(
+            previous_counts.get("purchasable_vehicles", 0) or 0
+        )
+        item_delta = int(counts.get("purchasable_items", 0)) - int(
+            previous_counts.get("purchasable_items", 0) or 0
+        )
+        changes = []
+        if vehicle_delta:
+            changes.append(f"{vehicle_delta:+d} vaisseaux")
+        if item_delta:
+            changes.append(f"{item_delta:+d} objets")
+        change_label = " · changements : " + ", ".join(changes) if changes else " · aucun changement de quantité"
         if isinstance(updates_page, UpdatesPage):
             updates_page._game_result(
                 {"local_version": version, "remote_version": version, "available": False},
@@ -2358,7 +2451,7 @@ class AsteriaxApp(ctk.CTk):
         self.sync_status.configure(
             text=(
                 f"Star Citizen {version} prêt · {counts.get('purchasable_vehicles', 0)} vaisseaux · "
-                f"{counts.get('purchasable_items', 0)} objets revalidés."
+                f"{counts.get('purchasable_items', 0)} objets revalidés{change_label}."
             ),
             text_color=COLORS["success"],
         )

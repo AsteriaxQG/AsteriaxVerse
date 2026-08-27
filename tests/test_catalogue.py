@@ -4,10 +4,18 @@ import json
 import sqlite3
 import tempfile
 import unittest
+from datetime import datetime, timezone
 from pathlib import Path
 
 from core.constants import APP_UPDATE_MANIFEST_URL, APP_VERSION, DISCORD_URL, TWITCH_URL
-from core.database import DataRepository, UserStore, ensure_performance_indexes, format_price, location_label
+from core.database import (
+    DataRepository,
+    UserStore,
+    ensure_performance_indexes,
+    format_price,
+    location_label,
+    price_freshness_label,
+)
 from core.updater import version_key
 
 
@@ -181,6 +189,15 @@ class CatalogueSnapshotTests(unittest.TestCase):
         self.assertEqual(format_price(1290366), "1 290 366 aUEC")
         self.assertEqual(format_price(None), "—")
 
+    def test_price_freshness_labels(self) -> None:
+        now = datetime(2026, 8, 27, tzinfo=timezone.utc).timestamp()
+        self.assertEqual(price_freshness_label(now, now_timestamp=now), "Prix relevé aujourd’hui")
+        old = datetime(2026, 6, 12, tzinfo=timezone.utc).timestamp()
+        self.assertEqual(
+            price_freshness_label(old, now_timestamp=now),
+            "Prix relevé le 12/06/2026 · à revérifier",
+        )
+
     def test_global_search_and_shop_inventory(self) -> None:
         self.assertTrue(any(row["kind"] == "vehicle" for row in self.repo.global_search("Cutlass")))
         shops = self.repo.search_terminals(search="CenterMass")
@@ -222,7 +239,10 @@ class UserStoreTests(unittest.TestCase):
             store.toggle_shopping_purchased("item", 12)
             self.assertEqual(store.shopping_entries()[0]["purchased"], 1)
             self.assertTrue(store.add_comparison("vehicle", 7))
-            self.assertEqual(store.comparison_ids("vehicle"), [7])
+            self.assertTrue(store.add_comparison("vehicle", 8))
+            self.assertTrue(store.add_comparison("vehicle", 9))
+            self.assertFalse(store.add_comparison("vehicle", 10))
+            self.assertEqual(store.comparison_ids("vehicle"), [7, 8, 9])
             store.add_recent("item", 12)
             self.assertEqual(store.recent_entries()[0]["entity_id"], 12)
             store.add_to_loadout(7, 12, 2)
@@ -231,7 +251,7 @@ class UserStoreTests(unittest.TestCase):
             self.assertEqual(store.get_json_setting("filters:test", {})["planet"], "ArcCorp")
 
     def test_brand_links_version_and_assets(self) -> None:
-        self.assertEqual(APP_VERSION, "1.4.3")
+        self.assertEqual(APP_VERSION, "1.5.0")
         self.assertEqual(
             APP_UPDATE_MANIFEST_URL,
             "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/UPDATE_MANIFEST.json",
@@ -257,6 +277,16 @@ class UserStoreTests(unittest.TestCase):
         for page in ("all_items", "shopping", "loadouts", "favorites"):
             self.assertNotIn(f'(\"{page}\",', navigation)
         self.assertNotIn('text="Vérifier les mises à jour"', source)
+
+    def test_major_features_do_not_duplicate_navigation(self) -> None:
+        app_source = (ROOT / "ui" / "app.py").read_text(encoding="utf-8")
+        advanced_source = (ROOT / "ui" / "advanced_pages.py").read_text(encoding="utf-8")
+        nav_start = app_source.index("        entries = [")
+        nav_end = app_source.index("        ]", nav_start)
+        navigation = app_source[nav_start:nav_end]
+        self.assertEqual(app_source.count('"Actualités LIVE"'), 1)
+        self.assertNotIn('(\"news\",', navigation)
+        self.assertEqual(advanced_source.count("class ComparePage("), 1)
 
     def test_only_the_visible_page_is_mapped(self) -> None:
         source = (ROOT / "ui" / "app.py").read_text(encoding="utf-8")

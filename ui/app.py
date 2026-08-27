@@ -1542,7 +1542,7 @@ class AsteriaxApp(ctk.CTk):
         self._set_sidebar_collapsed(self._sidebar_collapsed, persist=False)
 
         remembered = self.user_store.get_setting("last_page", "dashboard")
-        self.show_page(remembered if remembered in self.pages else "dashboard")
+        self.show_page(remembered if remembered in self._page_factories else "dashboard")
         self.bind_all("<Control-k>", lambda _event: self.open_global_search(), add="+")
         self.bind_all("<Control-f>", lambda _event: self.open_global_search(), add="+")
         self.protocol("WM_DELETE_WINDOW", self._on_close)
@@ -1848,44 +1848,60 @@ class AsteriaxApp(ctk.CTk):
         self._refresh_live_badge()
 
     def _create_pages(self) -> None:
-        self.pages: dict[str, Any] = {
-            "dashboard": DashboardPage(self.page_container, self),
-            "ships": ShipsPage(self.page_container, self),
-            "ship_gear": CatalogPage(
+        # Building every page up front left ten complete widget trees stacked in
+        # the same grid cell. Tk then resized all of them on every window-size
+        # event, including the invisible pages. Factories keep startup light and
+        # ensure that only pages opened by the user exist.
+        self._page_factories: dict[str, Callable[[], Any]] = {
+            "dashboard": lambda: DashboardPage(self.page_container, self),
+            "ships": lambda: ShipsPage(self.page_container, self),
+            "ship_gear": lambda: CatalogPage(
                 self.page_container,
                 self,
                 scope_key="ship_gear",
                 title="Équipement de vaisseau",
                 subtitle="Composants, canons, missiles, modules de minage et utilitaires.",
             ),
-            "personal_gear": CatalogPage(
+            "personal_gear": lambda: CatalogPage(
                 self.page_container,
                 self,
                 scope_key="personal_gear",
                 title="Équipement personnel",
                 subtitle="Armures, sous-combinaisons, vêtements, armes, munitions et accessoires.",
             ),
-            "all_items": CatalogPage(
+            "all_items": lambda: CatalogPage(
                 self.page_container,
                 self,
                 scope_key="all",
                 title="Tous les objets",
                 subtitle="L'intégralité des objets actuellement achetables dans le Persistent Universe.",
             ),
-            "locations": LocationsPage(self.page_container, self),
-            "compare": ComparePage(self.page_container, self),
-            "updates": UpdatesPage(self.page_container, self),
-            "data": DataPage(self.page_container, self),
-            "settings": SettingsPage(self.page_container, self),
+            "locations": lambda: LocationsPage(self.page_container, self),
+            "compare": lambda: ComparePage(self.page_container, self),
+            "updates": lambda: UpdatesPage(self.page_container, self),
+            "data": lambda: DataPage(self.page_container, self),
+            "settings": lambda: SettingsPage(self.page_container, self),
         }
-        for page in self.pages.values():
-            page.grid(row=0, column=0, sticky="nsew")
+        self.pages: dict[str, Any] = {}
         self.current_page = ""
 
+    def _get_page(self, name: str) -> Any:
+        page = self.pages.get(name)
+        if page is None:
+            page = self._page_factories[name]()
+            self.pages[name] = page
+        return page
+
     def show_page(self, name: str) -> None:
-        if name not in self.pages:
+        if name not in self._page_factories:
             name = "dashboard"
-        page = self.pages[name]
+        previous = self.pages.get(self.current_page)
+        page = self._get_page(name)
+        if previous is not None and previous is not page:
+            # Unmapping the previous page prevents Tk/CustomTkinter from
+            # recalculating its complete layout during a maximize/restore.
+            previous.grid_remove()
+        page.grid(row=0, column=0, sticky="nsew")
         self.current_page = name
         page.tkraise()
         self.page_title.configure(text=page.title)
@@ -1923,19 +1939,19 @@ class AsteriaxApp(ctk.CTk):
             # Le catalogue général reste un écran interne pour les objets qui
             # n'appartiennent à aucune des deux grandes familles visibles.
             page_name = "all_items"
-        page = self.pages[page_name]
+        page = self._get_page(page_name)
         self.show_page(page_name)
         if isinstance(page, CatalogPage):
             page.open_entity(int(item_id))
 
     def open_vehicle(self, vehicle_id: int) -> None:
-        page = self.pages["ships"]
+        page = self._get_page("ships")
         self.show_page("ships")
         if isinstance(page, ShipsPage):
             page.open_entity(int(vehicle_id))
 
     def open_terminal(self, terminal_id: int) -> None:
-        page = self.pages["locations"]
+        page = self._get_page("locations")
         self.show_page("locations")
         if isinstance(page, LocationsPage):
             page.open_entity(int(terminal_id))

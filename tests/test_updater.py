@@ -38,7 +38,7 @@ class UpdaterTests(unittest.TestCase):
         self.assertGreater(version_key("v1.3.10"), version_key("1.3.9"))
 
     def test_manifest_requires_integrity_data_for_new_release(self) -> None:
-        payload = json.dumps({"version": "1.3.2", "download_url": OFFICIAL_EXE_URL}).encode()
+        payload = json.dumps({"version": "1.3.3", "download_url": OFFICIAL_EXE_URL}).encode()
         with patch("core.updater.urllib.request.urlopen", return_value=FakeResponse(payload, "https://example.test/manifest.json")):
             with self.assertRaisesRegex(ValueError, "SHA-256"):
                 check_app_update("https://example.test/manifest.json")
@@ -47,7 +47,7 @@ class UpdaterTests(unittest.TestCase):
         checksum = "a" * 64
         payload = json.dumps(
             {
-                "version": "1.3.2",
+                "version": "1.3.3",
                 "download_url": OFFICIAL_EXE_URL,
                 "sha256": checksum,
                 "size": 12345,
@@ -64,7 +64,7 @@ class UpdaterTests(unittest.TestCase):
         payload = b"MZ" + (b"Asteriax" * 2048)
         checksum = hashlib.sha256(payload).hexdigest()
         info = {
-            "latest_version": "1.3.2",
+            "latest_version": "1.3.3",
             "download_url": OFFICIAL_EXE_URL,
             "sha256": checksum,
             "size": len(payload),
@@ -79,13 +79,13 @@ class UpdaterTests(unittest.TestCase):
             ):
                 result = download_app_update(info, lambda fraction, _message: progress.append(fraction))
             self.assertEqual(result.read_bytes(), payload)
-            self.assertEqual(result.name, "AsteriaxVerse-1.3.2.exe")
+            self.assertEqual(result.name, "AsteriaxVerse-1.3.3.exe")
             self.assertEqual(progress[-1], 1.0)
 
     def test_corrupt_download_is_deleted(self) -> None:
         payload = b"MZcorrupt"
         info = {
-            "latest_version": "1.3.2",
+            "latest_version": "1.3.3",
             "download_url": OFFICIAL_EXE_URL,
             "sha256": "0" * 64,
             "size": len(payload),

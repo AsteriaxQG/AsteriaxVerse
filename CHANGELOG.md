@@ -1,5 +1,12 @@
 # Historique
 
+## 1.3.2 — 27 août 2026
+
+- chargement des pages à la demande au lieu de construire les dix écrans au démarrage ;
+- retrait de la grille pour chaque page invisible afin qu’une seule interface soit redimensionnée ;
+- réduction des recalculs CustomTkinter lors du passage en plein écran ou du retour en fenêtre ;
+- démarrage plus léger et navigation conservant l’état des pages déjà ouvertes.
+
 ## 1.3.1 — 26 août 2026
 
 - remplacement de l'ouverture de Chrome par une mise à jour directement intégrée au logiciel ;

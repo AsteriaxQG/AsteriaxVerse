@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import threading
+from collections import OrderedDict
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Iterable, Iterator
@@ -13,6 +15,23 @@ from .manufacturers import (
     vehicle_manufacturer_label,
     vehicle_manufacturer_sources,
 )
+
+
+PERFORMANCE_INDEXES = (
+    "CREATE INDEX IF NOT EXISTS idx_items_filters ON items(section, category, manufacturer, size)",
+    "CREATE INDEX IF NOT EXISTS idx_item_offers_price ON item_offers(price_buy, item_id, terminal_id)",
+    "CREATE INDEX IF NOT EXISTS idx_vehicle_offers_price ON vehicle_offers(price_buy, vehicle_id, terminal_id)",
+    "CREATE INDEX IF NOT EXISTS idx_terminals_live_location ON terminals(is_available_live, star_system, planet)",
+)
+
+
+def ensure_performance_indexes(database_path: str | Path) -> None:
+    """Add read-optimised indexes to existing user catalogues once and safely."""
+
+    with sqlite3.connect(Path(database_path), timeout=15) as connection:
+        for statement in PERFORMANCE_INDEXES:
+            connection.execute(statement)
+        connection.execute("PRAGMA optimize")
 
 
 def format_price(value: float | int | None) -> str:
@@ -76,6 +95,35 @@ class DataRepository:
 
     def __init__(self, database_path: str | Path):
         self.path = Path(database_path)
+        self._query_cache: OrderedDict[tuple[Any, ...], list[dict[str, Any]]] = OrderedDict()
+        self._cache_lock = threading.RLock()
+        self._cache_limit = 8
+        self.cache_hits = 0
+
+    def _cached_rows(self, key: tuple[Any, ...]) -> list[dict[str, Any]] | None:
+        with self._cache_lock:
+            cached = self._query_cache.pop(key, None)
+            if cached is None:
+                return None
+            self._query_cache[key] = cached
+            self.cache_hits += 1
+            return [dict(row) for row in cached]
+
+    def _remember_rows(
+        self,
+        key: tuple[Any, ...],
+        rows: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        snapshot = [dict(row) for row in rows]
+        with self._cache_lock:
+            self._query_cache[key] = snapshot
+            while len(self._query_cache) > self._cache_limit:
+                self._query_cache.popitem(last=False)
+        return [dict(row) for row in snapshot]
+
+    def clear_cache(self) -> None:
+        with self._cache_lock:
+            self._query_cache.clear()
 
     @contextmanager
     def _connect(self) -> Iterator[sqlite3.Connection]:
@@ -221,6 +269,24 @@ class DataRepository:
         ids: set[int] | None = None,
         limit: int = 6000,
     ) -> list[dict[str, Any]]:
+        cache_key = (
+            "items",
+            tuple(sections or ()),
+            search.strip().casefold(),
+            section,
+            category,
+            manufacturer,
+            size,
+            star_system,
+            planet,
+            maximum_price,
+            only_purchasable,
+            tuple(sorted(ids)) if ids is not None else None,
+            int(limit),
+        )
+        cached = self._cached_rows(cache_key)
+        if cached is not None:
+            return cached
         offer_clauses = ["o.price_buy > 0"]
         offer_params: list[Any] = []
         if star_system:
@@ -290,7 +356,8 @@ class DataRepository:
         """
         params = offer_params + item_params + [limit]
         with self._connect() as connection:
-            return self._dicts(connection.execute(sql, params).fetchall())
+            rows = self._dicts(connection.execute(sql, params).fetchall())
+        return self._remember_rows(cache_key, rows)
 
     def item_detail(self, item_id: int) -> dict[str, Any] | None:
         with self._connect() as connection:
@@ -356,6 +423,20 @@ class DataRepository:
         ids: set[int] | None = None,
         limit: int = 1000,
     ) -> list[dict[str, Any]]:
+        cache_key = (
+            "vehicles",
+            search.strip().casefold(),
+            manufacturer,
+            vehicle_type,
+            star_system,
+            planet,
+            maximum_price,
+            tuple(sorted(ids)) if ids is not None else None,
+            int(limit),
+        )
+        cached = self._cached_rows(cache_key)
+        if cached is not None:
+            return cached
         offer_clauses = ["o.price_buy > 0"]
         offer_params: list[Any] = []
         if star_system:
@@ -426,7 +507,8 @@ class DataRepository:
         """
         query_params = offer_params + params + [limit]
         with self._connect() as connection:
-            return self._vehicle_dicts(connection.execute(sql, query_params).fetchall())
+            rows = self._vehicle_dicts(connection.execute(sql, query_params).fetchall())
+        return self._remember_rows(cache_key, rows)
 
     def vehicle_detail(self, vehicle_id: int) -> dict[str, Any] | None:
         with self._connect() as connection:

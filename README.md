@@ -21,7 +21,7 @@ Après avoir lancé une première fois `LANCER.bat`, double-cliquez sur **CONSTR
 
 Une action GitHub est aussi incluse pour construire automatiquement l'exécutable sur un véritable environnement Windows.
 
-## Fonctions de la version 1.3.6
+## Fonctions de la version 1.4.0
 
 - 184 vaisseaux et véhicules actuellement achetables en jeu ;
 - 2 796 objets achetables et 23 679 relevés de prix actifs ;
@@ -29,6 +29,10 @@ Une action GitHub est aussi incluse pour construire automatiquement l'exécutabl
 - prix minimum, toutes les boutiques et chemin complet système → planète → ville/station → magasin ;
 - recherche globale `Ctrl + K` dans les vaisseaux, objets et boutiques ;
 - colonnes triables, filtres actifs et mémorisation des recherches ;
+- pagination des grands catalogues : seules 220 lignes sont dessinées à la fois, ou 100 en mode performances ;
+- recherches d’objets, de vaisseaux et de boutiques en arrière-plan, avec abandon automatique des résultats devenus obsolètes ;
+- cache mémoire SQLite pour accélérer instantanément les recherches répétées ;
+- index de lecture ajoutés automatiquement aux bases existantes et aux futures synchronisations ;
 - filtres par famille, catégorie, fabricant, taille, système et planète ;
 - navigation simplifiée autour des vaisseaux, de l'équipement de vaisseau et de l'équipement personnel ;
 - textes et tableaux agrandis dans toutes les pages pour une meilleure lisibilité ;
@@ -36,6 +40,8 @@ Une action GitHub est aussi incluse pour construire automatiquement l'exécutabl
 - comparaison côte à côte de quatre vaisseaux ou équipements ;
 - historique des fiches récemment consultées ;
 - barre latérale rétractable et interface adaptée aux fenêtres plus petites ;
+- repli automatique de la barre latérale sur les fenêtres étroites, avec temporisation du redimensionnement ;
+- mode performances optionnel dans **Réglages** pour les ordinateurs plus modestes ;
 - fonctionnement hors ligne grâce au cache SQLite ;
 - onglet **Mises à jour** séparant le logiciel et les données Star Citizen ;
 - installation du logiciel suivie en quatre étapes avec confirmation après redémarrage ;
@@ -84,4 +90,4 @@ Les prix UEX sont communautaires. Ils peuvent évoluer après un hotfix, une rem
 
 Les sources et avertissements complets sont indiqués dans [ATTRIBUTION.md](ATTRIBUTION.md). Ce projet est un outil communautaire non officiel et n'est ni affilié ni approuvé par Cloud Imperium Games.
 
-Créé par **AsteriaxTTV** — version 1.3.6.
+Créé par **AsteriaxTTV** — version 1.4.0.

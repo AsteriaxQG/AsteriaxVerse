@@ -1,5 +1,17 @@
 # Historique
 
+## 1.4.0 — 27 août 2026
+
+- pagination des catalogues d’objets, de vaisseaux et de boutiques pour éviter le rendu simultané de milliers de lignes ;
+- recherches SQLite exécutées hors du fil graphique, avec résultats obsolètes automatiquement ignorés ;
+- cache mémoire protégé pour accélérer les recherches répétées sans partager d’objets modifiables ;
+- nouveaux index de lecture appliqués aux bases existantes et créés pendant chaque synchronisation ;
+- conservation du tri et des filtres entre les sessions ;
+- nouveau **Mode performances** limitant chaque page à 100 lignes et supprimant les animations non essentielles ;
+- barre latérale automatiquement repliée sur une petite fenêtre puis restaurée selon la préférence de l’utilisateur ;
+- temporisation des recalculs de mise en page pour fluidifier le passage plein écran/fenêtre ;
+- suppression des doubles recherches lors de l’ouverture directe d’une fiche.
+
 ## 1.3.6 — 27 août 2026
 
 - progression de l’installation présentée en quatre étapes clairement identifiées ;

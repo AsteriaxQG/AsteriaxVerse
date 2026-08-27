@@ -1,5 +1,16 @@
 # Historique
 
+## 1.5.0 — 27 août 2026
+
+- comparateur recentré sur trois éléments pour conserver des cartes lisibles ;
+- détection automatique du meilleur prix et du plus grand cargo ;
+- affichage de l’écart avec l’option la moins chère ;
+- date et indicateur de fiabilité ajoutés à chaque prix dans les fiches et le comparateur ;
+- tableau des actualités LIVE intégré à l’accueil, sans créer d’onglet redondant ;
+- accès à la source officielle par double-clic sur une actualité ;
+- éléments consultés récemment proposés dans la recherche globale ;
+- résumé des changements de quantité après la synchronisation du catalogue.
+
 ## 1.4.3 — 27 août 2026
 
 - centrage des prix sous leurs en-têtes dans tous les tableaux ;

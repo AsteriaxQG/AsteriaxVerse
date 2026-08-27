@@ -1,7 +1,7 @@
 {
-  "version": "1.4.1",
+  "version": "1.4.2",
   "download_url": "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe",
   "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
   "size": 0,
-  "release_notes": "Installation Windows complète : raccourcis Bureau et Menu Démarrer, désinstalleur propre et mises à jour automatiques conservées."
+  "release_notes": "Interface modernisée : tableaux arrondis, cadres carrés supprimés, en-têtes plus aérés et pagination harmonisée."
 }

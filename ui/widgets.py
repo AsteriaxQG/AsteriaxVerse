@@ -24,12 +24,20 @@ def configure_ttk_styles(root: tk.Misc) -> None:
         background=COLORS["panel"],
         fieldbackground=COLORS["panel"],
         foreground=COLORS["text"],
-        bordercolor=COLORS["border"],
-        lightcolor=COLORS["border"],
-        darkcolor=COLORS["border"],
+        bordercolor=COLORS["panel"],
+        lightcolor=COLORS["panel"],
+        darkcolor=COLORS["panel"],
         borderwidth=0,
+        relief="flat",
         rowheight=40,
         font=("Segoe UI", 12),
+    )
+    # ``clam`` draws a square field border around Treeview widgets even when
+    # ``borderwidth`` is zero.  Keeping only the tree area lets the rounded
+    # CustomTkinter shell provide the visible outline instead.
+    style.layout(
+        "Asteriax.Treeview",
+        [("Treeview.treearea", {"sticky": "nswe"})],
     )
     style.map(
         "Asteriax.Treeview",
@@ -45,7 +53,7 @@ def configure_ttk_styles(root: tk.Misc) -> None:
         darkcolor=COLORS["border"],
         borderwidth=0,
         relief="flat",
-        padding=(8, 10),
+        padding=(11, 11),
         font=("Segoe UI Semibold", 11),
     )
     style.map(
@@ -157,9 +165,18 @@ class TreeTable(ctk.CTkFrame):
         self._on_sort = on_sort
         self._page_size = max(25, int(page_size)) if page_size else None
         self._page_index = 0
+        self.table_shell = ctk.CTkFrame(
+            self,
+            fg_color=COLORS["panel_alt"],
+            corner_radius=11,
+            border_width=0,
+        )
+        self.table_shell.grid(row=0, column=0, padx=8, pady=(8, 6), sticky="nsew")
+        self.table_shell.grid_rowconfigure(0, weight=1)
+        self.table_shell.grid_columnconfigure(0, weight=1)
         ids = [column[0] for column in columns]
         self.tree = ttk.Treeview(
-            self,
+            self.table_shell,
             columns=ids,
             show="headings",
             style="Asteriax.Treeview",
@@ -173,24 +190,24 @@ class TreeTable(ctk.CTkFrame):
             )
             self.tree.column(column_id, width=width, minwidth=45, anchor=anchor, stretch=column_id in {"name", "location"})
         scrollbar = ttk.Scrollbar(
-            self,
+            self.table_shell,
             orient="vertical",
             command=self.tree.yview,
             style="Asteriax.Vertical.TScrollbar",
         )
         self.tree.configure(yscrollcommand=scrollbar.set)
-        self.tree.grid(row=0, column=0, padx=(8, 0), pady=8, sticky="nsew")
-        scrollbar.grid(row=0, column=1, padx=(0, 7), pady=8, sticky="ns")
+        self.tree.grid(row=0, column=0, padx=(6, 0), pady=(6, 0), sticky="nsew")
+        scrollbar.grid(row=0, column=1, padx=(2, 6), pady=(7, 1), sticky="ns")
         horizontal = ttk.Scrollbar(
-            self,
+            self.table_shell,
             orient="horizontal",
             command=self.tree.xview,
             style="Asteriax.Horizontal.TScrollbar",
         )
         self.tree.configure(xscrollcommand=horizontal.set)
-        horizontal.grid(row=1, column=0, padx=8, pady=(0, 7), sticky="ew")
+        horizontal.grid(row=1, column=0, padx=(7, 1), pady=(2, 6), sticky="ew")
         self.page_bar = ctk.CTkFrame(self, fg_color="transparent")
-        self.page_bar.grid(row=2, column=0, columnspan=2, padx=8, pady=(0, 8), sticky="ew")
+        self.page_bar.grid(row=1, column=0, padx=8, pady=(0, 8), sticky="ew")
         self.page_bar.grid_columnconfigure(1, weight=1)
         self.previous_page_button = ctk.CTkButton(
             self.page_bar,
@@ -198,6 +215,7 @@ class TreeTable(ctk.CTkFrame):
             command=lambda: self.change_page(-1),
             width=105,
             height=28,
+            corner_radius=8,
             fg_color=COLORS["panel_alt"],
             hover_color=COLORS["panel_hover"],
             border_width=1,
@@ -219,6 +237,7 @@ class TreeTable(ctk.CTkFrame):
             command=lambda: self.change_page(1),
             width=105,
             height=28,
+            corner_radius=8,
             fg_color=COLORS["panel_alt"],
             hover_color=COLORS["panel_hover"],
             border_width=1,

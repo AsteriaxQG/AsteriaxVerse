@@ -29,7 +29,7 @@ Après avoir lancé une première fois `LANCER.bat`, double-cliquez sur **CONSTR
 
 Une action GitHub est aussi incluse pour construire automatiquement l'exécutable sur un véritable environnement Windows.
 
-## Fonctions de la version 1.4.1
+## Fonctions de la version 1.4.2
 
 - 184 vaisseaux et véhicules actuellement achetables en jeu ;
 - 2 796 objets achetables et 23 679 relevés de prix actifs ;
@@ -44,6 +44,8 @@ Une action GitHub est aussi incluse pour construire automatiquement l'exécutabl
 - filtres par famille, catégorie, fabricant, taille, système et planète ;
 - navigation simplifiée autour des vaisseaux, de l'équipement de vaisseau et de l'équipement personnel ;
 - textes et tableaux agrandis dans toutes les pages pour une meilleure lisibilité ;
+- tableaux désormais intégrés dans des surfaces arrondies, sans cadre intérieur carré ;
+- en-têtes, barres de défilement et pagination harmonisés avec le design général ;
 - exploration de chaque boutique avec son inventaire complet ;
 - comparaison côte à côte de quatre vaisseaux ou équipements ;
 - historique des fiches récemment consultées ;
@@ -100,4 +102,4 @@ Les prix UEX sont communautaires. Ils peuvent évoluer après un hotfix, une rem
 
 Les sources et avertissements complets sont indiqués dans [ATTRIBUTION.md](ATTRIBUTION.md). Ce projet est un outil communautaire non officiel et n'est ni affilié ni approuvé par Cloud Imperium Games.
 
-Créé par **AsteriaxTTV** — version 1.4.1.
+Créé par **AsteriaxTTV** — version 1.4.2.

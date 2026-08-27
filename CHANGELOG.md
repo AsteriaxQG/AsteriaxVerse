@@ -1,5 +1,14 @@
 # Historique
 
+## 1.4.2 — 27 août 2026
+
+- suppression du cadre intérieur carré des tableaux natifs Windows ;
+- ajout d’une surface intérieure arrondie cohérente avec les cartes de l’application ;
+- en-têtes de colonnes plus aérés et visuellement mieux intégrés ;
+- repositionnement des barres de défilement dans la nouvelle surface ;
+- boutons de pagination arrondis et harmonisés avec le reste de l’interface ;
+- amélioration appliquée à tous les tableaux des différents onglets.
+
 ## 1.4.1 — 27 août 2026
 
 - ajout d’un véritable installateur Windows construit avec Inno Setup ;

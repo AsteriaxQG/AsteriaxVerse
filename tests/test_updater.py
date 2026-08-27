@@ -5,6 +5,7 @@ import io
 import json
 import tempfile
 import unittest
+import urllib.request
 from pathlib import Path
 from unittest.mock import patch
 
@@ -38,7 +39,7 @@ class UpdaterTests(unittest.TestCase):
         self.assertGreater(version_key("v1.3.10"), version_key("1.3.9"))
 
     def test_manifest_requires_integrity_data_for_new_release(self) -> None:
-        payload = json.dumps({"version": "1.3.3", "download_url": OFFICIAL_EXE_URL}).encode()
+        payload = json.dumps({"version": "1.3.4", "download_url": OFFICIAL_EXE_URL}).encode()
         with patch("core.updater.urllib.request.urlopen", return_value=FakeResponse(payload, "https://example.test/manifest.json")):
             with self.assertRaisesRegex(ValueError, "SHA-256"):
                 check_app_update("https://example.test/manifest.json")
@@ -47,7 +48,7 @@ class UpdaterTests(unittest.TestCase):
         checksum = "a" * 64
         payload = json.dumps(
             {
-                "version": "1.3.3",
+                "version": "1.3.4",
                 "download_url": OFFICIAL_EXE_URL,
                 "sha256": checksum,
                 "size": 12345,
@@ -60,11 +61,25 @@ class UpdaterTests(unittest.TestCase):
         self.assertEqual(result["sha256"], checksum)
         self.assertEqual(result["size"], 12345)
 
+    def test_manifest_request_bypasses_stale_caches(self) -> None:
+        payload = json.dumps({"version": "1.3.3"}).encode()
+        captured: list[urllib.request.Request] = []
+
+        def open_request(request: urllib.request.Request, timeout: int = 0) -> FakeResponse:
+            captured.append(request)
+            return FakeResponse(payload, request.full_url)
+
+        with patch("core.updater.urllib.request.urlopen", side_effect=open_request):
+            result = check_app_update("https://example.test/manifest.json")
+        self.assertFalse(result["available"])
+        self.assertIn("asteriax_cache=", captured[0].full_url)
+        self.assertEqual(captured[0].get_header("Cache-control"), "no-cache")
+
     def test_download_is_kept_only_after_size_hash_and_pe_checks(self) -> None:
         payload = b"MZ" + (b"Asteriax" * 2048)
         checksum = hashlib.sha256(payload).hexdigest()
         info = {
-            "latest_version": "1.3.3",
+            "latest_version": "1.3.4",
             "download_url": OFFICIAL_EXE_URL,
             "sha256": checksum,
             "size": len(payload),
@@ -79,13 +94,13 @@ class UpdaterTests(unittest.TestCase):
             ):
                 result = download_app_update(info, lambda fraction, _message: progress.append(fraction))
             self.assertEqual(result.read_bytes(), payload)
-            self.assertEqual(result.name, "AsteriaxVerse-1.3.3.exe")
+            self.assertEqual(result.name, "AsteriaxVerse-1.3.4.exe")
             self.assertEqual(progress[-1], 1.0)
 
     def test_corrupt_download_is_deleted(self) -> None:
         payload = b"MZcorrupt"
         info = {
-            "latest_version": "1.3.3",
+            "latest_version": "1.3.4",
             "download_url": OFFICIAL_EXE_URL,
             "sha256": "0" * 64,
             "size": len(payload),

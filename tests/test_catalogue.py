@@ -157,7 +157,7 @@ class UserStoreTests(unittest.TestCase):
             self.assertEqual(store.get_json_setting("filters:test", {})["planet"], "ArcCorp")
 
     def test_brand_links_version_and_assets(self) -> None:
-        self.assertEqual(APP_VERSION, "1.3.2")
+        self.assertEqual(APP_VERSION, "1.3.3")
         self.assertEqual(
             APP_UPDATE_MANIFEST_URL,
             "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/UPDATE_MANIFEST.json",
@@ -189,6 +189,12 @@ class UserStoreTests(unittest.TestCase):
         self.assertIn("self._page_factories", source)
         self.assertIn("previous.grid_remove()", source)
         self.assertIn("page = self._get_page(name)", source)
+
+    def test_update_check_has_visible_feedback_and_timeout(self) -> None:
+        source = (ROOT / "ui" / "advanced_pages.py").read_text(encoding="utf-8")
+        self.assertIn("self.update_idletasks()", source)
+        self.assertIn("_app_check_timed_out", source)
+        self.assertIn("Vérification de la version Asteriax Verse", source)
 
 
 if __name__ == "__main__":

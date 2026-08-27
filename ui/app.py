@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import queue
 import re
 import threading
 import tkinter as tk
@@ -2089,14 +2090,25 @@ class AsteriaxApp(ctk.CTk):
         self,
         callback: Callable[[dict[str, Any] | None, Exception | None], None] | None = None,
     ) -> None:
+        results: queue.SimpleQueue[tuple[dict[str, Any] | None, Exception | None]] = queue.SimpleQueue()
+
         def worker() -> None:
             try:
-                result = fetch_app_update()
-                self.after(0, lambda: self._finish_app_check(result, None, callback))
+                results.put((fetch_app_update(), None))
             except Exception as exc:
-                self.after(0, lambda error=exc: self._finish_app_check(None, error, callback))
+                results.put((None, exc))
+
+        def poll_result() -> None:
+            try:
+                result, error = results.get_nowait()
+            except queue.Empty:
+                if self.winfo_exists():
+                    self.after(80, poll_result)
+                return
+            self._finish_app_check(result, error, callback)
 
         threading.Thread(target=worker, name="asteriax-app-update-check", daemon=True).start()
+        self.after(80, poll_result)
 
     def _finish_app_check(
         self,

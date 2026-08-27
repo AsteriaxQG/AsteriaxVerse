@@ -1,5 +1,13 @@
 # Historique
 
+## 1.3.5 — 27 août 2026
+
+- suppression complète du script PowerShell bloqué sur certaines configurations Windows ;
+- lancement du nouvel EXE dans un mode de mise à jour intégré et autonome ;
+- attente de la fermeture, remplacement atomique puis redémarrage sans interpréteur externe ;
+- contrôle SHA-256 avant et après la copie ;
+- journal créé dès le lancement et restauration automatique de l’ancienne version en cas d’échec.
+
 ## 1.3.4 — 27 août 2026
 
 - remplacement de **Roberts Space Industries** par la marque officielle **RSI** ;

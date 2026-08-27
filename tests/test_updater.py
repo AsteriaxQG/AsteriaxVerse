@@ -7,9 +7,17 @@ import tempfile
 import unittest
 import urllib.request
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
-from core.updater import build_update_script, check_app_update, download_app_update, version_key
+from core.updater import (
+    APPLY_UPDATE_FLAG,
+    apply_downloaded_update,
+    check_app_update,
+    download_app_update,
+    launch_app_update,
+    run_update_bootstrap,
+    version_key,
+)
 
 
 OFFICIAL_EXE_URL = "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe"
@@ -39,7 +47,7 @@ class UpdaterTests(unittest.TestCase):
         self.assertGreater(version_key("v1.3.10"), version_key("1.3.9"))
 
     def test_manifest_requires_integrity_data_for_new_release(self) -> None:
-        payload = json.dumps({"version": "1.3.5", "download_url": OFFICIAL_EXE_URL}).encode()
+        payload = json.dumps({"version": "1.3.6", "download_url": OFFICIAL_EXE_URL}).encode()
         with patch("core.updater.urllib.request.urlopen", return_value=FakeResponse(payload, "https://example.test/manifest.json")):
             with self.assertRaisesRegex(ValueError, "SHA-256"):
                 check_app_update("https://example.test/manifest.json")
@@ -48,7 +56,7 @@ class UpdaterTests(unittest.TestCase):
         checksum = "a" * 64
         payload = json.dumps(
             {
-                "version": "1.3.5",
+                "version": "1.3.6",
                 "download_url": OFFICIAL_EXE_URL,
                 "sha256": checksum,
                 "size": 12345,
@@ -62,7 +70,7 @@ class UpdaterTests(unittest.TestCase):
         self.assertEqual(result["size"], 12345)
 
     def test_manifest_request_bypasses_stale_caches(self) -> None:
-        payload = json.dumps({"version": "1.3.4"}).encode()
+        payload = json.dumps({"version": "1.3.5"}).encode()
         captured: list[urllib.request.Request] = []
 
         def open_request(request: urllib.request.Request, timeout: int = 0) -> FakeResponse:
@@ -79,7 +87,7 @@ class UpdaterTests(unittest.TestCase):
         payload = b"MZ" + (b"Asteriax" * 2048)
         checksum = hashlib.sha256(payload).hexdigest()
         info = {
-            "latest_version": "1.3.5",
+            "latest_version": "1.3.6",
             "download_url": OFFICIAL_EXE_URL,
             "sha256": checksum,
             "size": len(payload),
@@ -94,13 +102,13 @@ class UpdaterTests(unittest.TestCase):
             ):
                 result = download_app_update(info, lambda fraction, _message: progress.append(fraction))
             self.assertEqual(result.read_bytes(), payload)
-            self.assertEqual(result.name, "AsteriaxVerse-1.3.5.exe")
+            self.assertEqual(result.name, "AsteriaxVerse-1.3.6.exe")
             self.assertEqual(progress[-1], 1.0)
 
     def test_corrupt_download_is_deleted(self) -> None:
         payload = b"MZcorrupt"
         info = {
-            "latest_version": "1.3.5",
+            "latest_version": "1.3.6",
             "download_url": OFFICIAL_EXE_URL,
             "sha256": "0" * 64,
             "size": len(payload),
@@ -118,20 +126,77 @@ class UpdaterTests(unittest.TestCase):
             self.assertFalse(any(update_dir.glob("*.part")))
             self.assertFalse(any(update_dir.glob("*.exe")))
 
-    def test_restart_script_rechecks_hash_and_relaunches_target(self) -> None:
-        checksum = "b" * 64
-        script = build_update_script(
-            Path("C:/Users/O'Brien/update.exe"),
-            Path("C:/Apps/AsteriaxVerse.exe"),
-            checksum,
-            4242,
-            Path("C:/Temp/update.log"),
-        )
-        self.assertIn("Get-Process -Id 4242", script)
-        self.assertIn("Get-FileHash", script)
-        self.assertIn(checksum, script)
-        self.assertIn("O''Brien", script)
-        self.assertIn("Start-Process -FilePath $target", script)
+    def test_integrated_updater_replaces_and_relaunches_target(self) -> None:
+        new_payload = b"MZnew-version" * 256
+        old_payload = b"MZold-version" * 128
+        checksum = hashlib.sha256(new_payload).hexdigest()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "AsteriaxVerse-1.3.6.exe"
+            target = root / "AsteriaxVerse.exe"
+            log = root / "update.log"
+            source.write_bytes(new_payload)
+            target.write_bytes(old_payload)
+            launched = Mock(pid=777)
+            with (
+                patch("core.updater._process_exists", return_value=False),
+                patch("core.updater.subprocess.Popen", return_value=launched) as popen,
+            ):
+                installed = apply_downloaded_update(source, target, checksum, 4242, log)
+            self.assertEqual(installed, target)
+            self.assertEqual(target.read_bytes(), new_payload)
+            self.assertFalse(target.with_name(target.name + ".old").exists())
+            popen.assert_called_once()
+            self.assertIn("Version installée et relancée", log.read_text(encoding="utf-8"))
+
+    def test_launcher_starts_downloaded_exe_without_powershell(self) -> None:
+        payload = b"MZintegrated-updater" * 128
+        checksum = hashlib.sha256(payload).hexdigest()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "AsteriaxVerse-1.3.6.exe"
+            target = root / "AsteriaxVerse.exe"
+            source.write_bytes(payload)
+            target.write_bytes(b"MZold")
+            launched = Mock(pid=888)
+            with (
+                patch("core.updater.can_self_update", return_value=True),
+                patch("core.updater.sys.executable", str(target)),
+                patch("core.updater.user_data_dir", return_value=root),
+                patch("core.updater.subprocess.Popen", return_value=launched) as popen,
+            ):
+                log = launch_app_update(source, {"sha256": checksum})
+            command = popen.call_args.args[0]
+            self.assertEqual(command[0], str(source))
+            self.assertEqual(command[1], APPLY_UPDATE_FLAG)
+            self.assertNotIn("powershell.exe", command)
+            self.assertTrue(log.exists())
+
+    def test_bootstrap_restores_old_exe_when_relaunch_fails(self) -> None:
+        new_payload = b"MZnew-version" * 256
+        old_payload = b"MZold-version" * 128
+        checksum = hashlib.sha256(new_payload).hexdigest()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "AsteriaxVerse-1.3.6.exe"
+            target = root / "AsteriaxVerse.exe"
+            log = root / "update.log"
+            source.write_bytes(new_payload)
+            target.write_bytes(old_payload)
+            with (
+                patch("core.updater.sys.executable", str(source)),
+                patch("core.updater._process_exists", return_value=False),
+                patch(
+                    "core.updater.subprocess.Popen",
+                    side_effect=[OSError("relaunch failed"), Mock(pid=999)],
+                ),
+            ):
+                result = run_update_bootstrap(
+                    [APPLY_UPDATE_FLAG, str(target), checksum, "4242", str(log)]
+                )
+            self.assertEqual(result, 1)
+            self.assertEqual(target.read_bytes(), old_payload)
+            self.assertIn("Ancienne version restaurée", log.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

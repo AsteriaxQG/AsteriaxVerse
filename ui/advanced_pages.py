@@ -27,7 +27,7 @@ from core.constants import (
     translate_category,
     translate_section,
 )
-from core.database import format_price, location_label
+from core.database import format_price, location_label, price_freshness_label
 from core.paths import user_data_dir
 from core.updater import can_self_update, download_app_update, launch_app_update
 from ui.widgets import EmptyState, SectionTitle, TreeTable, labelled_combo
@@ -145,6 +145,7 @@ class GlobalSearchDialog(ctk.CTkToplevel):
 
         self.bind("<Escape>", lambda _event: self.destroy())
         self.bind("<Control-k>", lambda _event: self.entry.focus_set())
+        self.refresh_results()
         self.after(80, self.entry.focus_set)
 
     def _schedule(self, _event: Any = None) -> None:
@@ -161,7 +162,12 @@ class GlobalSearchDialog(ctk.CTkToplevel):
 
     def refresh_results(self) -> None:
         query = self.query.get().strip()
-        rows = self.app.repo.global_search(query) if len(query) >= 2 else []
+        if len(query) >= 2:
+            rows = self.app.repo.global_search(query)
+        elif not query:
+            rows = self._recent_results()
+        else:
+            rows = []
         self.rows = {_entity_iid(row["kind"], row["id"]): row for row in rows}
         self.table.populate(
             (
@@ -178,12 +184,46 @@ class GlobalSearchDialog(ctk.CTkToplevel):
             for iid, row in self.rows.items()
         )
         if not query:
-            label = "Commencez à taper pour rechercher."
+            label = (
+                "Consultés récemment · commencez à taper pour rechercher"
+                if rows
+                else "Commencez à taper pour rechercher."
+            )
         elif len(query) < 2:
             label = "Saisissez au moins deux caractères."
         else:
             label = f"{len(rows)} résultat(s) · Entrée ou double-clic pour ouvrir"
         self.result_label.configure(text=label)
+
+    def _recent_results(self) -> list[dict[str, Any]]:
+        resolved = self.app.repo.resolve_entities(self.app.user_store.recent_entries(12))
+        rows: list[dict[str, Any]] = []
+        for row in resolved:
+            detail = row.get("detail") or {}
+            if row.get("kind") == "vehicle":
+                subtitle = " • ".join(
+                    value for value in (detail.get("manufacturer"), detail.get("roles")) if value
+                )
+            else:
+                subtitle = " • ".join(
+                    value
+                    for value in (
+                        translate_category(detail.get("category")),
+                        detail.get("manufacturer"),
+                    )
+                    if value
+                )
+            rows.append(
+                {
+                    "kind": row["kind"],
+                    "id": int(row["entity_id"]),
+                    "name": row["name"],
+                    "subtitle": subtitle,
+                    "price_min": row.get("price_min"),
+                    "location": row.get("location"),
+                }
+            )
+        return rows
 
     def open_selected(self) -> None:
         parsed = _parse_iid(self.table.selected_id())
@@ -745,13 +785,13 @@ class ShoppingPage(AdvancedPage):
 
 class ComparePage(AdvancedPage):
     title = "Comparateur"
-    subtitle = "Comparez jusqu’à quatre modèles ou équipements côte à côte."
+    subtitle = "Comparez jusqu’à trois modèles ou équipements côte à côte."
 
     def __init__(self, master: Any, app: Any):
         super().__init__(master, app)
         self.kind = "vehicle"
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(2, weight=1)
         top = ctk.CTkFrame(self, fg_color="transparent")
         top.grid(row=0, column=0, pady=(0, 12), sticky="ew")
         top.grid_columnconfigure(1, weight=1)
@@ -785,8 +825,19 @@ class ComparePage(AdvancedPage):
             hover_color=COLORS["panel_hover"],
             text_color=COLORS["muted"],
         ).grid(row=0, column=2, sticky="e")
+        self.summary_label = ctk.CTkLabel(
+            self,
+            text="",
+            height=34,
+            corner_radius=9,
+            fg_color=COLORS["accent_dark"],
+            text_color=COLORS["accent"],
+            font=("Segoe UI Semibold", 9),
+            anchor="w",
+        )
+        self.summary_label.grid(row=1, column=0, pady=(0, 10), sticky="ew")
         self.cards = ctk.CTkScrollableFrame(self, fg_color="transparent", corner_radius=0)
-        self.cards.grid(row=1, column=0, sticky="nsew")
+        self.cards.grid(row=2, column=0, sticky="nsew")
 
     def _change_kind(self, value: str) -> None:
         self.kind = "vehicle" if value == "Vaisseaux" else "item"
@@ -800,29 +851,48 @@ class ComparePage(AdvancedPage):
             {"kind": self.kind, "entity_id": entity_id} for entity_id in ids
         )
         if not rows:
+            self.summary_label.configure(
+                text="  Ajoutez deux ou trois éléments pour afficher les écarts de prix et de capacité."
+            )
             self.cards.grid_columnconfigure(0, weight=1)
             EmptyState(
                 self.cards,
                 "Rien à comparer",
-                "Ouvrez une fiche puis cliquez sur Comparer. Vous pouvez ajouter jusqu’à quatre éléments.",
+                "Ouvrez une fiche puis cliquez sur Comparer. Vous pouvez ajouter jusqu’à trois éléments.",
             ).grid(row=0, column=0, sticky="nsew")
             return
-        for column in range(4):
+        prices = [
+            float(row.get("price_min") or 0)
+            for row in rows
+            if float(row.get("price_min") or 0) > 0
+        ]
+        cheapest = min(prices) if prices else 0.0
+        cargo_values = [float((row.get("detail") or {}).get("scu") or 0) for row in rows]
+        largest_cargo = max(cargo_values, default=0.0)
+        self.summary_label.configure(text=self._comparison_summary(rows, cheapest, largest_cargo))
+        for column in range(3):
             self.cards.grid_columnconfigure(column, weight=1, uniform="compare")
         for column, row in enumerate(rows):
             detail = row["detail"]
+            row_price = float(row.get("price_min") or 0)
+            is_cheapest = bool(cheapest and row_price == cheapest)
+            has_largest_cargo = bool(
+                self.kind == "vehicle"
+                and largest_cargo
+                and float(detail.get("scu") or 0) == largest_cargo
+            )
             card = ctk.CTkFrame(
                 self.cards,
                 fg_color=COLORS["panel"],
                 corner_radius=14,
                 border_width=1,
-                border_color=COLORS["accent"] if column == 0 else COLORS["border"],
+                border_color=COLORS["accent"] if is_cheapest else COLORS["border"],
             )
             card.grid(row=0, column=column, padx=(0 if column == 0 else 5, 0 if column == len(rows) - 1 else 5), sticky="nsew")
             card.grid_columnconfigure(0, weight=1)
             ctk.CTkLabel(
                 card,
-                text=KIND_LABELS[self.kind].upper(),
+                text="MEILLEUR PRIX" if is_cheapest else KIND_LABELS[self.kind].upper(),
                 font=("Segoe UI Semibold", 8),
                 text_color=COLORS["accent"],
                 anchor="w",
@@ -838,34 +908,55 @@ class ComparePage(AdvancedPage):
             ).grid(row=1, column=0, padx=15, sticky="ew")
             if self.kind == "vehicle":
                 metrics = [
-                    ("Constructeur", detail.get("manufacturer")),
-                    ("Rôle", detail.get("roles")),
-                    ("Cargo", f"{detail.get('scu'):g} SCU" if detail.get("scu") else "—"),
-                    ("Équipage", detail.get("crew")),
-                    ("Longueur", f"{detail.get('length'):g} m" if detail.get("length") else "—"),
-                    ("Pad", detail.get("pad_type")),
+                    ("Constructeur", detail.get("manufacturer"), False),
+                    ("Rôle", detail.get("roles"), False),
+                    ("Cargo", f"{detail.get('scu'):g} SCU" if detail.get("scu") else "—", has_largest_cargo),
+                    ("Équipage", detail.get("crew"), False),
+                    ("Longueur", f"{detail.get('length'):g} m" if detail.get("length") else "—", False),
+                    ("Pad", detail.get("pad_type"), False),
                 ]
             else:
                 metrics = [
-                    ("Fabricant", detail.get("manufacturer")),
-                    ("Famille", translate_section(detail.get("section"))),
-                    ("Catégorie", translate_category(detail.get("category"))),
-                    ("Taille", f"S{detail.get('size')}" if detail.get("size") else "—"),
-                    ("Qualité", detail.get("quality") or "—"),
-                    ("Version", detail.get("game_version") or "—"),
+                    ("Fabricant", detail.get("manufacturer"), False),
+                    ("Famille", translate_section(detail.get("section")), False),
+                    ("Catégorie", translate_category(detail.get("category")), False),
+                    ("Taille", f"S{detail.get('size')}" if detail.get("size") else "—", False),
+                    ("Qualité", detail.get("quality") or "—", False),
+                    ("Version", detail.get("game_version") or "—", False),
                 ]
             row_index = 2
-            for label, value in metrics:
+            for label, value, highlighted in metrics:
                 metric = ctk.CTkFrame(card, fg_color="transparent")
                 metric.grid(row=row_index, column=0, padx=15, pady=(10 if row_index == 2 else 2, 0), sticky="ew")
                 metric.grid_columnconfigure(1, weight=1)
                 ctk.CTkLabel(metric, text=label.upper(), font=("Segoe UI Semibold", 7), text_color=COLORS["muted_2"]).grid(row=0, column=0, sticky="w")
-                ctk.CTkLabel(metric, text=str(value or "—"), wraplength=125, justify="right", font=("Segoe UI", 8), text_color=COLORS["text"]).grid(row=0, column=1, sticky="e")
+                ctk.CTkLabel(
+                    metric,
+                    text=str(value or "—"),
+                    wraplength=125,
+                    justify="right",
+                    font=("Segoe UI Semibold" if highlighted else "Segoe UI", 8),
+                    text_color=COLORS["accent"] if highlighted else COLORS["text"],
+                ).grid(row=0, column=1, sticky="e")
                 row_index += 1
             price = ctk.CTkFrame(card, fg_color=COLORS["accent_dark"], corner_radius=9)
             price.grid(row=row_index, column=0, padx=15, pady=(13, 6), sticky="ew")
             ctk.CTkLabel(price, text=format_price(row.get("price_min")), font=("Segoe UI Semibold", 15), text_color=COLORS["text"]).pack(pady=(7, 0))
-            ctk.CTkLabel(price, text=row.get("location") or "—", wraplength=195, justify="center", font=("Segoe UI", 7), text_color=COLORS["muted"]).pack(padx=7, pady=(2, 7))
+            if cheapest and row_price > cheapest:
+                ctk.CTkLabel(
+                    price,
+                    text=f"+ {format_price(row_price - cheapest)} par rapport au moins cher",
+                    font=("Segoe UI Semibold", 7),
+                    text_color=COLORS["warning"],
+                ).pack(pady=(1, 0))
+            ctk.CTkLabel(price, text=row.get("location") or "—", wraplength=225, justify="center", font=("Segoe UI", 7), text_color=COLORS["muted"]).pack(padx=7, pady=(2, 0))
+            freshness = price_freshness_label(row.get("price_date"))
+            ctk.CTkLabel(
+                price,
+                text=freshness,
+                font=("Segoe UI Semibold", 7),
+                text_color=COLORS["warning"] if "revérifier" in freshness else COLORS["muted_2"],
+            ).pack(padx=7, pady=(1, 7))
             buttons = ctk.CTkFrame(card, fg_color="transparent")
             buttons.grid(row=row_index + 1, column=0, padx=15, pady=(2, 15), sticky="ew")
             buttons.grid_columnconfigure((0, 1), weight=1)
@@ -897,6 +988,25 @@ class ComparePage(AdvancedPage):
     def clear(self) -> None:
         self.app.user_store.clear_comparisons(self.kind)
         self.refresh_data()
+
+    def _comparison_summary(
+        self,
+        rows: list[dict[str, Any]],
+        cheapest: float,
+        largest_cargo: float,
+    ) -> str:
+        if len(rows) == 1:
+            return "  Ajoutez encore un élément pour calculer les écarts."
+        parts: list[str] = []
+        if cheapest:
+            cheapest_row = next(row for row in rows if float(row.get("price_min") or 0) == cheapest)
+            parts.append(f"Meilleur prix : {cheapest_row['name']} ({format_price(cheapest)})")
+        if self.kind == "vehicle" and largest_cargo:
+            cargo_row = next(
+                row for row in rows if float((row.get("detail") or {}).get("scu") or 0) == largest_cargo
+            )
+            parts.append(f"Plus grand cargo : {cargo_row['name']} ({largest_cargo:g} SCU)")
+        return "  " + "   •   ".join(parts or ["Comparaison prête"])
 
 
 class LoadoutPage(AdvancedPage):

@@ -8,15 +8,15 @@ having to touch the UI or the database layer.
 from __future__ import annotations
 
 APP_NAME = "Asteriax Verse"
-APP_VERSION = "1.4.0"
+APP_VERSION = "1.4.1"
 APP_AUTHOR = "AsteriaxTTV"
 USER_AGENT = f"AsteriaxTTV-StarCitizen-Companion/{APP_VERSION}"
 
 APP_RELEASE_NOTES = (
-    "Pagination fluide des grands catalogues au lieu de dessiner des milliers de lignes d’un coup.",
-    "Recherches d’objets, de vaisseaux et de boutiques exécutées en arrière-plan.",
-    "Cache SQLite accélérant les recherches répétées et nouveaux index de lecture.",
-    "Mode performances et barre latérale automatiquement adaptée à la largeur de la fenêtre.",
+    "Véritable installateur Windows disponible pour Asteriax Verse.",
+    "Installation sans droits administrateur dans le profil de l’utilisateur.",
+    "Raccourcis Bureau et Menu Démarrer, avec désinstalleur Windows intégré.",
+    "Réglages et données personnelles conservés pendant les mises à jour et la désinstallation.",
 )
 
 DISCORD_URL = "https://discord.com/invite/YSK3aJwATH"

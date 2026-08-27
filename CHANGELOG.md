@@ -1,5 +1,17 @@
 # Historique
 
+## 1.4.1 — 27 août 2026
+
+- ajout d’un véritable installateur Windows construit avec Inno Setup ;
+- installation par utilisateur dans `%LOCALAPPDATA%\Programs\Asteriax Verse`, sans droits administrateur ;
+- création des raccourcis du Menu Démarrer et du Bureau ;
+- ajout automatique dans la liste **Applications installées** de Windows ;
+- désinstalleur propre conservant volontairement la base et les préférences personnelles ;
+- lancement proposé à la fin de l’installation ;
+- publication automatique de `AsteriaxVerse-Setup.exe` et de son manifeste SHA-256 sur GitHub ;
+- signature Authenticode de l’application et de l’installateur lorsque le certificat facultatif est configuré ;
+- maintien de l’auto-updater direct dans le dossier installé.
+
 ## 1.4.0 — 27 août 2026
 
 - pagination des catalogues d’objets, de vaisseaux et de boutiques pour éviter le rendu simultané de milliers de lignes ;

@@ -231,7 +231,7 @@ class UserStoreTests(unittest.TestCase):
             self.assertEqual(store.get_json_setting("filters:test", {})["planet"], "ArcCorp")
 
     def test_brand_links_version_and_assets(self) -> None:
-        self.assertEqual(APP_VERSION, "1.4.0")
+        self.assertEqual(APP_VERSION, "1.4.1")
         self.assertEqual(
             APP_UPDATE_MANIFEST_URL,
             "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/UPDATE_MANIFEST.json",
@@ -275,6 +275,20 @@ class UserStoreTests(unittest.TestCase):
         self.assertIn('setting_bool("performance_mode"', source)
         self.assertIn("_apply_responsive_layout", source)
         self.assertIn("def _visible_rows", widgets)
+
+    def test_per_user_windows_installer_is_configured(self) -> None:
+        installer = (ROOT / "installer" / "AsteriaxVerse.iss").read_text(encoding="utf-8")
+        workflow = (ROOT / ".github" / "workflows" / "build-windows.yml").read_text(encoding="utf-8")
+        manifest = json.loads((ROOT / "INSTALLER_MANIFEST.example.json").read_text(encoding="utf-8"))
+        self.assertIn("DefaultDirName={localappdata}\\Programs\\Asteriax Verse", installer)
+        self.assertIn("PrivilegesRequired=lowest", installer)
+        self.assertIn("UninstallDisplayIcon={app}\\{#MyAppExeName}", installer)
+        self.assertIn("{autoprograms}\\Asteriax Verse", installer)
+        self.assertIn("{autodesktop}\\Asteriax Verse", installer)
+        self.assertIn("Inno Setup 6", workflow)
+        self.assertIn("AsteriaxVerse-Setup.exe", workflow)
+        self.assertEqual(manifest["version"], APP_VERSION)
+        self.assertEqual(manifest["install_scope"], "current_user")
 
     def test_update_check_has_visible_feedback_and_timeout(self) -> None:
         source = (ROOT / "ui" / "advanced_pages.py").read_text(encoding="utf-8")

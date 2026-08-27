@@ -4,7 +4,15 @@ Application de bureau Star Citizen moderne, créée pour **AsteriaxTTV**.
 
 La base fournie est alignée sur **Star Citizen Alpha 4.10 LIVE** et contient les vaisseaux et véhicules vendus en jeu, les composants, armes de vaisseau, armures, sous-combinaisons, armes personnelles, chargeurs et munitions, ainsi que leurs prix en aUEC et leurs lieux d'achat détaillés.
 
-## Lancement facile sous Windows
+## Installation recommandée sous Windows
+
+Téléchargez puis ouvrez **[AsteriaxVerse-Setup.exe](https://github.com/AsteriaxQG/AsteriaxVerse/raw/refs/heads/main/AsteriaxVerse-Setup.exe)**.
+
+L’assistant installe Asteriax Verse dans `%LOCALAPPDATA%\Programs\Asteriax Verse`, sans demander les droits administrateur. Il crée les raccourcis du Menu Démarrer et du Bureau, ajoute le logiciel aux applications installées de Windows et fournit un désinstalleur propre.
+
+Les réglages et la base personnelle restent dans `%LOCALAPPDATA%\AsteriaxVerse`. Ils sont conservés pendant les mises à jour et ne sont pas supprimés par le désinstalleur.
+
+## Lancement depuis les sources Python
 
 1. Décompressez entièrement l'archive.
 2. Double-cliquez sur **LANCER.bat**.
@@ -21,7 +29,7 @@ Après avoir lancé une première fois `LANCER.bat`, double-cliquez sur **CONSTR
 
 Une action GitHub est aussi incluse pour construire automatiquement l'exécutable sur un véritable environnement Windows.
 
-## Fonctions de la version 1.4.0
+## Fonctions de la version 1.4.1
 
 - 184 vaisseaux et véhicules actuellement achetables en jeu ;
 - 2 796 objets achetables et 23 679 relevés de prix actifs ;
@@ -57,7 +65,9 @@ Une action GitHub est aussi incluse pour construire automatiquement l'exécutabl
 - détection discrète d'un nouveau patch LIVE et synchronisation en arrière-plan ;
 - accès aux notes de patch, à l'état des serveurs, aux problèmes connus et à la roadmap RSI ;
 - logo et identité **AsteriaxTTV** dans l'interface, l'écran de lancement et l'exécutable ;
-- accès direct au [Discord AsteriaxTTV](https://discord.com/invite/YSK3aJwATH) et à la [chaîne Twitch](https://www.twitch.tv/asteriaxttv/about).
+- accès direct au [Discord AsteriaxTTV](https://discord.com/invite/YSK3aJwATH) et à la [chaîne Twitch](https://www.twitch.tv/asteriaxttv/about) ;
+- véritable installateur Windows par utilisateur avec raccourcis et désinstalleur ;
+- mises à jour automatiques toujours appliquées directement dans le logiciel installé.
 
 ## Mise à jour des données
 
@@ -90,4 +100,4 @@ Les prix UEX sont communautaires. Ils peuvent évoluer après un hotfix, une rem
 
 Les sources et avertissements complets sont indiqués dans [ATTRIBUTION.md](ATTRIBUTION.md). Ce projet est un outil communautaire non officiel et n'est ni affilié ni approuvé par Cloud Imperium Games.
 
-Créé par **AsteriaxTTV** — version 1.4.0.
+Créé par **AsteriaxTTV** — version 1.4.1.

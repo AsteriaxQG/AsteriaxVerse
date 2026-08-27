@@ -1,7 +1,7 @@
 {
-  "version": "1.4.2",
+  "version": "1.4.3",
   "download_url": "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe",
-  "sha256": "8c6c5b2de0197c4287858dde96dbcc86de87a73cf04e58509ef87e93efa4b9b8",
-  "size": 21884743,
-  "release_notes": "Interface modernisée : tableaux arrondis, cadres carrés supprimés, en-têtes plus aérés et pagination harmonisée."
+  "sha256": "cb7d2efb0fb2ef41367d72cf87f544bf544b5f5b31bc5feef473d240b601ec6e",
+  "size": 21885733,
+  "release_notes": "Alignement amélioré : prix et lieux centrés dans tous les tableaux de l’application."
 }

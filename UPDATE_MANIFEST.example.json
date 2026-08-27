@@ -1,7 +1,7 @@
 {
-  "version": "1.4.3",
+  "version": "1.5.0",
   "download_url": "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe",
   "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
   "size": 0,
-  "release_notes": "Alignement amélioré : prix et lieux centrés dans tous les tableaux de l’application."
+  "release_notes": "Version majeure 1.5 : comparateur intelligent, fiabilité des prix, actualités LIVE et recherche récente."
 }

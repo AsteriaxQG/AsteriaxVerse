@@ -1,5 +1,16 @@
 # Historique
 
+## 1.5.1 — 28 août 2026
+
+- ajout d’une classe précise à chacun des 184 vaisseaux et véhicules achetables ;
+- distinction entre chasseurs parasites, légers, moyens et lourds ;
+- transports de fret répartis selon leur capacité ;
+- classifications dédiées pour le combat, l’exploration, le minage, la récupération, le médical et les autres spécialités ;
+- ajout du filtre **Classe** dans la page Vaisseaux & véhicules ;
+- remplacement de la colonne générique **Type** par la colonne plus informative **Classe** ;
+- classe affichée dans les fiches, le comparateur et la recherche globale ;
+- taxonomie des chasseurs recoupée avec Star Citizen Wiki.
+
 ## 1.5.0 — 27 août 2026
 
 - comparateur recentré sur trois éléments pour conserver des cartes lisibles ;

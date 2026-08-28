@@ -202,7 +202,13 @@ class GlobalSearchDialog(ctk.CTkToplevel):
             detail = row.get("detail") or {}
             if row.get("kind") == "vehicle":
                 subtitle = " • ".join(
-                    value for value in (detail.get("manufacturer"), detail.get("roles")) if value
+                    value
+                    for value in (
+                        detail.get("manufacturer"),
+                        detail.get("vehicle_class"),
+                        detail.get("roles"),
+                    )
+                    if value
                 )
             else:
                 subtitle = " • ".join(
@@ -909,6 +915,7 @@ class ComparePage(AdvancedPage):
             if self.kind == "vehicle":
                 metrics = [
                     ("Constructeur", detail.get("manufacturer"), False),
+                    ("Classe", detail.get("vehicle_class"), False),
                     ("Rôle", detail.get("roles"), False),
                     ("Cargo", f"{detail.get('scu'):g} SCU" if detail.get("scu") else "—", has_largest_cargo),
                     ("Équipage", detail.get("crew"), False),

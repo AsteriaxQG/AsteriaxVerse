@@ -1,7 +1,7 @@
 {
-  "version": "1.5.0",
+  "version": "1.5.1",
   "download_url": "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe",
   "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
   "size": 0,
-  "release_notes": "Version majeure 1.5 : comparateur intelligent, fiabilité des prix, actualités LIVE et recherche récente."
+  "release_notes": "Classification complète des vaisseaux : chasseurs légers, moyens, lourds, transports, industriels et autres spécialités."
 }

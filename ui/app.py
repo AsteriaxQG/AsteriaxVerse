@@ -961,6 +961,7 @@ class ShipsPage(BasePage):
         ).grid(row=0, column=2)
         self.manufacturer_var = tk.StringVar(value="Tous")
         self.type_var = tk.StringVar(value="Tous")
+        self.class_var = tk.StringVar(value="Toutes")
         self.system_var = tk.StringVar(value="Tous")
         self.planet_var = tk.StringVar(value="Toutes")
         saved = self.app.user_store.get_json_setting("filters:ships", {})
@@ -969,11 +970,12 @@ class ShipsPage(BasePage):
             self.search_var.set(str(saved.get("search") or ""))
             self.manufacturer_var.set(str(saved.get("manufacturer") or "Tous"))
             self.type_var.set(str(saved.get("type") or "Tous"))
+            self.class_var.set(str(saved.get("class") or "Toutes"))
             self.system_var.set(str(saved.get("system") or "Tous"))
             self.planet_var.set(str(saved.get("planet") or "Toutes"))
         self.filter_row = ctk.CTkFrame(panel, fg_color="transparent")
         self.filter_row.grid(row=1, column=0, padx=14, pady=(0, 13), sticky="ew")
-        for column in range(4):
+        for column in range(5):
             self.filter_row.grid_columnconfigure(column, weight=1, uniform="shipfilter")
         self.chip_row = ctk.CTkFrame(panel, fg_color="transparent")
         self.chip_row.grid(row=2, column=0, padx=14, pady=(0, 11), sticky="ew")
@@ -985,6 +987,7 @@ class ShipsPage(BasePage):
         configs = [
             ("Constructeur", self.manufacturer_var, ["Tous"] + options["manufacturers"]),
             ("Type", self.type_var, ["Tous", "Vaisseaux", "Véhicules terrestres"]),
+            ("Classe", self.class_var, ["Toutes"] + options["classes"]),
             ("Système", self.system_var, ["Tous"] + options["systems"]),
             ("Planète", self.planet_var, ["Toutes"] + options["planets"]),
         ]
@@ -996,7 +999,7 @@ class ShipsPage(BasePage):
                 values=values,
                 command=lambda _value: self.refresh_results(),
                 width=185,
-            ).grid(row=0, column=column, padx=(0 if column == 0 else 4, 0 if column == 3 else 4), sticky="ew")
+            ).grid(row=0, column=column, padx=(0 if column == 0 else 4, 0 if column == 4 else 4), sticky="ew")
 
     def _build_content(self) -> None:
         content = ctk.CTkFrame(self, fg_color="transparent")
@@ -1009,7 +1012,7 @@ class ShipsPage(BasePage):
             [
                 ("name", "MODÈLE", 205, "w"),
                 ("maker", "CONSTRUCTEUR", 145, "w"),
-                ("type", "TYPE", 90, "center"),
+                ("class", "CLASSE", 165, "center"),
                 ("scu", "SCU", 58, "center"),
                 ("price", "MEILLEUR PRIX", 128, "e"),
                 ("location", "LIEU", 130, "w"),
@@ -1045,6 +1048,7 @@ class ShipsPage(BasePage):
         self.search_var.set("")
         self.manufacturer_var.set("Tous")
         self.type_var.set("Tous")
+        self.class_var.set("Toutes")
         self.system_var.set("Tous")
         self.planet_var.set("Toutes")
         if refresh:
@@ -1056,6 +1060,7 @@ class ShipsPage(BasePage):
         configs = [
             ("Constructeur", self.manufacturer_var, "Tous"),
             ("Type", self.type_var, "Tous"),
+            ("Classe", self.class_var, "Toutes"),
             ("Système", self.system_var, "Tous"),
             ("Planète", self.planet_var, "Toutes"),
         ]
@@ -1092,6 +1097,7 @@ class ShipsPage(BasePage):
                 "search": self.search_var.get(),
                 "manufacturer": self.manufacturer_var.get(),
                 "type": self.type_var.get(),
+                "class": self.class_var.get(),
                 "system": self.system_var.get(),
                 "planet": self.planet_var.get(),
                 "sort_column": sort_column,
@@ -1116,6 +1122,7 @@ class ShipsPage(BasePage):
             "search": self.search_var.get(),
             "manufacturer": "" if self.manufacturer_var.get() == "Tous" else self.manufacturer_var.get(),
             "vehicle_type": "" if self.type_var.get() == "Tous" else self.type_var.get(),
+            "vehicle_class": "" if self.class_var.get() == "Toutes" else self.class_var.get(),
             "star_system": "" if self.system_var.get() == "Tous" else self.system_var.get(),
             "planet": "" if self.planet_var.get() == "Toutes" else self.planet_var.get(),
         }
@@ -1169,7 +1176,7 @@ class ShipsPage(BasePage):
                 (
                     str(row["name"]),
                     row.get("manufacturer") or "—",
-                    "Sol" if row.get("is_ground_vehicle") else "Vaisseau",
+                    row.get("vehicle_class") or "—",
                     f"{row.get('scu', 0):g}" if row.get("scu") else "—",
                     format_price(row.get("price_min")),
                     _short_location(row),
@@ -1235,7 +1242,10 @@ class ShipsPage(BasePage):
         ).grid(row=1, column=0, padx=16, sticky="ew")
         ctk.CTkLabel(
             self.detail,
-            text=f"{detail.get('manufacturer') or 'Constructeur inconnu'}  •  {detail.get('roles') or 'Polyvalent'}",
+            text=(
+                f"{detail.get('manufacturer') or 'Constructeur inconnu'}  •  "
+                f"{detail.get('vehicle_class') or 'Multirôle'}  •  {detail.get('roles') or 'Polyvalent'}"
+            ),
             wraplength=310,
             justify="left",
             font=("Segoe UI", 9),

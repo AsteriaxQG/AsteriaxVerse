@@ -134,6 +134,26 @@ class CatalogueSnapshotTests(unittest.TestCase):
             self.assertGreater(row["price_min"], 0)
             self.assertNotEqual(location_label(row), "Lieu non renseigné")
 
+    def test_every_buyable_vehicle_has_a_precise_class(self) -> None:
+        vehicles = self.repo.search_vehicles(limit=2000)
+        self.assertEqual(len(vehicles), 184)
+        self.assertTrue(all(row.get("vehicle_class") for row in vehicles))
+        expected = {
+            "Arrow": "Chasseur léger",
+            "Meteor": "Chasseur moyen",
+            "Hurricane": "Chasseur lourd",
+            "Fury": "Chasseur parasite",
+            "Hull B": "Transport de fret lourd",
+            "Prospector": "Minage",
+            "Hammerhead": "Combat lourd",
+        }
+        by_name = {row["name"]: row["vehicle_class"] for row in vehicles}
+        for name, vehicle_class in expected.items():
+            self.assertEqual(by_name[name], vehicle_class)
+        light_fighters = self.repo.search_vehicles(vehicle_class="Chasseur léger", limit=2000)
+        self.assertGreater(len(light_fighters), 10)
+        self.assertTrue(all(row["vehicle_class"] == "Chasseur léger" for row in light_fighters))
+
     def test_alpha_410_vehicle_shop_additions(self) -> None:
         expected = {
             "Aurora Mk II": {904_932, 952_560},
@@ -251,7 +271,7 @@ class UserStoreTests(unittest.TestCase):
             self.assertEqual(store.get_json_setting("filters:test", {})["planet"], "ArcCorp")
 
     def test_brand_links_version_and_assets(self) -> None:
-        self.assertEqual(APP_VERSION, "1.5.0")
+        self.assertEqual(APP_VERSION, "1.5.1")
         self.assertEqual(
             APP_UPDATE_MANIFEST_URL,
             "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/UPDATE_MANIFEST.json",

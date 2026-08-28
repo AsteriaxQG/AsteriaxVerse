@@ -4,7 +4,7 @@
 
 - **UEX Corp API 2.0** : objets, catégories, vaisseaux, véhicules, prix, terminaux et hiérarchie des lieux. Données communautaires synchronisées depuis `https://api.uexcorp.uk/2.0/`.
 - **Roberts Space Industries** : version LIVE officielle, build, notes de patch, statut des services et problèmes connus.
-- **Star Citizen Wiki** : contrôle indépendant de la liste des vaisseaux achetables en jeu.
+- **Star Citizen Wiki** : contrôle indépendant de la liste des vaisseaux achetables en jeu et taxonomie des chasseurs légers, moyens, lourds et parasites.
 - **Relevés communautaires 4.10** : contrôle des prix des cinq nouvelles ventes en jeu pendant le délai de publication du flux UEX.
 
 Instantané fourni : **Star Citizen 4.10.0**, synchronisé le 26 août 2026. Build officiel recoupé : **4.10.0-LIVE.12519617**.

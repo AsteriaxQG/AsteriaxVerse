@@ -8,16 +8,16 @@ having to touch the UI or the database layer.
 from __future__ import annotations
 
 APP_NAME = "Asteriax Verse"
-APP_VERSION = "1.5.0"
+APP_VERSION = "1.5.1"
 APP_AUTHOR = "AsteriaxTTV"
 USER_AGENT = f"AsteriaxTTV-StarCitizen-Companion/{APP_VERSION}"
 
 APP_RELEASE_NOTES = (
-    "Comparateur intelligent limité à trois éléments avec écarts de prix et meilleur cargo.",
-    "Date et fiabilité des prix affichées dans les fiches et le comparateur.",
-    "Tableau des actualités LIVE ajouté à la page d’accueil.",
-    "Recherches récentes proposées dès l’ouverture de la recherche globale.",
-    "Résumé des changements affiché après chaque synchronisation du catalogue.",
+    "Classe précise ajoutée aux 184 vaisseaux et véhicules achetables.",
+    "Chasseurs distingués en léger, moyen, lourd ou parasite.",
+    "Transports classés selon leur fonction et leur capacité de fret.",
+    "Nouveau filtre Classe dans la page Vaisseaux & véhicules.",
+    "Classe affichée dans les fiches, la recherche et le comparateur.",
 )
 
 DISCORD_URL = "https://discord.com/invite/YSK3aJwATH"

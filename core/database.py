@@ -15,6 +15,7 @@ from .manufacturers import (
     vehicle_manufacturer_label,
     vehicle_manufacturer_sources,
 )
+from .vehicle_classes import vehicle_class_label
 
 
 PERFORMANCE_INDEXES = (
@@ -181,6 +182,7 @@ class DataRepository:
             vehicle_name=record.get("name"),
             name_full=record.get("name_full"),
         )
+        record["vehicle_class"] = vehicle_class_label(record)
         return record
 
     @classmethod
@@ -433,6 +435,16 @@ class DataRepository:
                 ORDER BY t.star_system COLLATE NOCASE, t.planet COLLATE NOCASE
                 """
             ).fetchall()
+            vehicles = connection.execute(
+                """
+                SELECT v.*
+                FROM vehicles v
+                WHERE EXISTS (
+                    SELECT 1 FROM vehicle_offers o
+                    WHERE o.vehicle_id = v.id AND o.price_buy > 0
+                )
+                """
+            ).fetchall()
             labels = {
                 vehicle_manufacturer_label(row["value"])
                 for row in manufacturers
@@ -440,6 +452,10 @@ class DataRepository:
             }
             return {
                 "manufacturers": sorted(labels, key=str.casefold),
+                "classes": sorted(
+                    {vehicle_class_label(dict(row)) for row in vehicles},
+                    key=str.casefold,
+                ),
                 "systems": sorted({row["star_system"] for row in locations if row["star_system"]}),
                 "planets": sorted({row["planet"] for row in locations if row["planet"]}),
             }
@@ -450,6 +466,7 @@ class DataRepository:
         search: str = "",
         manufacturer: str = "",
         vehicle_type: str = "",
+        vehicle_class: str = "",
         star_system: str = "",
         planet: str = "",
         maximum_price: float | None = None,
@@ -461,6 +478,7 @@ class DataRepository:
             search.strip().casefold(),
             manufacturer,
             vehicle_type,
+            vehicle_class,
             star_system,
             planet,
             maximum_price,
@@ -538,9 +556,12 @@ class DataRepository:
             ORDER BY v.name COLLATE NOCASE
             LIMIT ?
         """
-        query_params = offer_params + params + [limit]
+        query_limit = 10_000 if vehicle_class else limit
+        query_params = offer_params + params + [query_limit]
         with self._connect() as connection:
             rows = self._vehicle_dicts(connection.execute(sql, query_params).fetchall())
+        if vehicle_class:
+            rows = [row for row in rows if row.get("vehicle_class") == vehicle_class][:limit]
         return self._remember_rows(cache_key, rows)
 
     def vehicle_detail(self, vehicle_id: int) -> dict[str, Any] | None:
@@ -695,7 +716,13 @@ class DataRepository:
                     "id": int(row["id"]),
                     "name": row["name"],
                     "subtitle": " • ".join(
-                        value for value in (row.get("manufacturer"), row.get("roles")) if value
+                        value
+                        for value in (
+                            row.get("manufacturer"),
+                            row.get("vehicle_class"),
+                            row.get("roles"),
+                        )
+                        if value
                     ),
                     "price_min": row.get("price_min"),
                     "location": location_label(row),

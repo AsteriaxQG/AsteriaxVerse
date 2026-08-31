@@ -57,6 +57,7 @@ from ui.advanced_pages import (
     GlobalSearchDialog,
     LocationsPage,
     SettingsPage,
+    TranslationPage,
     UpdatesPage,
 )
 from ui.widgets import EmptyState, SectionTitle, StatCard, TreeTable, configure_ttk_styles, labelled_combo
@@ -1916,6 +1917,7 @@ class AsteriaxApp(ctk.CTk):
             ("personal_gear", "♙", "Équipement personnel"),
             ("locations", "⌖", "Boutiques & lieux"),
             ("compare", "⇄", "Comparateur"),
+            ("translation", "FR", "Traduction française"),
             ("updates", "↻", "Mises à jour"),
             ("data", "i", "Patch & sources"),
             ("settings", "⋯", "Réglages & communauté"),
@@ -2138,6 +2140,7 @@ class AsteriaxApp(ctk.CTk):
             ),
             "locations": lambda: LocationsPage(self.page_container, self),
             "compare": lambda: ComparePage(self.page_container, self),
+            "translation": lambda: TranslationPage(self.page_container, self),
             "updates": lambda: UpdatesPage(self.page_container, self),
             "data": lambda: DataPage(self.page_container, self),
             "settings": lambda: SettingsPage(self.page_container, self),

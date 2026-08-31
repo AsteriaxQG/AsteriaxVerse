@@ -8,16 +8,16 @@ having to touch the UI or the database layer.
 from __future__ import annotations
 
 APP_NAME = "Asteriax Verse"
-APP_VERSION = "1.5.1"
+APP_VERSION = "1.6.0"
 APP_AUTHOR = "AsteriaxTTV"
 USER_AGENT = f"AsteriaxTTV-StarCitizen-Companion/{APP_VERSION}"
 
 APP_RELEASE_NOTES = (
-    "Classe précise ajoutée aux 184 vaisseaux et véhicules achetables.",
-    "Chasseurs distingués en léger, moyen, lourd ou parasite.",
-    "Transports classés selon leur fonction et leur capacité de fret.",
-    "Nouveau filtre Classe dans la page Vaisseaux & véhicules.",
-    "Classe affichée dans les fiches, la recherche et le comparateur.",
+    "Nouvel onglet Traduction française pour Star Citizen.",
+    "Détection automatique des installations LIVE, PTU et EPTU.",
+    "Installation et mise à jour du pack français communautaire en un clic.",
+    "Sauvegarde automatique des fichiers avant toute modification.",
+    "Restauration de l’anglais et des fichiers d’origine depuis le logiciel.",
 )
 
 DISCORD_URL = "https://discord.com/invite/YSK3aJwATH"

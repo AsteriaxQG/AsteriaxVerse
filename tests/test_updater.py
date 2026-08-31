@@ -9,6 +9,7 @@ import urllib.request
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+from core.constants import APP_VERSION
 from core.updater import (
     APPLY_UPDATE_FLAG,
     apply_downloaded_update,
@@ -48,7 +49,7 @@ class UpdaterTests(unittest.TestCase):
         self.assertGreater(version_key("v1.3.10"), version_key("1.3.9"))
 
     def test_manifest_requires_integrity_data_for_new_release(self) -> None:
-        payload = json.dumps({"version": "1.5.2", "download_url": OFFICIAL_EXE_URL}).encode()
+        payload = json.dumps({"version": "1.6.1", "download_url": OFFICIAL_EXE_URL}).encode()
         with patch("core.updater.urllib.request.urlopen", return_value=FakeResponse(payload, "https://example.test/manifest.json")):
             with self.assertRaisesRegex(ValueError, "SHA-256"):
                 check_app_update("https://example.test/manifest.json")
@@ -57,7 +58,7 @@ class UpdaterTests(unittest.TestCase):
         checksum = "a" * 64
         payload = json.dumps(
             {
-                "version": "1.5.2",
+                "version": "1.6.1",
                 "download_url": OFFICIAL_EXE_URL,
                 "sha256": checksum,
                 "size": 12345,
@@ -152,7 +153,7 @@ class UpdaterTests(unittest.TestCase):
             result_path = root / "update_result.json"
             result = consume_update_result(result_path)
             self.assertIsNotNone(result)
-            self.assertEqual(result["version"], "1.5.1")
+            self.assertEqual(result["version"], APP_VERSION)
             self.assertFalse(result_path.exists())
 
     def test_launcher_starts_downloaded_exe_without_powershell(self) -> None:

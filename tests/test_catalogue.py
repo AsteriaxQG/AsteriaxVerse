@@ -271,7 +271,7 @@ class UserStoreTests(unittest.TestCase):
             self.assertEqual(store.get_json_setting("filters:test", {})["planet"], "ArcCorp")
 
     def test_brand_links_version_and_assets(self) -> None:
-        self.assertEqual(APP_VERSION, "1.5.1")
+        self.assertEqual(APP_VERSION, "1.6.0")
         self.assertEqual(
             APP_UPDATE_MANIFEST_URL,
             "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/UPDATE_MANIFEST.json",
@@ -306,7 +306,9 @@ class UserStoreTests(unittest.TestCase):
         navigation = app_source[nav_start:nav_end]
         self.assertEqual(app_source.count('"Actualités LIVE"'), 1)
         self.assertNotIn('(\"news\",', navigation)
+        self.assertIn('(\"translation\", \"FR\", \"Traduction française\")', navigation)
         self.assertEqual(advanced_source.count("class ComparePage("), 1)
+        self.assertEqual(advanced_source.count("class TranslationPage("), 1)
 
     def test_only_the_visible_page_is_mapped(self) -> None:
         source = (ROOT / "ui" / "app.py").read_text(encoding="utf-8")

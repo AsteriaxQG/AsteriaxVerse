@@ -1,7 +1,7 @@
 {
-  "version": "1.5.1",
+  "version": "1.6.0",
   "download_url": "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe",
-  "sha256": "d7674edef949d2e78ad2bf545e69c410ce9deccdb9073d9ef2caa1b456683b82",
-  "size": 21894946,
-  "release_notes": "Classification complète des vaisseaux : chasseurs légers, moyens, lourds, transports, industriels et autres spécialités."
+  "sha256": "4a15e2f2b8256acd8ff39754f640b24012bb53d8d9d9be9934c694066b72a3c2",
+  "size": 21912433,
+  "release_notes": "Nouvel onglet Traduction française : détection de Star Citizen, installation et mise à jour en un clic, sauvegarde et restauration de l’anglais."
 }

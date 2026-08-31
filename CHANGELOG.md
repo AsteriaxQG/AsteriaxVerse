@@ -1,5 +1,18 @@
 # Historique
 
+## 1.6.0 — 31 août 2026
+
+- nouvel onglet **Traduction française** dans la navigation principale ;
+- détection automatique du dossier Star Citizen et des canaux LIVE, PTU, EPTU, HOTFIX et TECH-PREVIEW ;
+- installation et mise à jour en un clic du pack français communautaire maintenu par Dymerz / StarCitizen-Localization ;
+- téléchargement en arrière-plan avec progression, sans lancer PowerShell ni ouvrir le navigateur ;
+- contrôle HTTPS strict, limite de taille et validation de la structure de `global.ini` avant installation ;
+- sauvegarde unique des fichiers `global.ini` et `user.cfg` existants avant la première modification ;
+- bouton **Restaurer l’anglais** rétablissant exactement les fichiers sauvegardés ;
+- conservation des autres réglages présents dans `user.cfg` ;
+- aucune modification des exécutables du jeu ni d’Easy Anti-Cheat ;
+- ajout de tests automatiques couvrant l’installation, la mise à jour, la restauration et les redirections non autorisées.
+
 ## 1.5.1 — 28 août 2026
 
 - ajout d’une classe précise à chacun des 184 vaisseaux et véhicules achetables ;

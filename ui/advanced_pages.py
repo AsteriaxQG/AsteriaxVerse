@@ -8,7 +8,7 @@ import threading
 import tkinter as tk
 import webbrowser
 from datetime import datetime
-from tkinter import messagebox
+from tkinter import filedialog, messagebox
 from typing import Any
 
 import customtkinter as ctk
@@ -29,6 +29,14 @@ from core.constants import (
 )
 from core.database import format_price, location_label, price_freshness_label
 from core.paths import user_data_dir
+from core.translation_fr import (
+    TRANSLATION_PROJECT_URL,
+    find_game_installations,
+    install_french_translation,
+    restore_english,
+    translation_status,
+    validate_game_folder,
+)
 from core.updater import can_self_update, download_app_update, launch_app_update
 from ui.widgets import EmptyState, SectionTitle, TreeTable, labelled_combo
 
@@ -1790,6 +1798,383 @@ class UpdatesPage(AdvancedPage):
         self.install_app_button.configure(state="normal", text=f"Réessayer {latest}")
         self.app_status.configure(text=f"Mise à jour impossible : {error}", text_color=COLORS["danger"])
         self.app_progress.grid_remove()
+
+
+class TranslationPage(AdvancedPage):
+    title = "Traduction française"
+    subtitle = "Installez et actualisez la traduction communautaire de Star Citizen en un clic."
+
+    def __init__(self, master: Any, app: Any):
+        super().__init__(master, app)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+        self._busy = False
+        self._events: queue.Queue[tuple[str, Any]] = queue.Queue()
+
+        scroll = ctk.CTkScrollableFrame(self, fg_color="transparent", corner_radius=0)
+        scroll.grid(row=0, column=0, sticky="nsew")
+        scroll.grid_columnconfigure(0, weight=1)
+
+        hero = ctk.CTkFrame(
+            scroll,
+            fg_color=COLORS["panel"],
+            corner_radius=16,
+            border_width=1,
+            border_color=COLORS["accent_dark"],
+        )
+        hero.grid(row=0, column=0, pady=(0, 14), sticky="ew")
+        hero.grid_columnconfigure(0, weight=1)
+        ctk.CTkLabel(
+            hero,
+            text="STAR CITIZEN EN FRANÇAIS",
+            font=("Segoe UI Semibold", 22),
+            text_color=COLORS["text"],
+            anchor="w",
+        ).grid(row=0, column=0, padx=20, pady=(18, 3), sticky="ew")
+        ctk.CTkLabel(
+            hero,
+            text=(
+                "Interface et textes du jeu traduits par la communauté. Les voix restent en anglais. "
+                "Le pack est indépendant de CIG et peut contenir quelques textes encore en anglais."
+            ),
+            wraplength=850,
+            justify="left",
+            font=("Segoe UI", 11),
+            text_color=COLORS["muted"],
+            anchor="w",
+        ).grid(row=1, column=0, padx=20, pady=(0, 18), sticky="ew")
+        ctk.CTkButton(
+            hero,
+            text="Voir le projet source  ↗",
+            command=lambda: webbrowser.open(TRANSLATION_PROJECT_URL),
+            width=180,
+            height=36,
+            fg_color=COLORS["panel_alt"],
+            hover_color=COLORS["panel_hover"],
+            border_width=1,
+            border_color=COLORS["border"],
+            text_color=COLORS["accent"],
+        ).grid(row=0, column=1, rowspan=2, padx=20)
+
+        SectionTitle(
+            scroll,
+            "Installation du jeu",
+            "Asteriax Verse cherche automatiquement le canal LIVE. Vous pouvez aussi choisir LIVE, PTU ou EPTU.",
+        ).grid(row=1, column=0, pady=(0, 9), sticky="ew")
+        folder_card = ctk.CTkFrame(
+            scroll,
+            fg_color=COLORS["panel"],
+            corner_radius=14,
+            border_width=1,
+            border_color=COLORS["border"],
+        )
+        folder_card.grid(row=2, column=0, pady=(0, 14), sticky="ew")
+        folder_card.grid_columnconfigure(0, weight=1)
+        self.folder_var = tk.StringVar(value=app.user_store.get_setting("translation_game_folder", ""))
+        self.folder_entry = ctk.CTkEntry(
+            folder_card,
+            textvariable=self.folder_var,
+            height=40,
+            corner_radius=10,
+            font=("Segoe UI", 11),
+            fg_color=COLORS["panel_alt"],
+            border_color=COLORS["border"],
+            text_color=COLORS["text"],
+            placeholder_text=r"C:\Program Files\Roberts Space Industries\StarCitizen\LIVE",
+        )
+        self.folder_entry.grid(row=0, column=0, padx=(15, 8), pady=15, sticky="ew")
+        ctk.CTkButton(
+            folder_card,
+            text="Détecter",
+            command=self.detect_game,
+            width=100,
+            height=40,
+            corner_radius=10,
+            fg_color=COLORS["panel_alt"],
+            hover_color=COLORS["panel_hover"],
+            border_width=1,
+            border_color=COLORS["border"],
+            text_color=COLORS["text"],
+        ).grid(row=0, column=1, padx=4, pady=15)
+        ctk.CTkButton(
+            folder_card,
+            text="Parcourir…",
+            command=self.browse_game,
+            width=110,
+            height=40,
+            corner_radius=10,
+            fg_color=COLORS["panel_alt"],
+            hover_color=COLORS["panel_hover"],
+            border_width=1,
+            border_color=COLORS["border"],
+            text_color=COLORS["text"],
+        ).grid(row=0, column=2, padx=(4, 15), pady=15)
+
+        status_card = ctk.CTkFrame(
+            scroll,
+            fg_color=COLORS["panel"],
+            corner_radius=16,
+            border_width=1,
+            border_color=COLORS["border"],
+        )
+        status_card.grid(row=3, column=0, pady=(0, 14), sticky="ew")
+        status_card.grid_columnconfigure(0, weight=1)
+        self.status_title = ctk.CTkLabel(
+            status_card,
+            text="Dossier du jeu à détecter",
+            font=("Segoe UI Semibold", 17),
+            text_color=COLORS["text"],
+            anchor="w",
+        )
+        self.status_title.grid(row=0, column=0, padx=20, pady=(17, 3), sticky="ew")
+        self.channel_badge = ctk.CTkLabel(
+            status_card,
+            text="—",
+            width=80,
+            height=29,
+            corner_radius=14,
+            fg_color=COLORS["panel_alt"],
+            text_color=COLORS["muted"],
+            font=("Segoe UI Semibold", 10),
+        )
+        self.channel_badge.grid(row=0, column=1, padx=20, pady=(17, 3))
+        self.status_detail = ctk.CTkLabel(
+            status_card,
+            text="Cliquez sur Détecter ou sélectionnez votre dossier LIVE.",
+            wraplength=850,
+            justify="left",
+            font=("Segoe UI", 10),
+            text_color=COLORS["muted"],
+            anchor="w",
+        )
+        self.status_detail.grid(row=1, column=0, columnspan=2, padx=20, pady=(0, 10), sticky="ew")
+        self.translation_progress = ctk.CTkProgressBar(
+            status_card,
+            height=8,
+            corner_radius=4,
+            fg_color=COLORS["panel_alt"],
+            progress_color=COLORS["accent"],
+        )
+        self.translation_progress.grid(row=2, column=0, columnspan=2, padx=20, pady=(0, 12), sticky="ew")
+        self.translation_progress.set(0)
+        self.translation_progress.grid_remove()
+
+        actions = ctk.CTkFrame(status_card, fg_color="transparent")
+        actions.grid(row=3, column=0, columnspan=2, padx=20, pady=(0, 18), sticky="ew")
+        actions.grid_columnconfigure((0, 1), weight=1)
+        self.install_button = ctk.CTkButton(
+            actions,
+            text="Installer / mettre à jour le français",
+            command=self.install_translation,
+            height=42,
+            corner_radius=11,
+            fg_color=COLORS["accent"],
+            hover_color=COLORS["accent_hover"],
+            text_color=COLORS["background"],
+            font=("Segoe UI Semibold", 11),
+        )
+        self.install_button.grid(row=0, column=0, padx=(0, 6), sticky="ew")
+        self.restore_button = ctk.CTkButton(
+            actions,
+            text="Restaurer l’anglais",
+            command=self.restore_translation,
+            height=42,
+            corner_radius=11,
+            fg_color=COLORS["panel_alt"],
+            hover_color=COLORS["panel_hover"],
+            border_width=1,
+            border_color=COLORS["border"],
+            text_color=COLORS["muted"],
+            font=("Segoe UI Semibold", 11),
+        )
+        self.restore_button.grid(row=0, column=1, padx=(6, 0), sticky="ew")
+
+        ctk.CTkLabel(
+            scroll,
+            text=(
+                "Sécurité : une sauvegarde de global.ini et user.cfg est créée avant la première installation. "
+                "Asteriax Verse ne modifie aucun exécutable du jeu et ne touche pas à Easy Anti-Cheat. "
+                "Fermez Star Citizen avant l’installation."
+            ),
+            wraplength=900,
+            justify="left",
+            font=("Segoe UI", 9),
+            text_color=COLORS["muted_2"],
+            anchor="w",
+        ).grid(row=4, column=0, padx=5, pady=(0, 20), sticky="ew")
+
+        if not self.folder_var.get():
+            self.detect_game(silent=True)
+        else:
+            self.refresh_status()
+
+    def on_show(self) -> None:
+        self.refresh_status()
+
+    def detect_game(self, silent: bool = False) -> None:
+        previous = self.folder_var.get().strip()
+        installations = find_game_installations([previous] if previous else [])
+        if not installations:
+            if not silent:
+                self.app.show_notice("Installation Star Citizen introuvable : utilisez Parcourir…", COLORS["warning"], 6000)
+            self.refresh_status()
+            return
+        self.folder_var.set(str(installations[0]))
+        self.app.user_store.set_setting("translation_game_folder", str(installations[0]))
+        self.refresh_status()
+        if not silent:
+            self.app.show_notice(f"Star Citizen {installations[0].name.upper()} détecté.")
+
+    def browse_game(self) -> None:
+        selected = filedialog.askdirectory(title="Sélectionner StarCitizen, LIVE, PTU ou EPTU")
+        if not selected:
+            return
+        self.folder_var.set(selected)
+        self.refresh_status(show_error=True)
+
+    def _selected_folder(self) -> str:
+        channel = validate_game_folder(self.folder_var.get())
+        value = str(channel)
+        self.folder_var.set(value)
+        self.app.user_store.set_setting("translation_game_folder", value)
+        return value
+
+    def refresh_status(self, show_error: bool = False) -> None:
+        if self._busy:
+            return
+        try:
+            status = translation_status(self._selected_folder())
+        except Exception as exc:
+            self.status_title.configure(text="Dossier du jeu à sélectionner", text_color=COLORS["text"])
+            self.status_detail.configure(text=str(exc), text_color=COLORS["muted"])
+            self.channel_badge.configure(text="—", fg_color=COLORS["panel_alt"], text_color=COLORS["muted"])
+            self.restore_button.configure(state="disabled")
+            if show_error:
+                messagebox.showerror("Dossier Star Citizen invalide", str(exc), parent=self)
+            return
+        installed = bool(status["installed"])
+        if installed:
+            installed_at = str(status.get("installed_at") or "date inconnue")
+            self.status_title.configure(text="Traduction française active", text_color=COLORS["success"])
+            self.status_detail.configure(
+                text=f"Pack installé · dernière installation : {installed_at}. Relancez le jeu s’il était ouvert.",
+                text_color=COLORS["muted"],
+            )
+            self.install_button.configure(text="Mettre à jour la traduction")
+        else:
+            partial = bool(status["file_present"] or status["configured"])
+            self.status_title.configure(
+                text="Installation française incomplète" if partial else "Jeu actuellement en anglais",
+                text_color=COLORS["warning"] if partial else COLORS["text"],
+            )
+            self.status_detail.configure(
+                text=(
+                    "Un ancien réglage partiel a été détecté : le bouton d’installation le réparera."
+                    if partial
+                    else "Le français n’est pas installé. Une sauvegarde sera créée avant toute modification."
+                ),
+                text_color=COLORS["muted"],
+            )
+            self.install_button.configure(text="Installer le français")
+        self.channel_badge.configure(
+            text=str(status["channel"]),
+            fg_color=COLORS["accent_dark"],
+            text_color=COLORS["accent"],
+        )
+        self.restore_button.configure(state="normal" if (installed or status["file_present"] or status["configured"]) else "disabled")
+
+    def _set_busy(self, value: bool) -> None:
+        self._busy = value
+        state = "disabled" if value else "normal"
+        self.install_button.configure(state=state)
+        self.folder_entry.configure(state=state)
+        if value:
+            self.restore_button.configure(state="disabled")
+            self.translation_progress.set(0)
+            self.translation_progress.grid()
+        else:
+            self.translation_progress.grid_remove()
+
+    def install_translation(self) -> None:
+        try:
+            folder = self._selected_folder()
+        except Exception as exc:
+            messagebox.showerror("Dossier Star Citizen invalide", str(exc), parent=self)
+            return
+        if not messagebox.askyesno(
+            "Installer la traduction française",
+            "Fermez Star Citizen avant de continuer.\n\nTélécharger et installer maintenant la dernière traduction communautaire française ?",
+            parent=self,
+        ):
+            return
+        self._set_busy(True)
+        self.status_title.configure(text="Installation en cours…", text_color=COLORS["accent"])
+
+        def progress(fraction: float, message: str) -> None:
+            self._events.put(("progress", (fraction, message)))
+
+        def worker() -> None:
+            try:
+                result = install_french_translation(folder, progress)
+                self._events.put(("done", result))
+            except Exception as exc:
+                self._events.put(("error", exc))
+
+        threading.Thread(target=worker, daemon=True).start()
+        self.after(60, self._poll_events)
+
+    def restore_translation(self) -> None:
+        try:
+            folder = self._selected_folder()
+        except Exception as exc:
+            messagebox.showerror("Dossier Star Citizen invalide", str(exc), parent=self)
+            return
+        if not messagebox.askyesno(
+            "Restaurer l’anglais",
+            "Restaurer les fichiers sauvegardés avant l’installation et remettre le jeu en anglais ?",
+            parent=self,
+        ):
+            return
+        self._set_busy(True)
+        self.status_title.configure(text="Restauration en cours…", text_color=COLORS["accent"])
+
+        def worker() -> None:
+            try:
+                result = restore_english(folder)
+                self._events.put(("restored", result))
+            except Exception as exc:
+                self._events.put(("error", exc))
+
+        threading.Thread(target=worker, daemon=True).start()
+        self.after(60, self._poll_events)
+
+    def _poll_events(self) -> None:
+        try:
+            while True:
+                kind, payload = self._events.get_nowait()
+                if kind == "progress":
+                    fraction, message = payload
+                    self.translation_progress.set(float(fraction))
+                    self.status_detail.configure(text=str(message), text_color=COLORS["muted"])
+                elif kind in {"done", "restored"}:
+                    self._set_busy(False)
+                    self.refresh_status()
+                    message = "Traduction française installée avec succès." if kind == "done" else "Jeu restauré en anglais."
+                    self.app.show_notice(message, COLORS["success"], 7000)
+                    return
+                elif kind == "error":
+                    self._set_busy(False)
+                    self.refresh_status()
+                    messagebox.showerror(
+                        "Traduction française",
+                        f"L’opération a échoué :\n\n{payload}\n\nVérifiez votre connexion et les droits d’écriture du dossier du jeu.",
+                        parent=self,
+                    )
+                    return
+        except queue.Empty:
+            pass
+        if self._busy:
+            self.after(60, self._poll_events)
 
 
 class SettingsPage(AdvancedPage):

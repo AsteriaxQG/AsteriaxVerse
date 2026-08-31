@@ -15,6 +15,12 @@ Les disponibilités 4.10 sont recoupées avec la note officielle RSI `21293-Star
 
 UEX est une source communautaire. Les relevés peuvent contenir un délai ou une erreur ponctuelle. Certains prix peuvent aussi varier en jeu selon une remise locale, l'affinité avec une faction ou un hotfix serveur. L'application affiche la date des relevés et propose une synchronisation complète.
 
+## Traduction française
+
+- **Dymerz / StarCitizen-Localization** : pack communautaire français téléchargé à la demande depuis `https://github.com/Dymerz/StarCitizen-Localization`, distribué sous licence MIT et généré depuis le travail de traduction de `circuspes.fr`.
+
+La traduction n’est pas embarquée dans Asteriax Verse. L’utilisateur choisit de la télécharger depuis le dépôt communautaire. L’application sauvegarde les fichiers existants, installe uniquement `global.ini`, configure `user.cfg` et permet de restaurer l’état antérieur. Le pack peut être partiel ou temporairement décalé après un patch de Star Citizen.
+
 ## Marques et contenus du jeu
 
 Star Citizen®, Squadron 42®, Roberts Space Industries® et Cloud Imperium® sont des marques de Cloud Imperium Rights LLC et/ou de sociétés liées. Les noms d'objets, de vaisseaux et de lieux appartiennent à leurs ayants droit.

@@ -29,7 +29,7 @@ Après avoir lancé une première fois `LANCER.bat`, double-cliquez sur **CONSTR
 
 Une action GitHub est aussi incluse pour construire automatiquement l'exécutable sur un véritable environnement Windows.
 
-## Fonctions de la version 1.5.1
+## Fonctions de la version 1.6.0
 
 - 184 vaisseaux et véhicules actuellement achetables en jeu ;
 - 2 796 objets achetables et 23 679 relevés de prix actifs ;
@@ -41,6 +41,10 @@ Une action GitHub est aussi incluse pour construire automatiquement l'exécutabl
 - filtre **Classe** disponible directement dans le catalogue des vaisseaux ;
 - date et indicateur de fiabilité pour chaque relevé de prix ;
 - tableau des actualités LIVE sur la page d’accueil avec accès aux sources ;
+- onglet **Traduction française** avec détection automatique de Star Citizen LIVE, PTU et EPTU ;
+- installation ou mise à jour du pack français communautaire directement dans le logiciel ;
+- sauvegarde initiale de `global.ini` et `user.cfg`, puis restauration exacte de l’état précédent ;
+- contrôle de la source HTTPS, de la taille et de la structure du fichier de traduction reçu ;
 - recherches récentes proposées dès l’ouverture de la recherche globale ;
 - colonnes triables, filtres actifs et mémorisation des recherches ;
 - pagination des grands catalogues : seules 220 lignes sont dessinées à la fois, ou 100 en mode performances ;
@@ -108,4 +112,4 @@ Les prix UEX sont communautaires. Ils peuvent évoluer après un hotfix, une rem
 
 Les sources et avertissements complets sont indiqués dans [ATTRIBUTION.md](ATTRIBUTION.md). Ce projet est un outil communautaire non officiel et n'est ni affilié ni approuvé par Cloud Imperium Games.
 
-Créé par **AsteriaxTTV** — version 1.5.1.
+Créé par **AsteriaxTTV** — version 1.6.0.

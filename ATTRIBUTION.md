@@ -2,7 +2,7 @@
 
 ## Données
 
-- **UEX Corp API 2.0** : objets, catégories, vaisseaux, véhicules, prix, terminaux et hiérarchie des lieux. Données communautaires synchronisées depuis `https://api.uexcorp.uk/2.0/`.
+- **UEX Corp API 2.0** : objets, catégories, vaisseaux, véhicules, prix, terminaux, hiérarchie des lieux et liens vers les photos des modèles. Données communautaires synchronisées depuis `https://api.uexcorp.uk/2.0/`.
 - **Roberts Space Industries** : version LIVE officielle, build, notes de patch, statut des services et problèmes connus.
 - **Star Citizen Wiki** : contrôle indépendant de la liste des vaisseaux achetables en jeu et taxonomie des chasseurs légers, moyens, lourds et parasites.
 - **Relevés communautaires 4.10** : contrôle des prix des cinq nouvelles ventes en jeu pendant le délai de publication du flux UEX.

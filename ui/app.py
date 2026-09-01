@@ -57,7 +57,6 @@ from ui.advanced_pages import (
     GlobalSearchDialog,
     LocationsPage,
     SettingsPage,
-    TranslationPage,
     UpdatesPage,
 )
 from ui.widgets import EmptyState, SectionTitle, StatCard, TreeTable, configure_ttk_styles, labelled_combo
@@ -192,8 +191,8 @@ class DashboardPage(BasePage):
         quick_title.grid(row=2, column=0, columnspan=4, pady=(0, 10), sticky="ew")
         quick_actions = [
             ("VAISSEAUX", "179 modèles vendus en aUEC", "ships", COLORS["accent"]),
-            ("ÉQUIPEMENT DE VAISSEAU", "Composants, canons, missiles", "ship_gear", COLORS["blue"]),
-            ("ÉQUIPEMENT PERSONNEL", "Armures, armes, accessoires", "personal_gear", COLORS["warning"]),
+            ("ÉQUIPEMENT DE VAISSEAU", "Composants, canons, missiles", "equipment:ship_gear", COLORS["blue"]),
+            ("ÉQUIPEMENT PERSONNEL", "Armures, armes, accessoires", "equipment:personal_gear", COLORS["warning"]),
         ]
         for column, (title, caption, page_name, color) in enumerate(quick_actions):
             panel = ctk.CTkFrame(
@@ -228,7 +227,7 @@ class DashboardPage(BasePage):
             ctk.CTkButton(
                 panel,
                 text="Explorer  →",
-                command=lambda name=page_name: self.app.show_page(name),
+                command=lambda name=page_name: self.app.open_navigation_target(name),
                 height=30,
                 corner_radius=7,
                 fg_color="transparent",
@@ -1719,6 +1718,149 @@ class DataPage(BasePage):
         ).pack(pady=(0, 15))
 
 
+class TabbedHubPage(BasePage):
+    """Container for closely related pages without multiplying sidebar entries."""
+
+    def __init__(
+        self,
+        master: Any,
+        app: "AsteriaxApp",
+        *,
+        sections: list[tuple[str, str, Callable[[], Any]]],
+        default_section: str,
+    ):
+        super().__init__(master, app)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
+        self._labels = {key: label for key, label, _factory in sections}
+        self._keys_by_label = {label: key for key, label, _factory in sections}
+        self._factories = {key: factory for key, _label, factory in sections}
+        self._children: dict[str, Any] = {}
+        self._current_section = ""
+
+        switch_card = ctk.CTkFrame(
+            self,
+            fg_color=COLORS["panel"],
+            corner_radius=14,
+            border_width=1,
+            border_color=COLORS["border"],
+        )
+        switch_card.grid(row=0, column=0, pady=(0, 12), sticky="ew")
+        switch_card.grid_columnconfigure(0, weight=1)
+        self.section_switch = ctk.CTkSegmentedButton(
+            switch_card,
+            values=[label for _key, label, _factory in sections],
+            command=self._select_label,
+            height=38,
+            corner_radius=10,
+            fg_color=COLORS["panel_alt"],
+            selected_color=COLORS["accent_dark"],
+            selected_hover_color=COLORS["accent_dark"],
+            unselected_color=COLORS["panel_alt"],
+            unselected_hover_color=COLORS["panel_hover"],
+            text_color=COLORS["text"],
+            font=("Segoe UI Semibold", 10),
+        )
+        self.section_switch.grid(row=0, column=0, padx=8, pady=8, sticky="ew")
+
+        self.content = ctk.CTkFrame(self, fg_color="transparent", corner_radius=0)
+        self.content.grid(row=1, column=0, sticky="nsew")
+        self.content.grid_rowconfigure(0, weight=1)
+        self.content.grid_columnconfigure(0, weight=1)
+        self.show_section(default_section, notify=False)
+
+    def _select_label(self, label: str) -> None:
+        self.show_section(self._keys_by_label[label])
+
+    def child_page(self, key: str, *, create: bool = True) -> Any | None:
+        page = self._children.get(key)
+        if page is None and create:
+            page = self._factories[key]()
+            self._children[key] = page
+        return page
+
+    def show_section(self, key: str, *, notify: bool = True) -> None:
+        if key not in self._factories:
+            return
+        previous = self._children.get(self._current_section)
+        page = self.child_page(key)
+        if previous is not None and previous is not page:
+            previous.grid_remove()
+        page.grid(row=0, column=0, sticky="nsew")
+        page.tkraise()
+        self._current_section = key
+        self.section_switch.set(self._labels[key])
+        if notify:
+            page.on_show()
+
+    def on_show(self) -> None:
+        page = self.child_page(self._current_section)
+        if page is not None:
+            page.on_show()
+
+    def refresh_data(self) -> None:
+        for page in self._children.values():
+            page.refresh_data()
+
+
+class EquipmentHubPage(TabbedHubPage):
+    title = "Équipements"
+    subtitle = "Composants de vaisseau, armures, armes, munitions et accessoires."
+
+    def __init__(self, master: Any, app: "AsteriaxApp"):
+        super().__init__(
+            master,
+            app,
+            sections=[
+                (
+                    "ship_gear",
+                    "Équipement de vaisseau",
+                    lambda: CatalogPage(
+                        self.content,
+                        app,
+                        scope_key="ship_gear",
+                        title="Équipement de vaisseau",
+                        subtitle="Composants, canons, missiles, modules de minage et utilitaires.",
+                    ),
+                ),
+                (
+                    "personal_gear",
+                    "Équipement personnel",
+                    lambda: CatalogPage(
+                        self.content,
+                        app,
+                        scope_key="personal_gear",
+                        title="Équipement personnel",
+                        subtitle="Armures, sous-combinaisons, vêtements, armes, munitions et accessoires.",
+                    ),
+                ),
+            ],
+            default_section="ship_gear",
+        )
+
+    def open_entity(self, section: str, entity_id: int) -> None:
+        self.show_section(section, notify=False)
+        page = self.child_page(section)
+        if isinstance(page, CatalogPage):
+            page.open_entity(entity_id)
+
+
+class MaintenanceHubPage(TabbedHubPage):
+    title = "Mises à jour"
+    subtitle = "Logiciel, données Star Citizen, patch LIVE et sources officielles."
+
+    def __init__(self, master: Any, app: "AsteriaxApp"):
+        super().__init__(
+            master,
+            app,
+            sections=[
+                ("updates", "Logiciel & données", lambda: UpdatesPage(self.content, app)),
+                ("data", "Patch & sources", lambda: DataPage(self.content, app)),
+            ],
+            default_section="updates",
+        )
+
+
 class AsteriaxApp(ctk.CTk):
     """Top-level window, navigation, background updates and shared actions."""
 
@@ -1762,7 +1904,7 @@ class AsteriaxApp(ctk.CTk):
         self._set_sidebar_collapsed(self._sidebar_collapsed, persist=False)
 
         remembered = self.user_store.get_setting("last_page", "dashboard")
-        self.show_page(remembered if remembered in self._page_factories else "dashboard")
+        self.show_page(remembered)
         self.bind_all("<Control-k>", lambda _event: self.open_global_search(), add="+")
         self.bind_all("<Control-f>", lambda _event: self.open_global_search(), add="+")
         self.bind("<Configure>", self._schedule_responsive_layout, add="+")
@@ -1917,15 +2059,12 @@ class AsteriaxApp(ctk.CTk):
         self.nav_frame.grid(row=2, column=0, padx=10, pady=(2, 0), sticky="nsew")
         self.nav_frame.grid_columnconfigure(0, weight=1)
         entries = [
-            ("dashboard", "⌂", "Vue d'ensemble"),
+            ("dashboard", "⌂", "Accueil"),
             ("ships", "✦", "Vaisseaux & véhicules"),
-            ("ship_gear", "⚙", "Équipement de vaisseau"),
-            ("personal_gear", "♙", "Équipement personnel"),
+            ("equipment", "⚙", "Équipements"),
             ("locations", "⌖", "Boutiques & lieux"),
             ("compare", "⇄", "Comparateur"),
-            ("translation", "FR", "Traduction française"),
             ("updates", "↻", "Mises à jour"),
-            ("data", "i", "Patch & sources"),
             ("settings", "⋯", "Réglages & communauté"),
         ]
         self.nav_meta = {name: (icon, label) for name, icon, label in entries}
@@ -2131,20 +2270,7 @@ class AsteriaxApp(ctk.CTk):
         self._page_factories: dict[str, Callable[[], Any]] = {
             "dashboard": lambda: DashboardPage(self.page_container, self),
             "ships": lambda: ShipsPage(self.page_container, self),
-            "ship_gear": lambda: CatalogPage(
-                self.page_container,
-                self,
-                scope_key="ship_gear",
-                title="Équipement de vaisseau",
-                subtitle="Composants, canons, missiles, modules de minage et utilitaires.",
-            ),
-            "personal_gear": lambda: CatalogPage(
-                self.page_container,
-                self,
-                scope_key="personal_gear",
-                title="Équipement personnel",
-                subtitle="Armures, sous-combinaisons, vêtements, armes, munitions et accessoires.",
-            ),
+            "equipment": lambda: EquipmentHubPage(self.page_container, self),
             "all_items": lambda: CatalogPage(
                 self.page_container,
                 self,
@@ -2154,9 +2280,7 @@ class AsteriaxApp(ctk.CTk):
             ),
             "locations": lambda: LocationsPage(self.page_container, self),
             "compare": lambda: ComparePage(self.page_container, self),
-            "translation": lambda: TranslationPage(self.page_container, self),
-            "updates": lambda: UpdatesPage(self.page_container, self),
-            "data": lambda: DataPage(self.page_container, self),
+            "updates": lambda: MaintenanceHubPage(self.page_container, self),
             "settings": lambda: SettingsPage(self.page_container, self),
         }
         self.pages: dict[str, Any] = {}
@@ -2170,6 +2294,13 @@ class AsteriaxApp(ctk.CTk):
         return page
 
     def show_page(self, name: str) -> None:
+        legacy_routes = {
+            "ship_gear": ("equipment", "ship_gear"),
+            "personal_gear": ("equipment", "personal_gear"),
+            "data": ("updates", "data"),
+            "translation": ("settings", ""),
+        }
+        name, section = legacy_routes.get(name, (name, ""))
         if name not in self._page_factories:
             name = "dashboard"
         previous = self.pages.get(self.current_page)
@@ -2192,7 +2323,17 @@ class AsteriaxApp(ctk.CTk):
             )
         if self.user_store.setting_bool("remember_state", True):
             self.user_store.set_setting("last_page", name)
+        if isinstance(page, EquipmentHubPage) and section:
+            page.show_section(section, notify=False)
+        elif isinstance(page, MaintenanceHubPage) and section:
+            page.show_section(section, notify=False)
         page.on_show()
+
+    def open_navigation_target(self, target: str) -> None:
+        if target.startswith("equipment:"):
+            self.show_page(target.split(":", 1)[1])
+        else:
+            self.show_page(target)
 
     def refresh_page(self, name: str) -> None:
         if name in self.pages:
@@ -2210,17 +2351,21 @@ class AsteriaxApp(ctk.CTk):
         detail = self.repo.item_detail(int(item_id)) or {}
         section = detail.get("section")
         if section in ITEM_SCOPES["ship_gear"]["sections"]:
-            page_name = "ship_gear"
+            equipment_section = "ship_gear"
         elif section in ITEM_SCOPES["personal_gear"]["sections"]:
-            page_name = "personal_gear"
+            equipment_section = "personal_gear"
         else:
             # Le catalogue général reste un écran interne pour les objets qui
             # n'appartiennent à aucune des deux grandes familles visibles.
-            page_name = "all_items"
-        page = self._get_page(page_name)
-        self.show_page(page_name)
-        if isinstance(page, CatalogPage):
-            page.open_entity(int(item_id))
+            page = self._get_page("all_items")
+            self.show_page("all_items")
+            if isinstance(page, CatalogPage):
+                page.open_entity(int(item_id))
+            return
+        self.show_page(equipment_section)
+        page = self._get_page("equipment")
+        if isinstance(page, EquipmentHubPage):
+            page.open_entity(equipment_section, int(item_id))
 
     def open_vehicle(self, vehicle_id: int) -> None:
         page = self._get_page("ships")
@@ -2419,7 +2564,7 @@ class AsteriaxApp(ctk.CTk):
         self.sync_progress.set(0)
         self.sync_bar.grid()
         self.patch_update_button.configure(state="disabled")
-        updates_page = self.pages.get("updates")
+        updates_page = self._visible_updates_page()
         if isinstance(updates_page, UpdatesPage):
             updates_page.update_game_button.configure(state="disabled", text="Synchronisation…")
 
@@ -2438,7 +2583,7 @@ class AsteriaxApp(ctk.CTk):
     def _finish_update(self, result: dict[str, Any] | None, error: Exception | None) -> None:
         self._updating = False
         self.patch_update_button.configure(state="normal")
-        updates_page = self.pages.get("updates")
+        updates_page = self._visible_updates_page()
         if error:
             if isinstance(updates_page, UpdatesPage):
                 updates_page.update_game_button.configure(state="normal", text="Réessayer la synchronisation")
@@ -2485,6 +2630,13 @@ class AsteriaxApp(ctk.CTk):
         )
         self.show_notice(f"Données Star Citizen {version} mises à jour.")
         self.after(6000, self.sync_bar.grid_remove)
+
+    def _visible_updates_page(self) -> UpdatesPage | None:
+        page = self.pages.get("updates")
+        if isinstance(page, MaintenanceHubPage):
+            child = page.child_page("updates", create=False)
+            return child if isinstance(child, UpdatesPage) else None
+        return page if isinstance(page, UpdatesPage) else None
 
     def _on_close(self) -> None:
         if self.user_store.setting_bool("remember_state", True):

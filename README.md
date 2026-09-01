@@ -29,7 +29,7 @@ Après avoir lancé une première fois `LANCER.bat`, double-cliquez sur **CONSTR
 
 Une action GitHub est aussi incluse pour construire automatiquement l'exécutable sur un véritable environnement Windows.
 
-## Fonctions de la version 1.6.2
+## Fonctions de la version 1.7.0
 
 - 184 vaisseaux et véhicules actuellement achetables en jeu ;
 - 2 796 objets achetables et 23 679 relevés de prix actifs ;
@@ -41,11 +41,6 @@ Une action GitHub est aussi incluse pour construire automatiquement l'exécutabl
 - filtre **Classe** disponible directement dans le catalogue des vaisseaux ;
 - date et indicateur de fiabilité pour chaque relevé de prix ;
 - tableau des actualités LIVE sur la page d’accueil avec accès aux sources ;
-- onglet **Traduction française** avec détection automatique de Star Citizen LIVE, PTU et EPTU ;
-- traduction **Scefra** proposée comme unique source française pour le canal LIVE ;
-- installation ou mise à jour de Scefra directement dans le logiciel ;
-- sauvegarde initiale de `global.ini` et `user.cfg`, puis restauration exacte de l’état précédent ;
-- contrôle de la source HTTPS, de la taille et de la structure du fichier de traduction reçu ;
 - recherches récentes proposées dès l’ouverture de la recherche globale ;
 - colonnes triables, filtres actifs et mémorisation des recherches ;
 - pagination des grands catalogues : seules 220 lignes sont dessinées à la fois, ou 100 en mode performances ;
@@ -53,7 +48,9 @@ Une action GitHub est aussi incluse pour construire automatiquement l'exécutabl
 - cache mémoire SQLite pour accélérer instantanément les recherches répétées ;
 - index de lecture ajoutés automatiquement aux bases existantes et aux futures synchronisations ;
 - filtres par famille, catégorie, fabricant, taille, système et planète ;
-- navigation simplifiée autour des vaisseaux, de l'équipement de vaisseau et de l'équipement personnel ;
+- navigation principale réduite à sept boutons ;
+- page **Équipements** réunissant l’équipement de vaisseau et l’équipement personnel dans deux sous-onglets ;
+- page **Mises à jour** réunissant le logiciel, les données Star Citizen, le patch LIVE et les sources ;
 - navigation gauche modernisée en cartes individuelles arrondies avec contour et état actif ;
 - textes et tableaux agrandis dans toutes les pages pour une meilleure lisibilité ;
 - tableaux désormais intégrés dans des surfaces arrondies, sans cadre intérieur carré ;
@@ -114,4 +111,4 @@ Les prix UEX sont communautaires. Ils peuvent évoluer après un hotfix, une rem
 
 Les sources et avertissements complets sont indiqués dans [ATTRIBUTION.md](ATTRIBUTION.md). Ce projet est un outil communautaire non officiel et n'est ni affilié ni approuvé par Cloud Imperium Games.
 
-Créé par **AsteriaxTTV** — version 1.6.2.
+Créé par **AsteriaxTTV** — version 1.7.0.

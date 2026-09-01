@@ -28,6 +28,11 @@ else
   sed -i 's/status-ui.js?v=1/status-ui.js?v=2/g' website/index.html
 fi
 
+# Trie "À suivre dans le Verse" du plus récent au plus ancien.
+if ! grep -q 'home-now-order.js' website/index.html; then
+  sed -i 's#</body>#<script src="home-now-order.js?v=1"></script></body>#' website/index.html
+fi
+
 # Charge le flux d'actualités RSI automatique sans alourdir index.html.
 if ! grep -q 'news.js' website/index.html; then
   sed -i 's#</body>#<script src="news.js"></script></body>#' website/index.html

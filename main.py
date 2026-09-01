@@ -14,6 +14,9 @@ def main() -> int:
         return bootstrap_result
     try:
         from ui.app import run
+        from ui.site_shell import install_site_shell
+
+        install_site_shell()
     except ModuleNotFoundError as exc:
         if exc.name == "customtkinter":
             message = (

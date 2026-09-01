@@ -8,15 +8,15 @@ having to touch the UI or the database layer.
 from __future__ import annotations
 
 APP_NAME = "Asteriax Verse"
-APP_VERSION = "1.7.4"
+APP_VERSION = "1.7.5"
 APP_AUTHOR = "AsteriaxTTV"
 USER_AGENT = f"AsteriaxTTV-StarCitizen-Companion/{APP_VERSION}"
 
 APP_RELEASE_NOTES = (
-    "Accueil entièrement refait dans l’identité visuelle du site AsteriaxVerse.",
-    "Catalogue des vaisseaux présenté en cartes avec pagination et tri dédié.",
-    "Palette cyan, panneaux, filtres et contrôles harmonisés dans tout le logiciel.",
-    "Navigation horizontale responsive mieux adaptée aux fenêtres réduites.",
+    "Catalogue vaisseaux accéléré avec rendu progressif de 20 cartes par page.",
+    "Images des vaisseaux chargées en arrière-plan sans bloquer l’interface.",
+    "Toute la carte d’un vaisseau est de nouveau cliquable pour ouvrir sa fiche.",
+    "Correctif de stabilité et de réactivité de l’écran Vaisseaux & véhicules.",
 )
 
 DISCORD_URL = "https://discord.com/invite/YSK3aJwATH"

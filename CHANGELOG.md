@@ -1,5 +1,14 @@
 # Historique
 
+## 1.7.1 — 1er septembre 2026
+
+- augmentation de la police dans l’ensemble des pages ;
+- taille minimale des petits textes portée à 10 px ;
+- boutons, filtres, cartes et informations secondaires agrandis ;
+- corps des tableaux porté à 13 px et hauteur des lignes augmentée de 40 à 44 px ;
+- en-têtes de tableaux agrandis pour mieux distinguer les colonnes ;
+- proportions des grands titres et navigation à sept boutons conservées.
+
 ## 1.7.0 — 1er septembre 2026
 
 - suppression complète de l’onglet **Traduction française** ;

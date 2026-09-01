@@ -13,6 +13,13 @@ sed -i 's/shipcatalog.js?v=4/shipcatalog.js?v=5/g' website/index.html
 sed -i 's/verified-status.js?v=2/verified-status.js?v=3/g' website/index.html
 sed -i 's/vehiclefilters.js?v=1/vehiclefilters.js?v=2/g' website/index.html
 
+# Bandeau d'état du Verse : retire le compteur joueurs non disponible,
+# passe les services sur trois colonnes et force les nouveaux assets.
+sed -i 's#<div><span>Joueurs en ligne</span><strong id="homePlayers">Non publié</strong></div>##g' website/index.html
+sed -i 's/grid-template-columns:repeat(4,minmax(0,1fr))/grid-template-columns:repeat(3,minmax(0,1fr))/g' website/home.css
+sed -i 's/home.css?v=2/home.css?v=3/g' website/index.html
+sed -i 's/home.js?v=2/home.js?v=3/g' website/index.html
+
 # Charge le flux d'actualités RSI automatique sans alourdir index.html.
 if ! grep -q 'news.js' website/index.html; then
   sed -i 's#</body>#<script src="news.js"></script></body>#' website/index.html

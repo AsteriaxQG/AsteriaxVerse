@@ -1,60 +1,99 @@
 const RSI='https://robertsspaceindustries.com';
+const SOURCES=[
+  `${RSI}/en/patch-notes`,
+  `${RSI}/en/comm-link/transmission/star-citizen`
+];
 
-function clean(s){return String(s||'').replace(/\s+/g,' ').trim()}
-function absolute(href){if(!href)return'';if(href.startsWith('http'))return href;return RSI+href}
-function category(title,href=''){
-  const t=(title+' '+href).toLowerCase();
-  if(t.includes('patch')||href.includes('/patch-notes'))return'PATCH';
-  if(t.includes('roadmap'))return'ROADMAP';
-  if(t.includes('sneak peek')||t.includes('sneak-peek'))return'SNEAK PEEK';
-  if(t.includes('star citizen live')||t.includes('inside star citizen')||t.includes('behind the ships'))return'VIDEO';
-  if(t.includes('known issue'))return'KNOWN ISSUE';
+function decode(s=''){
+  return s.replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>');
+}
+function cleanHtml(s=''){
+  return decode(s.replace(/<script[\s\S]*?<\/script>/gi,' ').replace(/<style[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim());
+}
+function absolute(href=''){
+  if(!href)return'';
+  if(/^https?:\/\//i.test(href))return href;
+  const path=href.startsWith('/')?href:`/${href}`;
+  return `${RSI}${path.replace(/^\/comm-link\//i,'/en/comm-link/')}`;
+}
+function category(title,url,raw=''){
+  const s=`${title} ${url} ${raw}`.toLowerCase();
+  if(s.includes('/patch-notes/')||s.includes('patch notes')||/star citizen alpha \d/.test(s))return'PATCH';
+  if(s.includes('sneak peek'))return'SNEAK PEEK';
+  if(s.includes('roadmap roundup')||s.includes('roadmap'))return'ROADMAP';
+  if(s.includes('inside star citizen')||s.includes('star citizen live')||s.includes('behind the ships')||s.includes('video'))return'VIDEO';
+  if(s.includes('known issue'))return'KNOWN ISSUE';
   return'NEWS';
 }
-
-async function linksFrom(url,match){
-  const res=await fetch(url,{headers:{'User-Agent':'AsteriaxVerse/1.0 (+https://asteriaxverse.pages.dev)','Accept':'text/html'}});
-  if(!res.ok)throw new Error(`RSI ${res.status}`);
-  const html=await res.text();
+function parseTitle(inner=''){
+  const heading=inner.match(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/i);
+  if(heading){const t=cleanHtml(heading[1]);if(t)return t;}
+  return cleanHtml(inner).replace(/^(post|video|patchnotes)\s+/i,'').replace(/\s+0\s+Posted:\s*[\s\S]*$/i,'').trim();
+}
+function parsePosted(inner=''){
+  const text=cleanHtml(inner);
+  const m=text.match(/Posted:\s*((?:\d+|an?|one)\s+(?:minute|hour|day|week|month|year)s?\s+ago)/i);
+  return m?m[1]:'';
+}
+function parseExcerpt(inner='',title=''){
+  let text=cleanHtml(inner).replace(/^(post|video|patchnotes)\s+/i,'').trim();
+  if(title&&text.toLowerCase().startsWith(title.toLowerCase()))text=text.slice(title.length).trim();
+  text=text.replace(/^0\s*/,'').replace(/^Posted:\s*(?:\d+|an?|one)\s+(?:minute|hour|day|week|month|year)s?\s+ago\s*/i,'').trim();
+  if(!text||text===title)return'';
+  return text.length>220?text.slice(0,217).trim()+'…':text;
+}
+function parseArticles(html,forcePatch=false){
   const out=[];
+  const seen=new Set();
   const re=/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
   let m;
   while((m=re.exec(html))){
     const href=m[1];
-    if(!match(href))continue;
-    const title=clean(m[2].replace(/<[^>]+>/g,' ').replace(/&amp;/g,'&').replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/&nbsp;/g,' '));
-    if(title.length<5)continue;
-    out.push({title,url:absolute(href),category:category(title,href)});
+    if(!/\/comm-link\/(?:Patch-Notes|patch-notes|transmission|engineering|citizens|spectrum-dispatch|serialized-fiction)\/\d+-/i.test(href))continue;
+    const url=absolute(href);
+    if(seen.has(url))continue;
+    const title=parseTitle(m[2]);
+    if(!title||title.length<4||title.length>180)continue;
+    seen.add(url);
+    out.push({title,url,category:forcePatch?'PATCH':category(title,url,m[2]),posted:parsePosted(m[2]),excerpt:parseExcerpt(m[2],title)});
   }
   return out;
 }
-
-function unique(items){
-  const seen=new Set();
-  return items.filter(x=>{const k=x.url+'|'+x.title.toLowerCase();if(seen.has(k))return false;seen.add(k);return true});
+async function fetchSource(url){
+  const r=await fetch(url,{headers:{'User-Agent':'AsteriaxVerse/1.0 (+https://asteriaxverse.pages.dev)','Accept':'text/html,application/xhtml+xml'}});
+  if(!r.ok)throw new Error(`RSI ${r.status}`);
+  return r.text();
+}
+function fallback(){
+  return [
+    {title:'Patch Notes Star Citizen',url:`${RSI}/en/patch-notes`,category:'PATCH',posted:'',excerpt:'Accéder aux dernières notes de mise à jour officielles.'},
+    {title:'Dernières actualités Star Citizen',url:`${RSI}/en/comm-link/transmission/star-citizen`,category:'NEWS',posted:'',excerpt:'Actualités officielles RSI, événements et annonces du Verse.'},
+    {title:'Development Hub',url:`${RSI}/en/development`,category:'ROADMAP',posted:'',excerpt:'Roadmap et informations de développement officielles.'}
+  ];
 }
 
 export async function onRequestGet(context){
   const cache=caches.default;
-  const key=new Request(new URL(context.request.url).origin+'/api/news?cache=v1');
-  const hit=await cache.match(key);
-  if(hit)return hit;
+  const cacheKey=new Request(new URL('/api/news?cache=v2',context.request.url).toString(),{method:'GET'});
+  const cached=await cache.match(cacheKey);
+  if(cached)return cached;
+  let items=[];
+  let live=true;
   try{
-    const [comm,patch]=await Promise.all([
-      linksFrom(`${RSI}/en/comm-link/transmission/star-citizen`,h=>h.includes('/en/comm-link/')&&!h.endsWith('/en/comm-link/')),
-      linksFrom(`${RSI}/en/patch-notes`,h=>h.includes('/en/patch-notes/'))
-    ]);
-    let items=unique([...patch,...comm]);
-    items.sort((a,b)=>{
-      const weight={PATCH:0,ROADMAP:1,'SNEAK PEEK':2,VIDEO:3,NEWS:4,'KNOWN ISSUE':5};
-      return (weight[a.category]??9)-(weight[b.category]??9);
-    });
-    items=items.slice(0,18);
-    const body=JSON.stringify({ok:true,updatedAt:new Date().toISOString(),source:'Roberts Space Industries',items});
-    const response=new Response(body,{headers:{'content-type':'application/json; charset=utf-8','cache-control':'public, max-age=300, s-maxage=1800','access-control-allow-origin':'*'}});
-    context.waitUntil(cache.put(key,response.clone()));
-    return response;
-  }catch(error){
-    return Response.json({ok:false,error:'RSI temporairement indisponible',items:[]},{status:502,headers:{'cache-control':'no-store'}});
+    const [patchHtml,commHtml]=await Promise.all(SOURCES.map(fetchSource));
+    const patches=parseArticles(patchHtml,true).slice(0,4);
+    const comm=parseArticles(commHtml,false).slice(0,16);
+    const dedup=new Map();
+    [...patches,...comm].forEach(x=>dedup.set(x.url,x));
+    items=[...dedup.values()].slice(0,18);
+    if(!items.length)throw new Error('Aucune actualité RSI détectée');
+  }catch(err){
+    console.error('AsteriaxVerse news:',err);
+    live=false;
+    items=fallback();
   }
+  const payload=JSON.stringify({ok:true,live,updatedAt:new Date().toISOString(),refreshSeconds:3600,source:'Roberts Space Industries',items});
+  const response=new Response(payload,{headers:{'content-type':'application/json; charset=utf-8','cache-control':'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400','access-control-allow-origin':'*'}});
+  context.waitUntil(cache.put(cacheKey,response.clone()));
+  return response;
 }

@@ -8,15 +8,15 @@ having to touch the UI or the database layer.
 from __future__ import annotations
 
 APP_NAME = "Asteriax Verse"
-APP_VERSION = "1.7.3"
+APP_VERSION = "1.7.4"
 APP_AUTHOR = "AsteriaxTTV"
 USER_AGENT = f"AsteriaxTTV-StarCitizen-Companion/{APP_VERSION}"
 
 APP_RELEASE_NOTES = (
-    "Nouvelle navigation horizontale inspirée du site AsteriaxVerse.",
-    "Interface sombre et cyan harmonisée entre le site et le logiciel.",
-    "Accès direct aux pages principales et à la recherche globale.",
-    "Toutes les fonctions existantes, la base locale et les mises à jour sont conservées.",
+    "Accueil entièrement refait dans l’identité visuelle du site AsteriaxVerse.",
+    "Catalogue des vaisseaux présenté en cartes avec pagination et tri dédié.",
+    "Palette cyan, panneaux, filtres et contrôles harmonisés dans tout le logiciel.",
+    "Navigation horizontale responsive mieux adaptée aux fenêtres réduites.",
 )
 
 DISCORD_URL = "https://discord.com/invite/YSK3aJwATH"
@@ -112,22 +112,22 @@ NEWS_ITEMS: tuple[dict[str, str], ...] = (
 )
 
 COLORS = {
-    "background": "#070C12",
-    "sidebar": "#0B121B",
-    "panel": "#101923",
-    "panel_alt": "#13202C",
-    "panel_hover": "#182A38",
-    "border": "#203342",
-    "accent": "#35D0BA",
-    "accent_hover": "#57E1CD",
-    "accent_dark": "#103E3B",
-    "blue": "#4FA8FF",
+    "background": "#050B11",
+    "sidebar": "#07131C",
+    "panel": "#0B1721",
+    "panel_alt": "#0E202C",
+    "panel_hover": "#12303D",
+    "border": "#193746",
+    "accent": "#4ED9FF",
+    "accent_hover": "#7BE6FF",
+    "accent_dark": "#0E3545",
+    "blue": "#76A9FF",
     "warning": "#F4C15D",
-    "danger": "#FF6B7A",
-    "text": "#F3F7FA",
-    "muted": "#8FA3B4",
-    "muted_2": "#627687",
-    "success": "#68E0A5",
+    "danger": "#FF7885",
+    "text": "#F2F8FC",
+    "muted": "#94AABC",
+    "muted_2": "#60798B",
+    "success": "#69E2A7",
 }
 
 # High-level scopes used by the navigation.  The source categories stay in

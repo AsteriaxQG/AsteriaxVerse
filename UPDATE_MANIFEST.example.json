@@ -1,7 +1,7 @@
 {
-  "version": "1.7.5",
+  "version": "1.7.6",
   "download_url": "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe",
   "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
   "size": 0,
-  "release_notes": "Correctif vaisseaux : affichage accéléré, 20 cartes par page, images chargées en arrière-plan et fiches cliquables sur toute la carte."
+  "release_notes": "Correctif fluidité : passage fenêtre réduite / grand écran optimisé, navigation responsive allégée et rendu lourd des vaisseaux suspendu pendant le redimensionnement."
 }

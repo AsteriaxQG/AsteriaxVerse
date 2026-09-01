@@ -1,7 +1,7 @@
 {
-  "version": "1.7.3",
+  "version": "1.7.4",
   "download_url": "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe",
-  "sha256": "2c05c341b2ddfcb30ec3b51d791583b15ea692d61461811e20c67a820c9abe00",
-  "size": 21922516,
-  "release_notes": "Nouvelle navigation horizontale inspirée du site AsteriaxVerse, interface sombre/cyan harmonisée et accès rapide aux pages principales."
+  "sha256": "604dbc6166902318bd140bb726b5a4935127ec5786fc7a1be9c95dc2ff67d1df",
+  "size": 21943774,
+  "release_notes": "Refonte visuelle complète : nouvel accueil proche du site, catalogue vaisseaux en cartes avec pagination et tri, palette cyan harmonisée et navigation responsive."
 }

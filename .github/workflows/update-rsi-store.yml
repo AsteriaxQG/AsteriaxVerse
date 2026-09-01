@@ -1,0 +1,31 @@
+name: Actualiser les prix officiels RSI
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  update-rsi-store:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Récupérer les prix du Pledge Store
+        run: node scripts/update-rsi-store.mjs
+      - name: Publier uniquement si les prix ont changé
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add functions/api/ships-snapshot.js
+          if git diff --cached --quiet; then
+            echo "Les prix officiels sont déjà à jour."
+            exit 0
+          fi
+          git commit -m "Actualise les prix officiels RSI [skip ci]"
+          git push

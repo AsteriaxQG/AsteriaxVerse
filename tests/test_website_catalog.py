@@ -66,6 +66,8 @@ class WebsiteCatalogTests(unittest.TestCase):
         self.assertIn("pledge_price", api)
         self.assertIn("pledge_currency", api)
         self.assertIn("pledge_is_warbond", api)
+        self.assertIn("snapshotStore", api)
+        self.assertIn("RSI_STORE_SNAPSHOT_UPDATED_AT", api)
         self.assertIn("pledge_price:c.pledge_price", client)
         self.assertIn("$ US", client)
         for value in ("auec-asc", "auec-desc", "pledge-asc", "pledge-desc"):
@@ -73,6 +75,17 @@ class WebsiteCatalogTests(unittest.TestCase):
             self.assertIn(f"sort==='{value}'", filters)
         self.assertIn("aMissing?1:-1", filters)
         self.assertNotIn("bindSort('#vehicleSort'", enhance)
+
+    def test_pledge_prices_have_an_automatic_official_snapshot(self):
+        snapshot = (ROOT / "functions" / "api" / "ships-snapshot.js").read_text(encoding="utf-8")
+        updater = (ROOT / "scripts" / "update-rsi-store.mjs").read_text(encoding="utf-8")
+        workflow = (ROOT / ".github" / "workflows" / "update-rsi-store.yml").read_text(encoding="utf-8")
+        self.assertIn("RSI_STORE_SNAPSHOT_UPDATED_AT", snapshot)
+        self.assertIn("RSI_STORE_SNAPSHOT", snapshot)
+        self.assertIn("robertsspaceindustries.com", updater)
+        self.assertIn("nativePrice", updater)
+        self.assertIn('cron: "17 */6 * * *"', workflow)
+        self.assertIn("node scripts/update-rsi-store.mjs", workflow)
 
     def test_ship_detail_has_safe_image_fallback_and_full_dimensions(self):
         source = (ROOT / "website" / "shipcatalog.js").read_text(encoding="utf-8")

@@ -33,6 +33,14 @@ if ! grep -q 'home-now-order.js' website/index.html; then
   sed -i 's#</body>#<script src="home-now-order.js?v=1"></script></body>#' website/index.html
 fi
 
+# Rend la flèche du dernier patch cliquable et garde une actualisation automatique.
+if ! grep -q 'patch-refresh.css' website/index.html; then
+  sed -i 's#</head>#<link rel="stylesheet" href="patch-refresh.css?v=1"/></head>#' website/index.html
+fi
+if ! grep -q 'patch-refresh.js' website/index.html; then
+  sed -i 's#</body>#<script src="patch-refresh.js?v=1"></script></body>#' website/index.html
+fi
+
 # Charge le flux d'actualités RSI automatique sans alourdir index.html.
 if ! grep -q 'news.js' website/index.html; then
   sed -i 's#</body>#<script src="news.js"></script></body>#' website/index.html

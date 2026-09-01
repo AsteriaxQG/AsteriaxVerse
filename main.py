@@ -14,12 +14,13 @@ def main() -> int:
         return bootstrap_result
     try:
         from ui.app import ShipsPage, run
+        from ui.site_resize_fastfix import install_resize_fastfix
         from ui.site_shell import install_site_shell
         from ui.site_ships_fastfix import install_ship_fastfix
 
-        # Apply visual shell first, then the 1.7.5 ship-catalogue hotfix.
         install_site_shell()
         install_ship_fastfix(ShipsPage)
+        install_resize_fastfix()
     except ModuleNotFoundError as exc:
         if exc.name == "customtkinter":
             message = (

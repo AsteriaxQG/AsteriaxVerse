@@ -1,8 +1,11 @@
 (()=>{
   const q=s=>document.querySelector(s);
-  const escHome=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const escHome=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
   const labels={'PATCH':'PATCH','ROADMAP':'ROADMAP','SNEAK PEEK':'SNEAK PEEK','VIDEO':'VIDÉO','KNOWN ISSUE':'KNOWN ISSUE','NEWS':'ACTU'};
-  const norm=v=>String(v??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const norm=v=>String(v??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+  const keyName=v=>norm(v).replace(/\s+/g,'');
+  let homeNewsItems=[];
+  let shipFeed=[];
 
   function postedLabel(value=''){
     const text=String(value).trim();
@@ -14,42 +17,51 @@
     return `il y a ${amount} ${unit[amount===1?0:1]}`;
   }
 
-  function readSet(key){
-    try{return new Set(JSON.parse(localStorage.getItem(key)||'[]').map(String))}catch{return new Set()}
-  }
-
-  function renderHangarSummary(){
-    const owned=readSet('ax_hangar_owned'),wish=readSet('ax_hangar_wishlist');
-    const ownedEl=q('#homeOwnedCount'),wishEl=q('#homeWishCount');
-    if(ownedEl)ownedEl.textContent=owned.size.toLocaleString('fr-FR');
-    if(wishEl)wishEl.textContent=wish.size.toLocaleString('fr-FR');
-  }
+  function readSet(key){try{return new Set(JSON.parse(localStorage.getItem(key)||'[]').map(String))}catch{return new Set()}}
+  function renderHangarSummary(){const owned=readSet('ax_hangar_owned'),wish=readSet('ax_hangar_wishlist');if(q('#homeOwnedCount'))q('#homeOwnedCount').textContent=owned.size.toLocaleString('fr-FR');if(q('#homeWishCount'))q('#homeWishCount').textContent=wish.size.toLocaleString('fr-FR')}
 
   function statusGroup(v){
-    const raw=norm(v?.production_status).replace(/[_\s]+/g,'-');
+    const raw=norm(v?.production_status).replace(/\s+/g,'-');
+    if(raw.includes('flight-ready')||raw.includes('hangar-ready')||Number(v?.price_min)>0||v?.in_game===true||v?.in_game===1)return'flight';
     if(raw.includes('concept'))return'concept';
     if(raw.includes('active-production')||raw.includes('long-term-production')||raw==='production'||raw.includes('in-production'))return'production';
-    if(raw.includes('flight-ready')||raw.includes('hangar-ready')||Number(v?.price_min)>0||v?.in_game===true||v?.in_game===1)return'flight';
     return'other';
   }
 
-  function hasImage(v){return Boolean(String(v?.catalog_image||v?.url_photo||'').trim())}
-
-  function bestByStatus(list,status,used){
-    const preferred=['Polaris','Zeus Mk II','C1 Spirit','Vulture','Corsair','Intrepid','Starlancer','Guardian','Perseus','Galaxy','Merchantman','Railen'];
-    const candidates=list.filter(v=>!used.has(String(v.id))&&Number(v.is_ground_vehicle)!==1&&statusGroup(v)===status&&hasImage(v));
-    for(const name of preferred){const hit=candidates.find(v=>norm(v.name).includes(norm(name)));if(hit)return hit}
-    return candidates[0]||null;
+  function isGroundFeed(v){const s=norm(`${v?.type||''} ${v?.size||''}`);return /(^| )(ground|ground vehicle|vehicle)( |$)/.test(s)}
+  function shipMentionIndex(ship){
+    const name=norm(ship?.name);if(name.length<5)return Number.MAX_SAFE_INTEGER;
+    const key=keyName(name);
+    for(let i=0;i<homeNewsItems.length;i++){
+      const hay=norm(`${homeNewsItems[i].title||''} ${homeNewsItems[i].excerpt||''}`);
+      const compact=keyName(hay);
+      if(hay.includes(name)||compact.includes(key))return i;
+    }
+    return Number.MAX_SAFE_INTEGER;
+  }
+  function updatedTime(ship){const t=Date.parse(ship?.updated||'');return Number.isFinite(t)?t:0}
+  function findStateVehicle(feedShip){
+    if(typeof state==='undefined'||!Array.isArray(state.vehicles))return null;
+    const target=keyName(feedShip?.name);if(!target)return null;
+    let exact=state.vehicles.find(v=>[v.name,v.name_full].some(n=>keyName(n)===target));if(exact)return exact;
+    if(target.length<6)return null;
+    return state.vehicles.find(v=>[v.name,v.name_full].some(n=>{const k=keyName(n);return k.length>=6&&(k.endsWith(target)||target.endsWith(k))}))||null;
   }
 
   function pickFeaturedShips(){
-    if(typeof state==='undefined'||!Array.isArray(state.vehicles))return[];
-    const all=state.vehicles.filter(v=>Number(v.is_ground_vehicle)!==1);
-    const used=new Set(),picked=[];
-    for(const s of ['flight','production','concept']){
-      const v=bestByStatus(all,s,used);if(v){picked.push(v);used.add(String(v.id))}
+    if(typeof state==='undefined'||!Array.isArray(state.vehicles)||!state.vehicles.length)return[];
+    const picked=[],used=new Set();
+    if(shipFeed.length){
+      const sorted=shipFeed.filter(v=>String(v.status).toLowerCase()==='flight-ready'&&!isGroundFeed(v)).sort((a,b)=>{
+        const ai=shipMentionIndex(a),bi=shipMentionIndex(b);if(ai!==bi)return ai-bi;
+        return updatedTime(b)-updatedTime(a);
+      });
+      for(const feedShip of sorted){
+        const v=findStateVehicle(feedShip);if(!v||used.has(String(v.id))||Number(v.is_ground_vehicle)===1)continue;
+        picked.push(v);used.add(String(v.id));if(picked.length===3)break;
+      }
     }
-    const fallback=all.filter(v=>!used.has(String(v.id))&&hasImage(v)).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'fr',{numeric:true}));
+    const fallback=state.vehicles.filter(v=>!used.has(String(v.id))&&Number(v.is_ground_vehicle)!==1&&statusGroup(v)==='flight').sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'fr',{numeric:true}));
     while(picked.length<3&&fallback.length){const v=fallback.shift();if(!used.has(String(v.id))){picked.push(v);used.add(String(v.id))}}
     return picked.slice(0,3);
   }
@@ -57,9 +69,7 @@
   function renderFeaturedShips(){
     const grid=q('#homeShipGrid');if(!grid||typeof vehicleCard!=='function')return false;
     const list=pickFeaturedShips();if(!list.length)return false;
-    grid.innerHTML=list.map(vehicleCard).join('');
-    if(typeof bindCards==='function')bindCards(grid);
-    return true;
+    grid.innerHTML=list.map(vehicleCard).join('');if(typeof bindCards==='function')bindCards(grid);return true;
   }
 
   function newsCard(x){
@@ -68,48 +78,54 @@
   }
 
   function renderNow(items){
-    const grid=q('#homeNowGrid');if(!grid)return;
-    const picks=[];
-    for(const category of ['PATCH','ROADMAP','NEWS','VIDEO','SNEAK PEEK']){
-      const hit=items.find(x=>x.category===category&&!picks.includes(x));if(hit)picks.push(hit);if(picks.length===3)break;
-    }
+    const grid=q('#homeNowGrid');if(!grid)return;const picks=[];
+    for(const category of ['PATCH','ROADMAP','NEWS','VIDEO','SNEAK PEEK']){const hit=items.find(x=>x.category===category&&!picks.includes(x));if(hit)picks.push(hit);if(picks.length===3)break}
     for(const x of items){if(picks.length===3)break;if(!picks.includes(x))picks.push(x)}
     grid.innerHTML=picks.length?picks.map(x=>`<div class="home-now-card"><span>${escHome(labels[x.category]||x.category||'ACTU')}</span><strong>${escHome(x.title||'Publication officielle')}</strong><small>${escHome(postedLabel(x.posted||''))}</small></div>`).join(''):'<div class="home-loading">Les informations officielles sont en cours de chargement.</div>';
   }
 
-  function updateHeroPatch(items){
-    const patch=items.find(x=>x.category==='PATCH')||items[0];
-    const title=q('#homePatchTitle'),posted=q('#homePatchPosted');
-    if(!patch)return;
-    if(title)title.textContent=patch.title||'Dernière publication RSI';
-    if(posted)posted.textContent=postedLabel(patch.posted||'');
-  }
+  function updateHeroPatch(items){const patch=items.find(x=>x.category==='PATCH')||items[0];if(!patch)return;if(q('#homePatchTitle'))q('#homePatchTitle').textContent=patch.title||'Dernière publication RSI';if(q('#homePatchPosted'))q('#homePatchPosted').textContent=postedLabel(patch.posted||'')}
 
   async function loadHomeNews(){
     const grid=q('#homeNewsGrid');if(!grid)return;
     try{
-      const res=await fetch(`/api/news?ts=${Date.now()}`,{headers:{Accept:'application/json'},cache:'no-store'});
-      if(!res.ok)throw new Error('API indisponible');
+      const res=await fetch(`/api/news?ts=${Date.now()}`,{headers:{Accept:'application/json'},cache:'no-store'});if(!res.ok)throw new Error('API indisponible');
       const data=await res.json();if(!data.ok||!Array.isArray(data.items)||!data.items.length)throw new Error('Aucune actualité');
-      const items=data.items;
-      grid.innerHTML=items.slice(0,3).map(newsCard).join('');
-      updateHeroPatch(items);renderNow(items);
+      homeNewsItems=data.items;grid.innerHTML=homeNewsItems.slice(0,3).map(newsCard).join('');updateHeroPatch(homeNewsItems);renderNow(homeNewsItems);renderFeaturedShips();
     }catch(e){
       grid.innerHTML=`<a class="home-news-card" href="https://robertsspaceindustries.com/en/comm-link" target="_blank" rel="noopener"><div class="home-news-image"><span>COMM-LINK</span></div><div class="home-news-body"><div class="home-news-meta"><span>ACTU</span></div><h3>Actualités officielles Star Citizen</h3><p>Le flux automatique est temporairement indisponible.</p></div></a>`;
-      const now=q('#homeNowGrid');if(now)now.innerHTML='<div class="home-loading">Flux officiel temporairement indisponible.</div>';
+      if(q('#homeNowGrid'))q('#homeNowGrid').innerHTML='<div class="home-loading">Flux officiel temporairement indisponible.</div>';
     }
   }
 
-  function waitForShips(tries=0,lastCount=0){
-    const count=(typeof state!=='undefined'&&Array.isArray(state.vehicles))?state.vehicles.length:0;
-    if(count&&renderFeaturedShips()){
-      if(tries<12)setTimeout(()=>waitForShips(tries+1,count),800);
-      return;
-    }
-    if(tries<25)setTimeout(()=>waitForShips(tries+1,count),250);
+  async function loadShipFeed(){
+    try{const res=await fetch(`/api/ships?home=${Date.now()}`,{headers:{Accept:'application/json'},cache:'no-store'});if(!res.ok)throw 0;const data=await res.json();if(data.ok&&Array.isArray(data.items)){shipFeed=data.items;renderFeaturedShips()}}catch(e){console.warn('Derniers Flight Ready indisponibles',e)}
   }
 
-  renderHangarSummary();loadHomeNews();waitForShips();
+  function tone(value=''){const s=norm(value);if(s.includes('operationnel')||s.includes('en ligne'))return'good';if(s.includes('incident majeur')||s.includes('hors ligne'))return'bad';if(s.includes('degrade')||s.includes('maintenance')||s.includes('incident partiel'))return'warn';return''}
+  function setEnv(prefix,data,label){
+    const status=data?.status||'Inconnu',version=data?.version?`Alpha ${data.version}`:'—',build=data?.build||label;
+    const statusEl=q(`#home${prefix}Status`),versionEl=q(`#home${prefix}Version`),buildEl=q(`#home${prefix}Build`);
+    if(statusEl){statusEl.textContent=status;statusEl.className=tone(status)}if(versionEl)versionEl.textContent=version;if(buildEl){buildEl.textContent=build;buildEl.title=build}
+  }
+  async function loadUniverseStatus(){
+    try{
+      const res=await fetch(`/api/status?ts=${Date.now()}`,{headers:{Accept:'application/json'},cache:'no-store'});if(!res.ok)throw new Error('Statut RSI indisponible');const data=await res.json();if(!data.ok)throw new Error('Statut incomplet');
+      setEnv('Live',data.live,'Version LIVE officielle');setEnv('Ptu',data.ptu,'Public Test Universe');setEnv('Eptu',data.eptu,'Experimental PTU');
+      if(q('#homePuStatus'))q('#homePuStatus').textContent=data.services?.persistentUniverse||'Inconnu';if(q('#homePlatformStatus'))q('#homePlatformStatus').textContent=data.services?.platform||'Inconnu';if(q('#homeArenaStatus'))q('#homeArenaStatus').textContent=data.services?.arenaCommander||'Inconnu';
+      if(q('#homePlayers')){q('#homePlayers').textContent=data.players?.available&&Number.isFinite(Number(data.players.count))?Number(data.players.count).toLocaleString('fr-FR'):'Non publié';q('#homePlayers').title=data.players?.label||''}
+      const overall=q('#verseOverallStatus'),overallText=data.live?.status||data.services?.persistentUniverse||'Inconnu';if(overall){overall.textContent=overallText;overall.className=`verse-overall ${tone(overallText)}`}
+      if(q('#verseStatusSummary'))q('#verseStatusSummary').textContent=`Persistent Universe : ${data.services?.persistentUniverse||'Inconnu'} · LIVE ${data.live?.version?`Alpha ${data.live.version}`:'version inconnue'}`;
+      if(q('#verseSourceNote')){const d=new Date(data.updatedAt);q('#verseSourceNote').textContent=`Sources officielles RSI · actualisé ${d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})} · compteur de joueurs non publié par RSI`}
+    }catch(e){
+      const overall=q('#verseOverallStatus');if(overall){overall.textContent='Statut indisponible';overall.className='verse-overall warn'}if(q('#verseStatusSummary'))q('#verseStatusSummary').textContent='Impossible de joindre les sources de statut officielles pour le moment.';
+    }
+  }
+
+  function waitForShips(tries=0){const count=(typeof state!=='undefined'&&Array.isArray(state.vehicles))?state.vehicles.length:0;if(count&&renderFeaturedShips()){if(tries<14)setTimeout(()=>waitForShips(tries+1),700);return}if(tries<30)setTimeout(()=>waitForShips(tries+1),250)}
+
+  renderHangarSummary();loadHomeNews();loadShipFeed();loadUniverseStatus();waitForShips();
+  setInterval(loadUniverseStatus,120000);
   document.addEventListener('click',e=>{if(e.target.closest('[data-card-owned],[data-card-wish],[data-hangar-owned],[data-hangar-wish]'))setTimeout(renderHangarSummary,30)});
   window.addEventListener('storage',renderHangarSummary);
 })();

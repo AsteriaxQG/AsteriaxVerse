@@ -8,13 +8,13 @@ having to touch the UI or the database layer.
 from __future__ import annotations
 
 APP_NAME = "Asteriax Verse"
-APP_VERSION = "1.6.1"
+APP_VERSION = "1.6.2"
 APP_AUTHOR = "AsteriaxTTV"
 USER_AGENT = f"AsteriaxTTV-StarCitizen-Companion/{APP_VERSION}"
 
 APP_RELEASE_NOTES = (
-    "Scefra devient la nouvelle traduction française proposée par défaut.",
-    "Choix possible entre Scefra et la traduction classique Circuspes.",
+    "Scefra est désormais l’unique traduction française proposée.",
+    "L’ancienne source Circuspes a été entièrement retirée.",
     "Nouvelle navigation en cartes individuelles entièrement arrondies.",
     "Contours, espacements et sélection active modernisés.",
     "Sauvegarde et restauration de la traduction toujours conservées.",

@@ -9,7 +9,6 @@ from unittest.mock import patch
 from core.translation_fr import (
     DEFAULT_TRANSLATION_SOURCE,
     TRANSLATION_LIVE_URL,
-    TRANSLATION_SOURCES,
     find_game_installations,
     install_french_translation,
     restore_english,
@@ -48,6 +47,18 @@ class FrenchTranslationTests(unittest.TestCase):
         game.mkdir(parents=True)
         (game / "StarCitizen_Launcher.exe").write_bytes(b"MZ")
         return game
+
+    def test_scefra_is_the_only_download_source(self) -> None:
+        module = (Path(__file__).resolve().parents[1] / "core" / "translation_fr.py").read_text(
+            encoding="utf-8"
+        )
+        interface = (Path(__file__).resolve().parents[1] / "ui" / "advanced_pages.py").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("SPEED0U/Scefra", module)
+        self.assertNotIn("Dymerz", module)
+        self.assertNotIn("Circuspes", module)
+        self.assertNotIn("Circuspes", interface)
 
     def test_root_folder_resolves_to_live_and_is_detected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -123,23 +134,6 @@ class FrenchTranslationTests(unittest.TestCase):
             with patch("core.translation_fr.urllib.request.urlopen", return_value=response):
                 with self.assertRaisesRegex(ValueError, "source"):
                     install_french_translation(live, state_root=root / "state")
-
-    def test_classic_translation_remains_available(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            live = self._game(root)
-            classic_url = TRANSLATION_SOURCES["classic"]["live_url"]
-            with patch(
-                "core.translation_fr.urllib.request.urlopen",
-                return_value=FakeResponse(translation_payload("classic"), classic_url),
-            ):
-                result = install_french_translation(
-                    live,
-                    state_root=root / "state",
-                    source_key="classic",
-                )
-            self.assertEqual(result["source_key"], "classic")
-            self.assertEqual(result["source_label"], "Circuspes classique")
 
     def test_status_detects_partial_manual_install(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

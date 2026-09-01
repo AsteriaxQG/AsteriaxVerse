@@ -1,5 +1,14 @@
 # Historique
 
+## 1.6.2 — 1er septembre 2026
+
+- suppression complète de la traduction classique Circuspes ;
+- retrait du sélecteur de source devenu inutile ;
+- Scefra devient l’unique traduction française proposée par Asteriax Verse ;
+- page de traduction simplifiée avec identification claire de Scefra ;
+- téléchargement autorisé uniquement depuis le dépôt officiel SPEED0U/Scefra ;
+- traduction limitée au canal LIVE tant que Scefra ne publie pas de version PTU dédiée.
+
 ## 1.6.1 — 1er septembre 2026
 
 - remplacement de la traduction proposée par défaut par **Scefra**, une autre base française corrigée par sa communauté ;

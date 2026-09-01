@@ -33,11 +33,20 @@
     return'autre';
   }
   const num=v=>Number(v)||0;
+  function comparePrice(a,b,field,direction){
+    const av=Number(a?.[field]),bv=Number(b?.[field]);
+    const aMissing=!Number.isFinite(av)||av<=0,bMissing=!Number.isFinite(bv)||bv<=0;
+    if(aMissing!==bMissing)return aMissing?1:-1;
+    if(aMissing&&bMissing)return String(a.name||'').localeCompare(String(b.name||''),'fr',{numeric:true});
+    return direction==='asc'?av-bv:bv-av;
+  }
   function sortList(list){
     const sort=document.querySelector('#vehicleSort')?.value||'name';
     return [...list].sort((a,b)=>{
-      if(sort==='price')return (num(a.price_min)||Number.MAX_SAFE_INTEGER)-(num(b.price_min)||Number.MAX_SAFE_INTEGER);
-      if(sort==='price-desc')return num(b.price_min)-num(a.price_min);
+      if(sort==='auec-asc')return comparePrice(a,b,'price_min','asc');
+      if(sort==='auec-desc')return comparePrice(a,b,'price_min','desc');
+      if(sort==='pledge-asc')return comparePrice(a,b,'pledge_price','asc');
+      if(sort==='pledge-desc')return comparePrice(a,b,'pledge_price','desc');
       if(sort==='scu')return num(b.scu)-num(a.scu);
       return String(a.name||'').localeCompare(String(b.name||''),'fr',{numeric:true});
     });

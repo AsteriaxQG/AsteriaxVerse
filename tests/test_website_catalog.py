@@ -46,11 +46,33 @@ class WebsiteCatalogTests(unittest.TestCase):
         self.assertIn("catalogMatchKey", source)
         self.assertIn("starlifter", source)
         self.assertIn('"flight-ready":"Flight Ready"', source)
-        self.assertIn("Achat en jeu", source)
-        self.assertIn("Boutique RSI", source)
+        self.assertIn('"active-production":"Production active"', source)
+        self.assertIn('"long-term-production":"Production à long terme"', source)
+        self.assertIn('"concept":"En concept"', source)
+        self.assertIn("Prix en jeu", source)
+        self.assertIn("Prix Pledge Store", source)
         self.assertIn("Indisponible actuellement", source)
         self.assertIn("Non vérifié", source)
+        self.assertNotIn("Meilleur prix", source)
         self.assertNotIn("CURRENT_STATUS_OVERRIDES", source)
+
+    def test_official_pledge_price_and_independent_price_sorts(self):
+        api = (ROOT / "functions" / "api" / "ships.js").read_text(encoding="utf-8")
+        client = (ROOT / "website" / "shipcatalog.js").read_text(encoding="utf-8")
+        filters = (ROOT / "website" / "vehiclefilters.js").read_text(encoding="utf-8")
+        enhance = (ROOT / "website" / "enhance.js").read_text(encoding="utf-8")
+        html = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
+        self.assertIn("nativePrice { amount discounted discountDescription }", api)
+        self.assertIn("pledge_price", api)
+        self.assertIn("pledge_currency", api)
+        self.assertIn("pledge_is_warbond", api)
+        self.assertIn("pledge_price:c.pledge_price", client)
+        self.assertIn("$ US", client)
+        for value in ("auec-asc", "auec-desc", "pledge-asc", "pledge-desc"):
+            self.assertIn(f'value="{value}"', html)
+            self.assertIn(f"sort==='{value}'", filters)
+        self.assertIn("aMissing?1:-1", filters)
+        self.assertNotIn("bindSort('#vehicleSort'", enhance)
 
     def test_ship_detail_has_safe_image_fallback_and_full_dimensions(self):
         source = (ROOT / "website" / "shipcatalog.js").read_text(encoding="utf-8")
@@ -112,7 +134,7 @@ class WebsiteCatalogTests(unittest.TestCase):
         self.assertIn("list.slice(start,start+PAGE_SIZE)", client)
         self.assertIn("Page précédente", client)
         self.assertIn("Page suivante", client)
-        self.assertIn("vehiclefilters.js?v=4", html)
+        self.assertIn("vehiclefilters.js?v=5", html)
 
     def test_ship_cards_have_non_overlapping_hangar_actions(self):
         client = (ROOT / "website" / "shipcatalog.js").read_text(encoding="utf-8")
@@ -124,7 +146,7 @@ class WebsiteCatalogTests(unittest.TestCase):
         self.assertIn("e.stopPropagation()", client)
         self.assertIn(".card-hangar-actions", styles)
         self.assertIn("max-width:calc(100% - 116px)", styles)
-        self.assertIn("shipcatalog.js?v=9", html)
+        self.assertIn("shipcatalog.js?v=10", html)
 
     def test_mobile_layout_is_touch_friendly_and_safe_area_aware(self):
         html = (ROOT / "website" / "index.html").read_text(encoding="utf-8")

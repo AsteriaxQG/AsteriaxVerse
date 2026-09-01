@@ -137,7 +137,7 @@ class DashboardPage(BasePage):
             corner_radius=13,
             fg_color=COLORS["accent_dark"],
             text_color=COLORS["accent"],
-            font=("Segoe UI Semibold", 9),
+            font=("Segoe UI Semibold", 11),
         )
         badge.grid(row=0, column=0, padx=24, pady=(22, 8), sticky="w")
         ctk.CTkLabel(
@@ -155,7 +155,7 @@ class DashboardPage(BasePage):
             ),
             wraplength=780,
             justify="left",
-            font=("Segoe UI", 11),
+            font=("Segoe UI", 13),
             text_color=COLORS["muted"],
             anchor="w",
         ).grid(row=2, column=0, padx=24, pady=(7, 22), sticky="ew")
@@ -169,7 +169,7 @@ class DashboardPage(BasePage):
             fg_color=COLORS["accent"],
             hover_color=COLORS["accent_hover"],
             text_color=COLORS["background"],
-            font=("Segoe UI Semibold", 10),
+            font=("Segoe UI Semibold", 12),
         ).grid(row=0, column=1, rowspan=2, padx=(10, 24), pady=22, sticky="e")
 
         cards = [
@@ -214,14 +214,14 @@ class DashboardPage(BasePage):
                 panel,
                 text=title,
                 text_color=COLORS["text"],
-                font=("Segoe UI Semibold", 11),
+                font=("Segoe UI Semibold", 13),
                 anchor="w",
             ).grid(row=1, column=0, padx=18, sticky="ew")
             ctk.CTkLabel(
                 panel,
                 text=caption,
                 text_color=COLORS["muted"],
-                font=("Segoe UI", 9),
+                font=("Segoe UI", 11),
                 anchor="w",
             ).grid(row=2, column=0, padx=18, pady=(3, 13), sticky="ew")
             ctk.CTkButton(
@@ -235,7 +235,7 @@ class DashboardPage(BasePage):
                 border_width=1,
                 border_color=COLORS["border"],
                 text_color=COLORS["accent"],
-                font=("Segoe UI Semibold", 9),
+                font=("Segoe UI Semibold", 11),
             ).grid(row=3, column=0, padx=18, pady=(0, 17), sticky="ew")
 
         SectionTitle(
@@ -406,14 +406,14 @@ class CatalogPage(BasePage):
             fg_color=COLORS["panel_alt"],
             text_color=COLORS["text"],
             placeholder_text_color=COLORS["muted_2"],
-            font=("Segoe UI", 10),
+            font=("Segoe UI", 12),
         )
         self.search_entry.grid(row=0, column=0, sticky="ew")
         self.search_entry.bind("<KeyRelease>", self._schedule_refresh)
         self.result_label = ctk.CTkLabel(
             search_wrap,
             text="",
-            font=("Segoe UI Semibold", 9),
+            font=("Segoe UI Semibold", 11),
             text_color=COLORS["muted"],
             width=120,
         )
@@ -430,7 +430,7 @@ class CatalogPage(BasePage):
             border_width=1,
             border_color=COLORS["border"],
             text_color=COLORS["muted"],
-            font=("Segoe UI Semibold", 9),
+            font=("Segoe UI Semibold", 11),
         ).grid(row=0, column=2)
 
         self.section_var = tk.StringVar(value="Toutes")
@@ -553,7 +553,7 @@ class CatalogPage(BasePage):
             ctk.CTkLabel(
                 self.chip_row,
                 text="Aucun filtre actif · cliquez sur un titre de colonne pour trier",
-                font=("Segoe UI", 8),
+                font=("Segoe UI", 10),
                 text_color=COLORS["muted_2"],
                 anchor="w",
             ).pack(side="left")
@@ -561,7 +561,7 @@ class CatalogPage(BasePage):
         ctk.CTkLabel(
             self.chip_row,
             text="FILTRES ACTIFS",
-            font=("Segoe UI Semibold", 7),
+            font=("Segoe UI Semibold", 10),
             text_color=COLORS["muted_2"],
         ).pack(side="left", padx=(0, 7))
         for label, variable, default in active:
@@ -575,7 +575,7 @@ class CatalogPage(BasePage):
                 fg_color=COLORS["accent_dark"],
                 hover_color=COLORS["panel_hover"],
                 text_color=COLORS["accent"],
-                font=("Segoe UI Semibold", 7),
+                font=("Segoe UI Semibold", 10),
             ).pack(side="left", padx=(0, 5))
 
     def _save_filters(self) -> None:
@@ -726,7 +726,7 @@ class CatalogPage(BasePage):
         ctk.CTkLabel(
             self.detail,
             text=translate_section(detail.get("section")).upper(),
-            font=("Segoe UI Semibold", 9),
+            font=("Segoe UI Semibold", 11),
             text_color=COLORS["accent"],
             anchor="w",
         ).grid(row=0, column=0, padx=16, pady=(15, 4), sticky="ew")
@@ -753,7 +753,7 @@ class CatalogPage(BasePage):
             text=sub,
             wraplength=310,
             justify="left",
-            font=("Segoe UI", 9),
+            font=("Segoe UI", 11),
             text_color=COLORS["muted"],
             anchor="w",
         ).grid(row=2, column=0, padx=16, pady=(5, 13), sticky="ew")
@@ -772,7 +772,7 @@ class CatalogPage(BasePage):
             border_width=1,
             border_color=COLORS["border"],
             text_color=COLORS["text"],
-            font=("Segoe UI Semibold", 8),
+            font=("Segoe UI Semibold", 10),
         ).grid(row=0, column=0, padx=(0, 3), sticky="ew")
         ctk.CTkButton(
             actions,
@@ -785,7 +785,7 @@ class CatalogPage(BasePage):
             border_width=1,
             border_color=COLORS["border"],
             text_color=COLORS["text"],
-            font=("Segoe UI Semibold", 8),
+            font=("Segoe UI Semibold", 10),
         ).grid(row=0, column=1, padx=(3, 0), sticky="ew")
 
         if offers:
@@ -796,7 +796,7 @@ class CatalogPage(BasePage):
             ctk.CTkLabel(
                 price_panel,
                 text="MEILLEUR PRIX",
-                font=("Segoe UI Semibold", 8),
+                font=("Segoe UI Semibold", 10),
                 text_color=COLORS["accent"],
                 anchor="w",
             ).grid(row=0, column=0, padx=13, pady=(10, 0), sticky="ew")
@@ -812,7 +812,7 @@ class CatalogPage(BasePage):
                 text=location_label(best),
                 wraplength=285,
                 justify="left",
-                font=("Segoe UI", 9),
+                font=("Segoe UI", 11),
                 text_color=COLORS["muted"],
                 anchor="w",
             ).grid(row=2, column=0, padx=13, pady=(3, 1), sticky="ew")
@@ -820,7 +820,7 @@ class CatalogPage(BasePage):
             ctk.CTkLabel(
                 price_panel,
                 text=freshness,
-                font=("Segoe UI Semibold", 8),
+                font=("Segoe UI Semibold", 10),
                 text_color=COLORS["warning"] if "revérifier" in freshness else COLORS["muted_2"],
                 anchor="w",
             ).grid(row=3, column=0, padx=13, pady=(0, 10), sticky="ew")
@@ -836,13 +836,13 @@ class CatalogPage(BasePage):
                 border_width=1,
                 border_color=COLORS["border"],
                 text_color=COLORS["accent"],
-                font=("Segoe UI Semibold", 8),
+                font=("Segoe UI Semibold", 10),
             ).grid(row=1, column=1, rowspan=3, padx=(4, 10), pady=(3, 9))
 
         ctk.CTkLabel(
             self.detail,
             text=f"TOUTES LES BOUTIQUES  ·  {len(offers)}",
-            font=("Segoe UI Semibold", 9),
+            font=("Segoe UI Semibold", 11),
             text_color=COLORS["muted"],
             anchor="w",
         ).grid(row=6, column=0, padx=16, pady=(3, 7), sticky="ew")
@@ -860,7 +860,7 @@ class CatalogPage(BasePage):
             ctk.CTkLabel(
                 card,
                 text=format_price(offer.get("price_buy")),
-                font=("Segoe UI Semibold", 11),
+                font=("Segoe UI Semibold", 13),
                 text_color=COLORS["text"],
                 anchor="w",
             ).grid(row=0, column=0, padx=11, pady=(8, 0), sticky="ew")
@@ -869,7 +869,7 @@ class CatalogPage(BasePage):
                 text=location_label(offer),
                 wraplength=285,
                 justify="left",
-                font=("Segoe UI", 8),
+                font=("Segoe UI", 10),
                 text_color=COLORS["muted"],
                 anchor="w",
             ).grid(row=1, column=0, padx=11, pady=(2, 1), sticky="ew")
@@ -877,7 +877,7 @@ class CatalogPage(BasePage):
             ctk.CTkLabel(
                 card,
                 text=freshness,
-                font=("Segoe UI Semibold", 7),
+                font=("Segoe UI Semibold", 10),
                 text_color=COLORS["warning"] if "revérifier" in freshness else COLORS["muted_2"],
                 anchor="w",
             ).grid(row=2, column=0, padx=11, pady=(0, 8), sticky="ew")
@@ -894,7 +894,7 @@ class CatalogPage(BasePage):
                 border_width=1,
                 border_color=COLORS["border"],
                 text_color=COLORS["accent"],
-                font=("Segoe UI Semibold", 9),
+                font=("Segoe UI Semibold", 11),
             ).grid(row=row_index, column=0, padx=16, pady=(8, 16), sticky="ew")
 
 
@@ -939,11 +939,11 @@ class ShipsPage(BasePage):
             fg_color=COLORS["panel_alt"],
             text_color=COLORS["text"],
             placeholder_text_color=COLORS["muted_2"],
-            font=("Segoe UI", 10),
+            font=("Segoe UI", 12),
         )
         entry.grid(row=0, column=0, sticky="ew")
         entry.bind("<KeyRelease>", self._schedule_refresh)
-        self.result_label = ctk.CTkLabel(search, text="", width=120, text_color=COLORS["muted"], font=("Segoe UI Semibold", 9))
+        self.result_label = ctk.CTkLabel(search, text="", width=120, text_color=COLORS["muted"], font=("Segoe UI Semibold", 11))
         self.result_label.grid(row=0, column=1, padx=12)
         ctk.CTkButton(
             search,
@@ -957,7 +957,7 @@ class ShipsPage(BasePage):
             border_width=1,
             border_color=COLORS["border"],
             text_color=COLORS["muted"],
-            font=("Segoe UI Semibold", 9),
+            font=("Segoe UI Semibold", 11),
         ).grid(row=0, column=2)
         self.manufacturer_var = tk.StringVar(value="Tous")
         self.type_var = tk.StringVar(value="Tous")
@@ -1069,12 +1069,12 @@ class ShipsPage(BasePage):
             ctk.CTkLabel(
                 self.chip_row,
                 text="Aucun filtre actif · cliquez sur un titre de colonne pour trier",
-                font=("Segoe UI", 8),
+                font=("Segoe UI", 10),
                 text_color=COLORS["muted_2"],
                 anchor="w",
             ).pack(side="left")
             return
-        ctk.CTkLabel(self.chip_row, text="FILTRES ACTIFS", font=("Segoe UI Semibold", 7), text_color=COLORS["muted_2"]).pack(side="left", padx=(0, 7))
+        ctk.CTkLabel(self.chip_row, text="FILTRES ACTIFS", font=("Segoe UI Semibold", 10), text_color=COLORS["muted_2"]).pack(side="left", padx=(0, 7))
         for label, variable, default in active:
             ctk.CTkButton(
                 self.chip_row,
@@ -1086,7 +1086,7 @@ class ShipsPage(BasePage):
                 fg_color=COLORS["accent_dark"],
                 hover_color=COLORS["panel_hover"],
                 text_color=COLORS["accent"],
-                font=("Segoe UI Semibold", 7),
+                font=("Segoe UI Semibold", 10),
             ).pack(side="left", padx=(0, 5))
 
     def _save_filters(self) -> None:
@@ -1227,7 +1227,7 @@ class ShipsPage(BasePage):
         ctk.CTkLabel(
             self.detail,
             text=kind,
-            font=("Segoe UI Semibold", 9),
+            font=("Segoe UI Semibold", 11),
             text_color=COLORS["accent"],
             anchor="w",
         ).grid(row=0, column=0, padx=16, pady=(15, 4), sticky="ew")
@@ -1248,7 +1248,7 @@ class ShipsPage(BasePage):
             ),
             wraplength=310,
             justify="left",
-            font=("Segoe UI", 9),
+            font=("Segoe UI", 11),
             text_color=COLORS["muted"],
             anchor="w",
         ).grid(row=2, column=0, padx=16, pady=(5, 12), sticky="ew")
@@ -1265,7 +1265,7 @@ class ShipsPage(BasePage):
             ctk.CTkLabel(metrics, text=value, font=("Segoe UI Semibold", 13), text_color=COLORS["text"]).grid(
                 row=0, column=column, padx=7, pady=(9, 0)
             )
-            ctk.CTkLabel(metrics, text=label, font=("Segoe UI Semibold", 7), text_color=COLORS["muted_2"]).grid(
+            ctk.CTkLabel(metrics, text=label, font=("Segoe UI Semibold", 10), text_color=COLORS["muted_2"]).grid(
                 row=1, column=column, padx=7, pady=(0, 9)
             )
 
@@ -1288,7 +1288,7 @@ class ShipsPage(BasePage):
                 border_width=1,
                 border_color=COLORS["border"],
                 text_color=text_color,
-                font=("Segoe UI Semibold", 8),
+                font=("Segoe UI Semibold", 10),
             ).grid(row=0, column=column, padx=(0 if column == 0 else 3, 0 if column == 1 else 3), sticky="ew")
 
         if offers:
@@ -1296,20 +1296,20 @@ class ShipsPage(BasePage):
             price_panel = ctk.CTkFrame(self.detail, fg_color=COLORS["accent_dark"], corner_radius=11)
             price_panel.grid(row=6, column=0, padx=16, pady=(0, 14), sticky="ew")
             price_panel.grid_columnconfigure(0, weight=1)
-            ctk.CTkLabel(price_panel, text="MEILLEUR PRIX", font=("Segoe UI Semibold", 8), text_color=COLORS["accent"], anchor="w").grid(
+            ctk.CTkLabel(price_panel, text="MEILLEUR PRIX", font=("Segoe UI Semibold", 10), text_color=COLORS["accent"], anchor="w").grid(
                 row=0, column=0, padx=13, pady=(10, 0), sticky="ew"
             )
             ctk.CTkLabel(price_panel, text=format_price(best.get("price_buy")), font=("Segoe UI Semibold", 20), text_color=COLORS["text"], anchor="w").grid(
                 row=1, column=0, padx=13, pady=(1, 0), sticky="ew"
             )
-            ctk.CTkLabel(price_panel, text=location_label(best), wraplength=285, justify="left", font=("Segoe UI", 9), text_color=COLORS["muted"], anchor="w").grid(
+            ctk.CTkLabel(price_panel, text=location_label(best), wraplength=285, justify="left", font=("Segoe UI", 11), text_color=COLORS["muted"], anchor="w").grid(
                 row=2, column=0, padx=13, pady=(3, 1), sticky="ew"
             )
             freshness = price_freshness_label(best.get("date_modified"))
             ctk.CTkLabel(
                 price_panel,
                 text=freshness,
-                font=("Segoe UI Semibold", 8),
+                font=("Segoe UI Semibold", 10),
                 text_color=COLORS["warning"] if "revérifier" in freshness else COLORS["muted_2"],
                 anchor="w",
             ).grid(row=3, column=0, padx=13, pady=(0, 10), sticky="ew")
@@ -1325,13 +1325,13 @@ class ShipsPage(BasePage):
                 border_width=1,
                 border_color=COLORS["border"],
                 text_color=COLORS["accent"],
-                font=("Segoe UI Semibold", 8),
+                font=("Segoe UI Semibold", 10),
             ).grid(row=1, column=1, rowspan=3, padx=(4, 10), pady=(3, 9))
 
         ctk.CTkLabel(
             self.detail,
             text=f"TOUTES LES CONCESSIONS  ·  {len(offers)}",
-            font=("Segoe UI Semibold", 9),
+            font=("Segoe UI Semibold", 11),
             text_color=COLORS["muted"],
             anchor="w",
         ).grid(row=7, column=0, padx=16, pady=(3, 7), sticky="ew")
@@ -1346,17 +1346,17 @@ class ShipsPage(BasePage):
             )
             card.grid(row=row_index, column=0, padx=16, pady=(0, 7), sticky="ew")
             card.grid_columnconfigure(0, weight=1)
-            ctk.CTkLabel(card, text=format_price(offer.get("price_buy")), font=("Segoe UI Semibold", 11), text_color=COLORS["text"], anchor="w").grid(
+            ctk.CTkLabel(card, text=format_price(offer.get("price_buy")), font=("Segoe UI Semibold", 13), text_color=COLORS["text"], anchor="w").grid(
                 row=0, column=0, padx=11, pady=(8, 0), sticky="ew"
             )
-            ctk.CTkLabel(card, text=location_label(offer), wraplength=285, justify="left", font=("Segoe UI", 8), text_color=COLORS["muted"], anchor="w").grid(
+            ctk.CTkLabel(card, text=location_label(offer), wraplength=285, justify="left", font=("Segoe UI", 10), text_color=COLORS["muted"], anchor="w").grid(
                 row=1, column=0, padx=11, pady=(2, 1), sticky="ew"
             )
             freshness = price_freshness_label(offer.get("date_modified"))
             ctk.CTkLabel(
                 card,
                 text=freshness,
-                font=("Segoe UI Semibold", 7),
+                font=("Segoe UI Semibold", 10),
                 text_color=COLORS["warning"] if "revérifier" in freshness else COLORS["muted_2"],
                 anchor="w",
             ).grid(row=2, column=0, padx=11, pady=(0, 8), sticky="ew")
@@ -1424,7 +1424,7 @@ class FavoritesPage(BasePage):
             fg_color=COLORS["accent"],
             hover_color=COLORS["accent_hover"],
             text_color=COLORS["background"],
-            font=("Segoe UI Semibold", 9),
+            font=("Segoe UI Semibold", 11),
         ).grid(row=0, column=0, padx=(0, 5), sticky="ew")
         ctk.CTkButton(
             buttons,
@@ -1437,7 +1437,7 @@ class FavoritesPage(BasePage):
             border_width=1,
             border_color=COLORS["border"],
             text_color=COLORS["muted"],
-            font=("Segoe UI Semibold", 9),
+            font=("Segoe UI Semibold", 11),
         ).grid(row=0, column=1, padx=(5, 0), sticky="ew")
 
     def on_show(self) -> None:
@@ -1540,7 +1540,7 @@ class DataPage(BasePage):
         )
         live.grid(row=0, column=0, columnspan=2, pady=(0, 15), sticky="ew")
         live.grid_columnconfigure(0, weight=1)
-        ctk.CTkLabel(live, text="VERSION DES DONNÉES", font=("Segoe UI Semibold", 9), text_color=COLORS["accent"], anchor="w").grid(
+        ctk.CTkLabel(live, text="VERSION DES DONNÉES", font=("Segoe UI Semibold", 11), text_color=COLORS["accent"], anchor="w").grid(
             row=0, column=0, padx=22, pady=(19, 4), sticky="ew"
         )
         ctk.CTkLabel(live, text=f"Star Citizen {meta.get('game_version', '—')} LIVE", font=("Segoe UI Semibold", 25), text_color=COLORS["text"], anchor="w").grid(
@@ -1549,7 +1549,7 @@ class DataPage(BasePage):
         ctk.CTkLabel(
             live,
             text=f"Synchronisation locale : {sync_label}  •  PTU signalé : {meta.get('ptu_version') or '—'}",
-            font=("Segoe UI", 10),
+            font=("Segoe UI", 12),
             text_color=COLORS["muted"],
             anchor="w",
         ).grid(row=2, column=0, padx=22, pady=(5, 19), sticky="ew")
@@ -1577,13 +1577,13 @@ class DataPage(BasePage):
             )
             card.grid(row=1, column=column, padx=(0, 7) if column == 0 else (7, 0), pady=(0, 15), sticky="nsew")
             card.grid_columnconfigure(0, weight=1)
-            ctk.CTkLabel(card, text=eyebrow, font=("Segoe UI Semibold", 8), text_color=COLORS["muted_2"], anchor="w").grid(
+            ctk.CTkLabel(card, text=eyebrow, font=("Segoe UI Semibold", 10), text_color=COLORS["muted_2"], anchor="w").grid(
                 row=0, column=0, padx=17, pady=(16, 4), sticky="ew"
             )
             ctk.CTkLabel(card, text=title, font=("Segoe UI Semibold", 17), text_color=COLORS["text"], anchor="w").grid(
                 row=1, column=0, padx=17, sticky="ew"
             )
-            ctk.CTkLabel(card, text=text, wraplength=430, justify="left", font=("Segoe UI", 9), text_color=COLORS["muted"], anchor="w").grid(
+            ctk.CTkLabel(card, text=text, wraplength=430, justify="left", font=("Segoe UI", 11), text_color=COLORS["muted"], anchor="w").grid(
                 row=2, column=0, padx=17, pady=(5, 12), sticky="ew"
             )
             ctk.CTkButton(
@@ -1597,7 +1597,7 @@ class DataPage(BasePage):
                 border_width=1,
                 border_color=COLORS["border"],
                 text_color=COLORS["accent"],
-                font=("Segoe UI Semibold", 9),
+                font=("Segoe UI Semibold", 11),
             ).grid(row=3, column=0, padx=17, pady=(0, 16), sticky="ew")
 
         SectionTitle(self.scroll, "Liens officiels et contrôles", "Pour suivre le prochain patch et vérifier l'état du jeu.").grid(
@@ -1634,7 +1634,7 @@ class DataPage(BasePage):
                 border_width=1,
                 border_color=COLORS["border"],
                 text_color=COLORS["text"],
-                font=("Segoe UI Semibold", 9),
+                font=("Segoe UI Semibold", 11),
             ).grid(row=index // 3, column=index % 3, padx=8, pady=8, sticky="ew")
 
         SectionTitle(self.scroll, "Versions récentes", "Historique fourni par UEX à partir des publications CIG.").grid(
@@ -1671,7 +1671,7 @@ class DataPage(BasePage):
         ctk.CTkLabel(
             warning,
             text="À SAVOIR",
-            font=("Segoe UI Semibold", 8),
+            font=("Segoe UI Semibold", 10),
             text_color=COLORS["warning"],
             anchor="w",
         ).grid(row=0, column=0, padx=15, pady=(12, 3), sticky="ew")
@@ -1683,7 +1683,7 @@ class DataPage(BasePage):
             ),
             wraplength=920,
             justify="left",
-            font=("Segoe UI", 9),
+            font=("Segoe UI", 11),
             text_color="#D8C69E",
             anchor="w",
         ).grid(row=1, column=0, padx=15, pady=(0, 12), sticky="ew")
@@ -1707,13 +1707,13 @@ class DataPage(BasePage):
         ctk.CTkLabel(
             about,
             text=f"Imaginé et créé pour la communauté par {APP_AUTHOR}",
-            font=("Segoe UI", 10),
+            font=("Segoe UI", 12),
             text_color=COLORS["accent"],
         ).pack(pady=(0, 3))
         ctk.CTkLabel(
             about,
             text="Projet non officiel, sans affiliation avec Cloud Imperium Games.",
-            font=("Segoe UI", 8),
+            font=("Segoe UI", 10),
             text_color=COLORS["muted_2"],
         ).pack(pady=(0, 15))
 
@@ -1759,7 +1759,7 @@ class TabbedHubPage(BasePage):
             unselected_color=COLORS["panel_alt"],
             unselected_hover_color=COLORS["panel_hover"],
             text_color=COLORS["text"],
-            font=("Segoe UI Semibold", 10),
+            font=("Segoe UI Semibold", 12),
         )
         self.section_switch.grid(row=0, column=0, padx=8, pady=8, sticky="ew")
 
@@ -1995,7 +1995,7 @@ class AsteriaxApp(ctk.CTk):
         ctk.CTkLabel(
             panel,
             text=f"STAR CITIZEN COMPANION  ·  VERSION {APP_VERSION}",
-            font=("Segoe UI Semibold", 8),
+            font=("Segoe UI Semibold", 10),
             text_color=COLORS["accent"],
         ).pack(pady=(4, 0))
         splash.after(1150, splash.destroy)
@@ -2035,7 +2035,7 @@ class AsteriaxApp(ctk.CTk):
         self.brand_subtitle = ctk.CTkLabel(
             self.sidebar_brand,
             text="VERSE  /  SC COMPANION",
-            font=("Segoe UI Semibold", 9),
+            font=("Segoe UI Semibold", 11),
             text_color=COLORS["accent"],
             anchor="w",
         )
@@ -2044,7 +2044,7 @@ class AsteriaxApp(ctk.CTk):
         self.nav_title = ctk.CTkLabel(
             self.sidebar,
             text="NAVIGATION",
-            font=("Segoe UI Semibold", 10),
+            font=("Segoe UI Semibold", 12),
             text_color=COLORS["muted_2"],
             anchor="w",
         )
@@ -2082,7 +2082,7 @@ class AsteriaxApp(ctk.CTk):
                 text_color=COLORS["muted"],
                 border_width=1,
                 border_color=COLORS["border"],
-                font=("Segoe UI Semibold", 11),
+                font=("Segoe UI Semibold", 13),
             )
             button.grid(
                 row=row,
@@ -2104,7 +2104,7 @@ class AsteriaxApp(ctk.CTk):
         ctk.CTkLabel(
             self.sidebar_footer,
             text=f"{APP_AUTHOR}  ·  v{APP_VERSION}",
-            font=("Segoe UI Semibold", 11),
+            font=("Segoe UI Semibold", 13),
             text_color=COLORS["accent"],
         ).pack(pady=(8, 4))
         community = ctk.CTkFrame(self.sidebar_footer, fg_color="transparent")
@@ -2118,7 +2118,7 @@ class AsteriaxApp(ctk.CTk):
             fg_color="#5865F2",
             hover_color="#6875F5",
             text_color="#FFFFFF",
-            font=("Segoe UI Semibold", 10),
+            font=("Segoe UI Semibold", 12),
         ).grid(row=0, column=0, padx=(0, 2), sticky="ew")
         ctk.CTkButton(
             community,
@@ -2128,7 +2128,7 @@ class AsteriaxApp(ctk.CTk):
             fg_color="#9146FF",
             hover_color="#A364FF",
             text_color="#FFFFFF",
-            font=("Segoe UI Semibold", 10),
+            font=("Segoe UI Semibold", 12),
         ).grid(row=0, column=1, padx=(2, 0), sticky="ew")
 
     def _build_main(self) -> None:
@@ -2182,7 +2182,7 @@ class AsteriaxApp(ctk.CTk):
             border_width=1,
             border_color=COLORS["border"],
             text_color=COLORS["muted"],
-            font=("Segoe UI Semibold", 10),
+            font=("Segoe UI Semibold", 12),
         )
         self.search_button.grid(row=0, column=2, rowspan=2, padx=(10, 8))
         self.live_badge = ctk.CTkLabel(
@@ -2193,7 +2193,7 @@ class AsteriaxApp(ctk.CTk):
             corner_radius=14,
             fg_color=COLORS["accent_dark"],
             text_color=COLORS["accent"],
-            font=("Segoe UI Semibold", 11),
+            font=("Segoe UI Semibold", 13),
         )
         self.live_badge.grid(row=0, column=3, rowspan=2, padx=(0, 8))
         self.patch_update_button = ctk.CTkButton(
@@ -2206,7 +2206,7 @@ class AsteriaxApp(ctk.CTk):
             fg_color=COLORS["warning"],
             hover_color="#FFD778",
             text_color=COLORS["background"],
-            font=("Segoe UI Semibold", 10),
+            font=("Segoe UI Semibold", 12),
         )
         self.patch_update_button.grid(row=0, column=4, rowspan=2)
         self.patch_update_button.grid_remove()
@@ -2228,7 +2228,7 @@ class AsteriaxApp(ctk.CTk):
         self.sync_status = ctk.CTkLabel(
             self.sync_bar,
             text="",
-            font=("Segoe UI", 8),
+            font=("Segoe UI", 10),
             text_color=COLORS["muted"],
             anchor="w",
         )
@@ -2254,7 +2254,7 @@ class AsteriaxApp(ctk.CTk):
         self.notice_label = ctk.CTkLabel(
             self.notice_bar,
             text="",
-            font=("Segoe UI Semibold", 8),
+            font=("Segoe UI Semibold", 10),
             text_color=COLORS["text"],
             anchor="w",
         )

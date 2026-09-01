@@ -1,7 +1,7 @@
 {
   "version": "1.7.2",
   "download_url": "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe",
-  "sha256": "5ab0a59327798fcaa0486b5bc2113da7d661e3ab67e27c7235404c2fe8c013a9",
-  "size": 21916213,
+  "sha256": "064a2f96e2c782ef586e6337b5965798c13f253b433c706afdf9d49b673c3df0",
+  "size": 21920054,
   "release_notes": "Tableaux conservés avec colonnes automatiques proportionnelles, titres alignés et redimensionnement manuel verrouillé."
 }

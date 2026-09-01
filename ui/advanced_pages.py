@@ -30,10 +30,13 @@ from core.constants import (
 from core.database import format_price, location_label, price_freshness_label
 from core.paths import user_data_dir
 from core.translation_fr import (
-    TRANSLATION_PROJECT_URL,
+    DEFAULT_TRANSLATION_SOURCE,
+    TRANSLATION_SOURCES,
     find_game_installations,
     install_french_translation,
     restore_english,
+    translation_source_details,
+    translation_source_url,
     translation_status,
     validate_game_folder,
 )
@@ -1810,6 +1813,9 @@ class TranslationPage(AdvancedPage):
         self.grid_rowconfigure(0, weight=1)
         self._busy = False
         self._events: queue.Queue[tuple[str, Any]] = queue.Queue()
+        self._source_labels = {
+            details["label"]: key for key, details in TRANSLATION_SOURCES.items()
+        }
 
         scroll = ctk.CTkScrollableFrame(self, fg_color="transparent", corner_radius=0)
         scroll.grid(row=0, column=0, sticky="nsew")
@@ -1846,7 +1852,7 @@ class TranslationPage(AdvancedPage):
         ctk.CTkButton(
             hero,
             text="Voir le projet source  ↗",
-            command=lambda: webbrowser.open(TRANSLATION_PROJECT_URL),
+            command=self.open_translation_project,
             width=180,
             height=36,
             fg_color=COLORS["panel_alt"],
@@ -1909,6 +1915,48 @@ class TranslationPage(AdvancedPage):
             border_color=COLORS["border"],
             text_color=COLORS["text"],
         ).grid(row=0, column=2, padx=(4, 15), pady=15)
+
+        saved_source = app.user_store.get_setting("translation_source", DEFAULT_TRANSLATION_SOURCE)
+        if saved_source not in TRANSLATION_SOURCES:
+            saved_source = DEFAULT_TRANSLATION_SOURCE
+        self.source_var = tk.StringVar(value=TRANSLATION_SOURCES[saved_source]["label"])
+        source_row = ctk.CTkFrame(folder_card, fg_color="transparent")
+        source_row.grid(row=1, column=0, columnspan=3, padx=15, pady=(0, 15), sticky="ew")
+        source_row.grid_columnconfigure(1, weight=1)
+        ctk.CTkLabel(
+            source_row,
+            text="Traduction utilisée",
+            font=("Segoe UI Semibold", 10),
+            text_color=COLORS["muted"],
+            anchor="w",
+        ).grid(row=0, column=0, padx=(0, 12))
+        self.source_menu = ctk.CTkOptionMenu(
+            source_row,
+            variable=self.source_var,
+            values=list(self._source_labels),
+            command=self._source_changed,
+            height=38,
+            corner_radius=10,
+            fg_color=COLORS["panel_alt"],
+            button_color=COLORS["accent_dark"],
+            button_hover_color=COLORS["accent"],
+            dropdown_fg_color=COLORS["panel"],
+            dropdown_hover_color=COLORS["panel_hover"],
+            text_color=COLORS["text"],
+            font=("Segoe UI", 10),
+        )
+        self.source_menu.grid(row=0, column=1, sticky="ew")
+        self.source_note = ctk.CTkLabel(
+            source_row,
+            text="",
+            wraplength=760,
+            justify="left",
+            font=("Segoe UI", 9),
+            text_color=COLORS["muted_2"],
+            anchor="w",
+        )
+        self.source_note.grid(row=1, column=0, columnspan=2, pady=(6, 0), sticky="ew")
+        self._source_changed(self.source_var.get())
 
         status_card = ctk.CTkFrame(
             scroll,
@@ -2055,9 +2103,13 @@ class TranslationPage(AdvancedPage):
         installed = bool(status["installed"])
         if installed:
             installed_at = str(status.get("installed_at") or "date inconnue")
+            installed_source = str(status.get("source_label") or "source inconnue")
             self.status_title.configure(text="Traduction française active", text_color=COLORS["success"])
             self.status_detail.configure(
-                text=f"Pack installé · dernière installation : {installed_at}. Relancez le jeu s’il était ouvert.",
+                text=(
+                    f"Pack {installed_source} installé · dernière installation : {installed_at}. "
+                    "Relancez le jeu s’il était ouvert."
+                ),
                 text_color=COLORS["muted"],
             )
             self.install_button.configure(text="Mettre à jour la traduction")
@@ -2088,6 +2140,7 @@ class TranslationPage(AdvancedPage):
         state = "disabled" if value else "normal"
         self.install_button.configure(state=state)
         self.folder_entry.configure(state=state)
+        self.source_menu.configure(state=state)
         if value:
             self.restore_button.configure(state="disabled")
             self.translation_progress.set(0)
@@ -2098,8 +2151,9 @@ class TranslationPage(AdvancedPage):
     def install_translation(self) -> None:
         try:
             folder = self._selected_folder()
+            source_key = self._selected_source(folder)
         except Exception as exc:
-            messagebox.showerror("Dossier Star Citizen invalide", str(exc), parent=self)
+            messagebox.showerror("Traduction française", str(exc), parent=self)
             return
         if not messagebox.askyesno(
             "Installer la traduction française",
@@ -2115,7 +2169,7 @@ class TranslationPage(AdvancedPage):
 
         def worker() -> None:
             try:
-                result = install_french_translation(folder, progress)
+                result = install_french_translation(folder, progress, source_key=source_key)
                 self._events.put(("done", result))
             except Exception as exc:
                 self._events.put(("error", exc))
@@ -2175,6 +2229,25 @@ class TranslationPage(AdvancedPage):
             pass
         if self._busy:
             self.after(60, self._poll_events)
+
+    def _selected_source(self, folder: str | None = None) -> str:
+        key = self._source_labels.get(self.source_var.get(), DEFAULT_TRANSLATION_SOURCE)
+        if folder:
+            translation_source_url(validate_game_folder(folder), key)
+        return key
+
+    def _source_changed(self, _label: str) -> None:
+        key = self._selected_source()
+        details = translation_source_details(key)
+        self.app.user_store.set_setting("translation_source", key)
+        note = details["description"]
+        if key == "scefra":
+            note += " Quelques accents peuvent encore mal s’afficher selon le texte."
+        self.source_note.configure(text=note)
+
+    def open_translation_project(self) -> None:
+        details = translation_source_details(self._selected_source())
+        webbrowser.open(details["project_url"])
 
 
 class SettingsPage(AdvancedPage):

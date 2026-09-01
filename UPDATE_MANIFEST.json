@@ -1,7 +1,7 @@
 {
-  "version": "1.7.4",
+  "version": "1.7.5",
   "download_url": "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe",
-  "sha256": "604dbc6166902318bd140bb726b5a4935127ec5786fc7a1be9c95dc2ff67d1df",
-  "size": 21943774,
-  "release_notes": "Refonte visuelle complète : nouvel accueil proche du site, catalogue vaisseaux en cartes avec pagination et tri, palette cyan harmonisée et navigation responsive."
+  "sha256": "7db0693b1c4029b81bc01e025192894bd06e855800f4ca30af937badcf15ce2a",
+  "size": 21953776,
+  "release_notes": "Correctif vaisseaux : affichage accéléré, 20 cartes par page, images chargées en arrière-plan et fiches cliquables sur toute la carte."
 }

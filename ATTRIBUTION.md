@@ -18,9 +18,8 @@ UEX est une source communautaire. Les relevés peuvent contenir un délai ou une
 ## Traduction française
 
 - **SPEED0U / Scefra** : nouvelle traduction proposée par défaut, téléchargée sans modification depuis `https://github.com/SPEED0U/Scefra`. Le fichier original est partagé avec attribution selon la licence CC BY-NC-ND 4.0 et n’est pas intégré au logiciel.
-- **Dymerz / StarCitizen-Localization** : pack communautaire français téléchargé à la demande depuis `https://github.com/Dymerz/StarCitizen-Localization`, distribué sous licence MIT et généré depuis le travail de traduction de `circuspes.fr`.
 
-Les traductions ne sont pas embarquées dans Asteriax Verse. L’utilisateur choisit sa source puis télécharge le fichier original depuis son dépôt communautaire. L’application sauvegarde les fichiers existants, installe uniquement `global.ini`, configure `user.cfg` et permet de restaurer l’état antérieur. Un pack peut être partiel ou temporairement décalé après un patch de Star Citizen.
+La traduction n’est pas embarquée dans Asteriax Verse. L’utilisateur choisit de télécharger le fichier original depuis son dépôt communautaire. L’application sauvegarde les fichiers existants, installe uniquement `global.ini`, configure `user.cfg` et permet de restaurer l’état antérieur. Le pack peut être partiel ou temporairement décalé après un patch de Star Citizen.
 
 ## Marques et contenus du jeu
 

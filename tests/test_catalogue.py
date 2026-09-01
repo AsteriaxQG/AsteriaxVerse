@@ -271,7 +271,7 @@ class UserStoreTests(unittest.TestCase):
             self.assertEqual(store.get_json_setting("filters:test", {})["planet"], "ArcCorp")
 
     def test_brand_links_version_and_assets(self) -> None:
-        self.assertEqual(APP_VERSION, "1.6.2")
+        self.assertEqual(APP_VERSION, "1.7.0")
         self.assertEqual(
             APP_UPDATE_MANIFEST_URL,
             "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/UPDATE_MANIFEST.json",
@@ -294,8 +294,11 @@ class UserStoreTests(unittest.TestCase):
         nav_start = source.index("        entries = [")
         nav_end = source.index("        ]", nav_start)
         navigation = source[nav_start:nav_end]
-        for page in ("all_items", "shopping", "loadouts", "favorites"):
+        for page in ("all_items", "shopping", "loadouts", "favorites", "ship_gear", "personal_gear", "translation", "data"):
             self.assertNotIn(f'(\"{page}\",', navigation)
+        self.assertEqual(navigation.count('(\"'), 7)
+        self.assertIn('(\"equipment\", \"⚙\", \"Équipements\")', navigation)
+        self.assertIn('(\"updates\", \"↻\", \"Mises à jour\")', navigation)
         self.assertNotIn('text="Vérifier les mises à jour"', source)
 
     def test_major_features_do_not_duplicate_navigation(self) -> None:
@@ -306,9 +309,11 @@ class UserStoreTests(unittest.TestCase):
         navigation = app_source[nav_start:nav_end]
         self.assertEqual(app_source.count('"Actualités LIVE"'), 1)
         self.assertNotIn('(\"news\",', navigation)
-        self.assertIn('(\"translation\", \"FR\", \"Traduction française\")', navigation)
+        self.assertNotIn('(\"translation\",', navigation)
+        self.assertNotIn('"translation": lambda:', app_source)
+        self.assertIn("class EquipmentHubPage(", app_source)
+        self.assertIn("class MaintenanceHubPage(", app_source)
         self.assertEqual(advanced_source.count("class ComparePage("), 1)
-        self.assertEqual(advanced_source.count("class TranslationPage("), 1)
 
     def test_only_the_visible_page_is_mapped(self) -> None:
         source = (ROOT / "ui" / "app.py").read_text(encoding="utf-8")

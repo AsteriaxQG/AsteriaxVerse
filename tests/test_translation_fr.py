@@ -7,7 +7,9 @@ from pathlib import Path
 from unittest.mock import patch
 
 from core.translation_fr import (
+    DEFAULT_TRANSLATION_SOURCE,
     TRANSLATION_LIVE_URL,
+    TRANSLATION_SOURCES,
     find_game_installations,
     install_french_translation,
     restore_english,
@@ -81,6 +83,8 @@ class FrenchTranslationTests(unittest.TestCase):
 
             self.assertTrue(result["installed"])
             self.assertTrue(result["managed"])
+            self.assertEqual(result["source_key"], DEFAULT_TRANSLATION_SOURCE)
+            self.assertEqual(result["source_label"], "Scefra")
             self.assertIn("g_language = french_(france)", user_cfg.read_text(encoding="utf-8"))
             self.assertIn("g_languageAudio = english", user_cfg.read_text(encoding="utf-8"))
             self.assertEqual(progress[-1], 1.0)
@@ -119,6 +123,23 @@ class FrenchTranslationTests(unittest.TestCase):
             with patch("core.translation_fr.urllib.request.urlopen", return_value=response):
                 with self.assertRaisesRegex(ValueError, "source"):
                     install_french_translation(live, state_root=root / "state")
+
+    def test_classic_translation_remains_available(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            live = self._game(root)
+            classic_url = TRANSLATION_SOURCES["classic"]["live_url"]
+            with patch(
+                "core.translation_fr.urllib.request.urlopen",
+                return_value=FakeResponse(translation_payload("classic"), classic_url),
+            ):
+                result = install_french_translation(
+                    live,
+                    state_root=root / "state",
+                    source_key="classic",
+                )
+            self.assertEqual(result["source_key"], "classic")
+            self.assertEqual(result["source_label"], "Circuspes classique")
 
     def test_status_detects_partial_manual_install(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

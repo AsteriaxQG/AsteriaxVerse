@@ -1,1 +1,1 @@
-AsteriaxVerse Cloudflare deployment trigger — LIVE status refresh 4.10 — 2026-09-01
+AsteriaxVerse Cloudflare deployment trigger — PTU non publié + status lights + full LIVE build — 2026-09-01

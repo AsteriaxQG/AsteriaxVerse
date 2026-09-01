@@ -8,16 +8,16 @@ having to touch the UI or the database layer.
 from __future__ import annotations
 
 APP_NAME = "Asteriax Verse"
-APP_VERSION = "1.7.0"
+APP_VERSION = "1.7.1"
 APP_AUTHOR = "AsteriaxTTV"
 USER_AGENT = f"AsteriaxTTV-StarCitizen-Companion/{APP_VERSION}"
 
 APP_RELEASE_NOTES = (
-    "Navigation principale réduite de dix à sept boutons.",
-    "La traduction française a été entièrement retirée de l’interface.",
-    "Les équipements de vaisseau et personnels sont réunis dans une seule page.",
-    "Les mises à jour et les sources sont regroupées dans un même espace.",
-    "Les sous-onglets conservent le style moderne et arrondi de l’application.",
+    "Police agrandie dans toutes les pages pour une lecture plus confortable.",
+    "Taille minimale des petits textes portée à 10 px.",
+    "Boutons, filtres, cartes et informations secondaires plus lisibles.",
+    "Tableaux agrandis avec lignes plus hautes et en-têtes renforcés.",
+    "Navigation à sept boutons et style arrondi conservés.",
 )
 
 DISCORD_URL = "https://discord.com/invite/YSK3aJwATH"

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#071018" />
+  <meta name="description" content="AsteriaxVerse — catalogue Star Citizen : vaisseaux, véhicules et équipements." />
+  <title>AsteriaxVerse</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="ambient ambient-a"></div>
+  <div class="ambient ambient-b"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#home" aria-label="AsteriaxVerse accueil">
+      <span class="brand-mark">AX</span>
+      <span><strong>AsteriaxVerse</strong><small>Star Citizen Companion</small></span>
+    </a>
+    <nav class="nav" aria-label="Navigation principale">
+      <button class="nav-btn active" data-view="home">Accueil</button>
+      <button class="nav-btn" data-view="vehicles">Vaisseaux</button>
+      <button class="nav-btn" data-view="equipment">Équipements</button>
+    </nav>
+    <a class="desktop-link" href="../AsteriaxVerse-Setup.exe">Télécharger le logiciel</a>
+  </header>
+
+  <main class="shell">
+    <section id="home" class="view active-view">
+      <div class="hero">
+        <div>
+          <p class="eyebrow">VERSION WEB</p>
+          <h1>Le Verse, plus clair.<br><span>Directement dans ton navigateur.</span></h1>
+          <p class="hero-copy">Recherche les vaisseaux, véhicules et équipements disponibles à l'achat en aUEC, avec le meilleur prix et son emplacement.</p>
+          <div class="hero-actions">
+            <button class="primary" data-go="vehicles">Explorer les vaisseaux</button>
+            <button class="secondary" data-go="equipment">Voir les équipements</button>
+          </div>
+        </div>
+        <div class="status-card">
+          <span class="status-dot"></span>
+          <div><small>Base de données</small><strong id="dbStatus">Chargement…</strong></div>
+        </div>
+      </div>
+
+      <div class="stats" id="stats">
+        <article><strong id="statVehicles">—</strong><span>Vaisseaux & véhicules</span></article>
+        <article><strong id="statItems">—</strong><span>Équipements</span></article>
+        <article><strong id="statShops">—</strong><span>Boutiques référencées</span></article>
+      </div>
+
+      <section class="feature-grid">
+        <article><span>01</span><h3>Recherche rapide</h3><p>Nom, constructeur, catégorie ou taille : filtre instantanément le catalogue.</p></article>
+        <article><span>02</span><h3>Meilleur prix</h3><p>Affiche en priorité l'offre d'achat la moins chère connue dans la base.</p></article>
+        <article><span>03</span><h3>PC + Web</h3><p>Le logiciel Windows reste disponible. Le site est une interface supplémentaire, pas un remplacement.</p></article>
+      </section>
+    </section>
+
+    <section id="vehicles" class="view">
+      <div class="section-head">
+        <div><p class="eyebrow">CATALOGUE</p><h2>Vaisseaux & véhicules</h2></div>
+        <span class="result-count" id="vehicleCount"></span>
+      </div>
+      <div class="filters">
+        <label class="searchbox"><span>⌕</span><input id="vehicleSearch" type="search" placeholder="Rechercher un vaisseau, constructeur…" /></label>
+        <select id="vehicleType"><option value="">Tous les types</option><option value="ship">Vaisseaux</option><option value="ground">Véhicules terrestres</option></select>
+        <select id="vehicleManufacturer"><option value="">Tous les constructeurs</option></select>
+      </div>
+      <div id="vehicleGrid" class="card-grid"></div>
+    </section>
+
+    <section id="equipment" class="view">
+      <div class="section-head">
+        <div><p class="eyebrow">CATALOGUE</p><h2>Équipements</h2></div>
+        <span class="result-count" id="itemCount"></span>
+      </div>
+      <div class="filters">
+        <label class="searchbox"><span>⌕</span><input id="itemSearch" type="search" placeholder="Rechercher un équipement…" /></label>
+        <select id="itemSection"><option value="">Toutes les sections</option></select>
+        <select id="itemSize"><option value="">Toutes les tailles</option></select>
+      </div>
+      <div id="itemGrid" class="card-grid equipment-grid"></div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sql.js@1.13.0/dist/sql-wasm.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

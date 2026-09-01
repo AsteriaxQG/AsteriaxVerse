@@ -19,6 +19,12 @@ sed -i 's#<div><span>Joueurs en ligne</span><strong id="homePlayers">Non publié
 sed -i 's/grid-template-columns:repeat(4,minmax(0,1fr))/grid-template-columns:repeat(3,minmax(0,1fr))/g' website/home.css
 sed -i 's/home.css?v=2/home.css?v=3/g' website/index.html
 sed -i 's/home.js?v=2/home.js?v=3/g' website/index.html
+if ! grep -q 'status-ui.css' website/index.html; then
+  sed -i 's#</head>#<link rel="stylesheet" href="status-ui.css?v=1"/></head>#' website/index.html
+fi
+if ! grep -q 'status-ui.js' website/index.html; then
+  sed -i 's#</body>#<script src="status-ui.js?v=1"></script></body>#' website/index.html
+fi
 
 # Charge le flux d'actualités RSI automatique sans alourdir index.html.
 if ! grep -q 'news.js' website/index.html; then

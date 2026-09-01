@@ -1,1 +1,1 @@
-AsteriaxVerse Cloudflare deployment trigger — rafraîchissement manuel + automatique du dernier patch — 2026-09-01
+AsteriaxVerse Cloudflare deployment trigger — feedback manuel du bouton patch (vérification / déjà à jour / mis à jour / erreur) — 2026-09-01

@@ -1,1 +1,1 @@
-AsteriaxVerse Cloudflare deployment trigger — PTU non publié + status lights + full LIVE build — 2026-09-01
+AsteriaxVerse Cloudflare deployment trigger — force status-ui v2 + LIVE build 4.10.0-live.12519617 — 2026-09-01

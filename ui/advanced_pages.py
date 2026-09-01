@@ -101,14 +101,14 @@ class GlobalSearchDialog(ctk.CTkToplevel):
         ctk.CTkLabel(
             top,
             text="Vaisseaux, équipements et boutiques dans un seul champ.",
-            font=("Segoe UI", 10),
+            font=("Segoe UI", 12),
             text_color=COLORS["muted"],
             anchor="w",
         ).grid(row=1, column=0, pady=(2, 0), sticky="ew")
         ctk.CTkLabel(
             top,
             text="Échap pour fermer",
-            font=("Segoe UI Semibold", 8),
+            font=("Segoe UI Semibold", 10),
             text_color=COLORS["muted_2"],
         ).grid(row=0, column=1, rowspan=2, padx=(10, 0))
 
@@ -146,7 +146,7 @@ class GlobalSearchDialog(ctk.CTkToplevel):
         self.result_label = ctk.CTkLabel(
             self,
             text="Commencez à taper pour rechercher.",
-            font=("Segoe UI", 9),
+            font=("Segoe UI", 11),
             text_color=COLORS["muted"],
             anchor="w",
         )
@@ -286,7 +286,7 @@ class LocationsPage(AdvancedPage):
         )
         self.search_entry.grid(row=0, column=0, padx=14, pady=13, sticky="ew")
         self.search_entry.bind("<KeyRelease>", self._schedule_refresh)
-        self.result_label = ctk.CTkLabel(panel, text="", width=105, text_color=COLORS["muted"], font=("Segoe UI", 9))
+        self.result_label = ctk.CTkLabel(panel, text="", width=105, text_color=COLORS["muted"], font=("Segoe UI", 11))
         self.result_label.grid(row=0, column=1, padx=8)
         self.system_var = tk.StringVar(value="Tous")
         self.planet_var = tk.StringVar(value="Toutes")
@@ -488,7 +488,7 @@ class LocationsPage(AdvancedPage):
         ctk.CTkLabel(
             self.detail,
             text=(detail.get("company") or "COMMERCE").upper(),
-            font=("Segoe UI Semibold", 8),
+            font=("Segoe UI Semibold", 10),
             text_color=COLORS["accent"],
             anchor="w",
         ).grid(row=0, column=0, padx=16, pady=(16, 4), sticky="ew")
@@ -507,7 +507,7 @@ class LocationsPage(AdvancedPage):
             text=route,
             wraplength=310,
             justify="left",
-            font=("Segoe UI", 9),
+            font=("Segoe UI", 11),
             text_color=COLORS["muted"],
             anchor="w",
         ).grid(row=2, column=0, padx=16, pady=(5, 10), sticky="ew")
@@ -526,7 +526,7 @@ class LocationsPage(AdvancedPage):
         ctk.CTkLabel(
             self.detail,
             text=f"INVENTAIRE  ·  {len(inventory)}",
-            font=("Segoe UI Semibold", 8),
+            font=("Segoe UI Semibold", 10),
             text_color=COLORS["muted"],
             anchor="w",
         ).grid(row=4, column=0, padx=16, pady=(0, 7), sticky="ew")
@@ -571,12 +571,12 @@ class ShoppingPage(AdvancedPage):
         )
         summary.grid(row=0, column=0, pady=(0, 12), sticky="ew")
         summary.grid_columnconfigure(1, weight=1)
-        ctk.CTkLabel(summary, text="BUDGET TOTAL", font=("Segoe UI Semibold", 8), text_color=COLORS["muted_2"]).grid(
+        ctk.CTkLabel(summary, text="BUDGET TOTAL", font=("Segoe UI Semibold", 10), text_color=COLORS["muted_2"]).grid(
             row=0, column=0, padx=(16, 8), pady=(11, 0), sticky="w"
         )
         self.total_label = ctk.CTkLabel(summary, text="0 aUEC", font=("Segoe UI Semibold", 23), text_color=COLORS["accent"])
         self.total_label.grid(row=1, column=0, padx=(16, 8), pady=(0, 11), sticky="w")
-        self.count_label = ctk.CTkLabel(summary, text="", font=("Segoe UI", 9), text_color=COLORS["muted"])
+        self.count_label = ctk.CTkLabel(summary, text="", font=("Segoe UI", 11), text_color=COLORS["muted"])
         self.count_label.grid(row=0, column=1, rowspan=2, padx=10, sticky="w")
         ctk.CTkButton(
             summary,
@@ -647,7 +647,7 @@ class ShoppingPage(AdvancedPage):
                 border_width=1,
                 border_color=COLORS["border"],
                 text_color=COLORS["text"],
-                font=("Segoe UI Semibold", 8),
+                font=("Segoe UI Semibold", 10),
             ).grid(row=0, column=column, padx=(0 if column == 0 else 3, 0 if column == 5 else 3), sticky="ew")
 
         self.route = ctk.CTkScrollableFrame(
@@ -699,14 +699,14 @@ class ShoppingPage(AdvancedPage):
         ctk.CTkLabel(
             self.route,
             text="ITINÉRAIRE CONSEILLÉ",
-            font=("Segoe UI Semibold", 9),
+            font=("Segoe UI Semibold", 11),
             text_color=COLORS["accent"],
             anchor="w",
         ).grid(row=0, column=0, padx=16, pady=(16, 4), sticky="ew")
         ctk.CTkLabel(
             self.route,
             text="Meilleurs prix regroupés par système et planète.",
-            font=("Segoe UI", 8),
+            font=("Segoe UI", 10),
             text_color=COLORS["muted"],
             anchor="w",
         ).grid(row=1, column=0, padx=16, pady=(0, 12), sticky="ew")
@@ -717,7 +717,7 @@ class ShoppingPage(AdvancedPage):
             ctk.CTkLabel(
                 card,
                 text=f"ÉTAPE {index}",
-                font=("Segoe UI Semibold", 7),
+                font=("Segoe UI Semibold", 10),
                 text_color=COLORS["accent"],
                 anchor="w",
             ).grid(row=0, column=0, padx=12, pady=(9, 1), sticky="ew")
@@ -726,7 +726,7 @@ class ShoppingPage(AdvancedPage):
                 text=group["label"],
                 wraplength=290,
                 justify="left",
-                font=("Segoe UI Semibold", 10),
+                font=("Segoe UI Semibold", 12),
                 text_color=COLORS["text"],
                 anchor="w",
             ).grid(row=1, column=0, padx=12, sticky="ew")
@@ -736,14 +736,14 @@ class ShoppingPage(AdvancedPage):
                 text=lines,
                 wraplength=290,
                 justify="left",
-                font=("Segoe UI", 8),
+                font=("Segoe UI", 10),
                 text_color=COLORS["muted"],
                 anchor="w",
             ).grid(row=2, column=0, padx=12, pady=(4, 2), sticky="ew")
             ctk.CTkLabel(
                 card,
                 text=f"Sous-total : {format_price(group['subtotal'])}",
-                font=("Segoe UI Semibold", 8),
+                font=("Segoe UI Semibold", 10),
                 text_color=COLORS["warning"],
                 anchor="w",
             ).grid(row=3, column=0, padx=12, pady=(2, 9), sticky="ew")
@@ -825,7 +825,7 @@ class ComparePage(AdvancedPage):
         ctk.CTkLabel(
             top,
             text="Ajoutez un élément depuis sa fiche avec le bouton Comparer.",
-            font=("Segoe UI", 9),
+            font=("Segoe UI", 11),
             text_color=COLORS["muted"],
         ).grid(row=0, column=1, padx=14, sticky="w")
         ctk.CTkButton(
@@ -847,7 +847,7 @@ class ComparePage(AdvancedPage):
             corner_radius=9,
             fg_color=COLORS["accent_dark"],
             text_color=COLORS["accent"],
-            font=("Segoe UI Semibold", 9),
+            font=("Segoe UI Semibold", 11),
             anchor="w",
         )
         self.summary_label.grid(row=1, column=0, pady=(0, 10), sticky="ew")
@@ -908,7 +908,7 @@ class ComparePage(AdvancedPage):
             ctk.CTkLabel(
                 card,
                 text="MEILLEUR PRIX" if is_cheapest else KIND_LABELS[self.kind].upper(),
-                font=("Segoe UI Semibold", 8),
+                font=("Segoe UI Semibold", 10),
                 text_color=COLORS["accent"],
                 anchor="w",
             ).grid(row=0, column=0, padx=15, pady=(15, 3), sticky="ew")
@@ -945,13 +945,13 @@ class ComparePage(AdvancedPage):
                 metric = ctk.CTkFrame(card, fg_color="transparent")
                 metric.grid(row=row_index, column=0, padx=15, pady=(10 if row_index == 2 else 2, 0), sticky="ew")
                 metric.grid_columnconfigure(1, weight=1)
-                ctk.CTkLabel(metric, text=label.upper(), font=("Segoe UI Semibold", 7), text_color=COLORS["muted_2"]).grid(row=0, column=0, sticky="w")
+                ctk.CTkLabel(metric, text=label.upper(), font=("Segoe UI Semibold", 10), text_color=COLORS["muted_2"]).grid(row=0, column=0, sticky="w")
                 ctk.CTkLabel(
                     metric,
                     text=str(value or "—"),
                     wraplength=125,
                     justify="right",
-                    font=("Segoe UI Semibold" if highlighted else "Segoe UI", 8),
+                    font=("Segoe UI Semibold" if highlighted else "Segoe UI", 10),
                     text_color=COLORS["accent"] if highlighted else COLORS["text"],
                 ).grid(row=0, column=1, sticky="e")
                 row_index += 1
@@ -962,15 +962,15 @@ class ComparePage(AdvancedPage):
                 ctk.CTkLabel(
                     price,
                     text=f"+ {format_price(row_price - cheapest)} par rapport au moins cher",
-                    font=("Segoe UI Semibold", 7),
+                    font=("Segoe UI Semibold", 10),
                     text_color=COLORS["warning"],
                 ).pack(pady=(1, 0))
-            ctk.CTkLabel(price, text=row.get("location") or "—", wraplength=225, justify="center", font=("Segoe UI", 7), text_color=COLORS["muted"]).pack(padx=7, pady=(2, 0))
+            ctk.CTkLabel(price, text=row.get("location") or "—", wraplength=225, justify="center", font=("Segoe UI", 10), text_color=COLORS["muted"]).pack(padx=7, pady=(2, 0))
             freshness = price_freshness_label(row.get("price_date"))
             ctk.CTkLabel(
                 price,
                 text=freshness,
-                font=("Segoe UI Semibold", 7),
+                font=("Segoe UI Semibold", 10),
                 text_color=COLORS["warning"] if "revérifier" in freshness else COLORS["muted_2"],
             ).pack(padx=7, pady=(1, 7))
             buttons = ctk.CTkFrame(card, fg_color="transparent")
@@ -1051,7 +1051,7 @@ class LoadoutPage(AdvancedPage):
         ctk.CTkLabel(
             ship_panel,
             text="VAISSEAU À ÉQUIPER",
-            font=("Segoe UI Semibold", 8),
+            font=("Segoe UI Semibold", 10),
             text_color=COLORS["muted_2"],
         ).grid(row=0, column=0, padx=(15, 10), pady=13)
         self.vehicle_var = tk.StringVar(value="Choisir un vaisseau…")
@@ -1093,7 +1093,7 @@ class LoadoutPage(AdvancedPage):
             ),
             wraplength=980,
             justify="left",
-            font=("Segoe UI", 8),
+            font=("Segoe UI", 10),
             text_color="#D8C69E",
             anchor="w",
         ).pack(fill="x", padx=12, pady=8)
@@ -1361,7 +1361,7 @@ class UpdatesPage(AdvancedPage):
         ctk.CTkLabel(
             software,
             text="MISE À JOUR DU LOGICIEL",
-            font=("Segoe UI Semibold", 8),
+            font=("Segoe UI Semibold", 10),
             text_color=COLORS["accent"],
             anchor="w",
         ).grid(row=0, column=1, padx=(0, 15), pady=(20, 3), sticky="ew")
@@ -1377,7 +1377,7 @@ class UpdatesPage(AdvancedPage):
             text="Cliquez sur Vérifier pour rechercher une nouvelle publication.",
             wraplength=620,
             justify="left",
-            font=("Segoe UI", 9),
+            font=("Segoe UI", 11),
             text_color=COLORS["muted"],
             anchor="w",
         )
@@ -1385,7 +1385,7 @@ class UpdatesPage(AdvancedPage):
         self.app_meta = ctk.CTkLabel(
             software,
             text=self._app_meta_text(),
-            font=("Segoe UI", 9),
+            font=("Segoe UI", 11),
             text_color=COLORS["muted_2"],
             anchor="w",
         )
@@ -1453,7 +1453,7 @@ class UpdatesPage(AdvancedPage):
         ctk.CTkLabel(
             game,
             text="DONNÉES STAR CITIZEN",
-            font=("Segoe UI Semibold", 8),
+            font=("Segoe UI Semibold", 10),
             text_color=COLORS["blue"],
             anchor="w",
         ).grid(row=0, column=0, padx=22, pady=(20, 3), sticky="ew")
@@ -1470,7 +1470,7 @@ class UpdatesPage(AdvancedPage):
             text="Vérification de la version LIVE…",
             wraplength=720,
             justify="left",
-            font=("Segoe UI", 9),
+            font=("Segoe UI", 11),
             text_color=COLORS["muted"],
             anchor="w",
         )
@@ -1515,7 +1515,7 @@ class UpdatesPage(AdvancedPage):
         ctk.CTkLabel(
             patch_news,
             text="NOUVEAUTÉS CATALOGUE · ALPHA 4.10",
-            font=("Segoe UI Semibold", 8),
+            font=("Segoe UI Semibold", 10),
             text_color=COLORS["accent"],
             anchor="w",
         ).grid(row=0, column=0, padx=20, pady=(16, 5), sticky="ew")
@@ -1524,7 +1524,7 @@ class UpdatesPage(AdvancedPage):
             text="\n".join(f"•  {line}" for line in PATCH_410_CATALOGUE_HIGHLIGHTS),
             wraplength=790,
             justify="left",
-            font=("Segoe UI", 9),
+            font=("Segoe UI", 11),
             text_color=COLORS["muted"],
             anchor="w",
         ).grid(row=1, column=0, padx=20, pady=(0, 16), sticky="ew")
@@ -1552,7 +1552,7 @@ class UpdatesPage(AdvancedPage):
         ctk.CTkLabel(
             explanation,
             text="COMMENT ÇA FONCTIONNE",
-            font=("Segoe UI Semibold", 8),
+            font=("Segoe UI Semibold", 10),
             text_color=COLORS["muted_2"],
             anchor="w",
         ).pack(fill="x", padx=16, pady=(13, 3))
@@ -1566,7 +1566,7 @@ class UpdatesPage(AdvancedPage):
             ),
             wraplength=940,
             justify="left",
-            font=("Segoe UI", 9),
+            font=("Segoe UI", 11),
             text_color=COLORS["muted"],
             anchor="w",
         ).pack(fill="x", padx=16, pady=(0, 13))
@@ -1840,7 +1840,7 @@ class TranslationPage(AdvancedPage):
             ),
             wraplength=850,
             justify="left",
-            font=("Segoe UI", 11),
+            font=("Segoe UI", 13),
             text_color=COLORS["muted"],
             anchor="w",
         ).grid(row=1, column=0, padx=20, pady=(0, 18), sticky="ew")
@@ -1877,7 +1877,7 @@ class TranslationPage(AdvancedPage):
             textvariable=self.folder_var,
             height=40,
             corner_radius=10,
-            font=("Segoe UI", 11),
+            font=("Segoe UI", 13),
             fg_color=COLORS["panel_alt"],
             border_color=COLORS["border"],
             text_color=COLORS["text"],
@@ -1917,7 +1917,7 @@ class TranslationPage(AdvancedPage):
         ctk.CTkLabel(
             source_row,
             text="Scefra · traduction française communautaire",
-            font=("Segoe UI Semibold", 11),
+            font=("Segoe UI Semibold", 13),
             text_color=COLORS["accent"],
             anchor="w",
         ).grid(row=0, column=0, sticky="ew")
@@ -1929,7 +1929,7 @@ class TranslationPage(AdvancedPage):
             ),
             wraplength=760,
             justify="left",
-            font=("Segoe UI", 9),
+            font=("Segoe UI", 11),
             text_color=COLORS["muted_2"],
             anchor="w",
         ).grid(row=1, column=0, pady=(4, 0), sticky="ew")
@@ -1959,7 +1959,7 @@ class TranslationPage(AdvancedPage):
             corner_radius=14,
             fg_color=COLORS["panel_alt"],
             text_color=COLORS["muted"],
-            font=("Segoe UI Semibold", 10),
+            font=("Segoe UI Semibold", 12),
         )
         self.channel_badge.grid(row=0, column=1, padx=20, pady=(17, 3))
         self.status_detail = ctk.CTkLabel(
@@ -1967,7 +1967,7 @@ class TranslationPage(AdvancedPage):
             text="Cliquez sur Détecter ou sélectionnez votre dossier LIVE.",
             wraplength=850,
             justify="left",
-            font=("Segoe UI", 10),
+            font=("Segoe UI", 12),
             text_color=COLORS["muted"],
             anchor="w",
         )
@@ -1995,7 +1995,7 @@ class TranslationPage(AdvancedPage):
             fg_color=COLORS["accent"],
             hover_color=COLORS["accent_hover"],
             text_color=COLORS["background"],
-            font=("Segoe UI Semibold", 11),
+            font=("Segoe UI Semibold", 13),
         )
         self.install_button.grid(row=0, column=0, padx=(0, 6), sticky="ew")
         self.restore_button = ctk.CTkButton(
@@ -2009,7 +2009,7 @@ class TranslationPage(AdvancedPage):
             border_width=1,
             border_color=COLORS["border"],
             text_color=COLORS["muted"],
-            font=("Segoe UI Semibold", 11),
+            font=("Segoe UI Semibold", 13),
         )
         self.restore_button.grid(row=0, column=1, padx=(6, 0), sticky="ew")
 
@@ -2022,7 +2022,7 @@ class TranslationPage(AdvancedPage):
             ),
             wraplength=900,
             justify="left",
-            font=("Segoe UI", 9),
+            font=("Segoe UI", 11),
             text_color=COLORS["muted_2"],
             anchor="w",
         ).grid(row=4, column=0, padx=5, pady=(0, 20), sticky="ew")
@@ -2231,7 +2231,7 @@ class SettingsPage(AdvancedPage):
         ctk.CTkLabel(identity, text=APP_NAME, font=("Segoe UI Semibold", 25), text_color=COLORS["text"], anchor="w").grid(
             row=0, column=1, padx=(0, 16), pady=(20, 0), sticky="ew"
         )
-        ctk.CTkLabel(identity, text=f"Créé par {APP_AUTHOR} · version {APP_VERSION}", font=("Segoe UI", 10), text_color=COLORS["accent"], anchor="w").grid(
+        ctk.CTkLabel(identity, text=f"Créé par {APP_AUTHOR} · version {APP_VERSION}", font=("Segoe UI", 12), text_color=COLORS["accent"], anchor="w").grid(
             row=1, column=1, padx=(0, 16), pady=(3, 8), sticky="ew"
         )
         community = ctk.CTkFrame(identity, fg_color="transparent")
@@ -2287,10 +2287,10 @@ class SettingsPage(AdvancedPage):
             )
             card.grid(row=2 + index // 2, column=index % 2, padx=(0, 7) if index % 2 == 0 else (7, 0), pady=(0, 10), sticky="nsew")
             card.grid_columnconfigure(0, weight=1)
-            ctk.CTkLabel(card, text=title, font=("Segoe UI Semibold", 11), text_color=COLORS["text"], anchor="w").grid(
+            ctk.CTkLabel(card, text=title, font=("Segoe UI Semibold", 13), text_color=COLORS["text"], anchor="w").grid(
                 row=0, column=0, padx=15, pady=(13, 2), sticky="ew"
             )
-            ctk.CTkLabel(card, text=caption, wraplength=390, justify="left", font=("Segoe UI", 8), text_color=COLORS["muted"], anchor="w").grid(
+            ctk.CTkLabel(card, text=caption, wraplength=390, justify="left", font=("Segoe UI", 10), text_color=COLORS["muted"], anchor="w").grid(
                 row=1, column=0, padx=15, pady=(0, 13), sticky="ew"
             )
             ctk.CTkSwitch(

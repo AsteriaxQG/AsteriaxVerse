@@ -1,5 +1,14 @@
 # Historique
 
+## 1.7.0 — 1er septembre 2026
+
+- suppression complète de l’onglet **Traduction française** ;
+- navigation principale réduite de dix à sept boutons ;
+- regroupement des équipements de vaisseau et personnels dans une page **Équipements** à deux sous-onglets ;
+- regroupement de **Mises à jour** et **Patch & sources** dans un même espace ;
+- conservation des accès rapides de l’accueil et redirection automatique des anciens onglets mémorisés ;
+- sous-onglets modernes, arrondis et chargés uniquement lorsqu’ils sont utilisés.
+
 ## 1.6.2 — 1er septembre 2026
 
 - suppression complète de la traduction classique Circuspes ;

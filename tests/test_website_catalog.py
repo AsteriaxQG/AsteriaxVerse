@@ -126,6 +126,19 @@ class WebsiteCatalogTests(unittest.TestCase):
         self.assertIn("max-width:calc(100% - 116px)", styles)
         self.assertIn("shipcatalog.js?v=8", html)
 
+    def test_mobile_layout_is_touch_friendly_and_safe_area_aware(self):
+        html = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
+        styles = (ROOT / "website" / "mobile.css").read_text(encoding="utf-8")
+        self.assertIn("viewport-fit=cover", html)
+        self.assertIn("mobile.css?v=1", html)
+        self.assertEqual(6, html.count("data-mobile-icon="))
+        self.assertIn("env(safe-area-inset-bottom)", styles)
+        self.assertIn("min-height:46px", styles)
+        self.assertIn("height:100dvh", styles)
+        self.assertIn("scroll-snap-type:x mandatory", styles)
+        self.assertIn("@media (max-width:370px)", styles)
+        self.assertIn("orientation:landscape", styles)
+
 
 if __name__ == "__main__":
     unittest.main()

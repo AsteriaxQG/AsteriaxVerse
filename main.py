@@ -13,10 +13,12 @@ def main() -> int:
     if bootstrap_result is not None:
         return bootstrap_result
     try:
-        from ui.app import run
+        from ui.app import ShipsPage, run
         from ui.site_shell import install_site_shell
+        from ui.site_ships_fastfix import install_ship_fastfix
 
         install_site_shell()
+        install_ship_fastfix(ShipsPage)
     except ModuleNotFoundError as exc:
         if exc.name == "customtkinter":
             message = (

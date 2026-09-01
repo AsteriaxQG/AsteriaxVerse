@@ -29,7 +29,7 @@ Après avoir lancé une première fois `LANCER.bat`, double-cliquez sur **CONSTR
 
 Une action GitHub est aussi incluse pour construire automatiquement l'exécutable sur un véritable environnement Windows.
 
-## Fonctions de la version 1.7.0
+## Fonctions de la version 1.7.1
 
 - 184 vaisseaux et véhicules actuellement achetables en jeu ;
 - 2 796 objets achetables et 23 679 relevés de prix actifs ;
@@ -52,7 +52,8 @@ Une action GitHub est aussi incluse pour construire automatiquement l'exécutabl
 - page **Équipements** réunissant l’équipement de vaisseau et l’équipement personnel dans deux sous-onglets ;
 - page **Mises à jour** réunissant le logiciel, les données Star Citizen, le patch LIVE et les sources ;
 - navigation gauche modernisée en cartes individuelles arrondies avec contour et état actif ;
-- textes et tableaux agrandis dans toutes les pages pour une meilleure lisibilité ;
+- textes agrandis dans toutes les pages, avec une taille minimale de 10 px ;
+- tableaux en 13 px avec lignes plus hautes et en-têtes renforcés ;
 - tableaux désormais intégrés dans des surfaces arrondies, sans cadre intérieur carré ;
 - en-têtes, barres de défilement et pagination harmonisés avec le design général ;
 - exploration de chaque boutique avec son inventaire complet ;
@@ -111,4 +112,4 @@ Les prix UEX sont communautaires. Ils peuvent évoluer après un hotfix, une rem
 
 Les sources et avertissements complets sont indiqués dans [ATTRIBUTION.md](ATTRIBUTION.md). Ce projet est un outil communautaire non officiel et n'est ni affilié ni approuvé par Cloud Imperium Games.
 
-Créé par **AsteriaxTTV** — version 1.7.0.
+Créé par **AsteriaxTTV** — version 1.7.1.

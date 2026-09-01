@@ -29,8 +29,8 @@ def configure_ttk_styles(root: tk.Misc) -> None:
         darkcolor=COLORS["panel"],
         borderwidth=0,
         relief="flat",
-        rowheight=40,
-        font=("Segoe UI", 12),
+        rowheight=44,
+        font=("Segoe UI", 13),
     )
     # ``clam`` draws a square field border around Treeview widgets even when
     # ``borderwidth`` is zero.  Keeping only the tree area lets the rounded
@@ -54,7 +54,7 @@ def configure_ttk_styles(root: tk.Misc) -> None:
         borderwidth=0,
         relief="flat",
         padding=(11, 11),
-        font=("Segoe UI Semibold", 11),
+        font=("Segoe UI Semibold", 13),
     )
     style.map(
         "Asteriax.Treeview.Heading",
@@ -102,14 +102,14 @@ class StatCard(ctk.CTkFrame):
         ctk.CTkLabel(
             self,
             text=label,
-            font=("Segoe UI Semibold", 11),
+            font=("Segoe UI Semibold", 13),
             text_color=COLORS["muted"],
             anchor="w",
         ).grid(row=1, column=1, padx=(0, 12), sticky="ew")
         ctk.CTkLabel(
             self,
             text=caption,
-            font=("Segoe UI", 9),
+            font=("Segoe UI", 11),
             text_color=COLORS["muted_2"],
             anchor="w",
         ).grid(row=2, column=1, padx=(0, 12), pady=(0, 13), sticky="ew")
@@ -130,7 +130,7 @@ class SectionTitle(ctk.CTkFrame):
             ctk.CTkLabel(
                 self,
                 text=subtitle,
-                font=("Segoe UI", 10),
+                font=("Segoe UI", 12),
                 text_color=COLORS["muted"],
                 anchor="w",
             ).grid(row=1, column=0, pady=(2, 0), sticky="ew")
@@ -236,13 +236,13 @@ class TreeTable(ctk.CTkFrame):
             border_width=1,
             border_color=COLORS["border"],
             text_color=COLORS["muted"],
-            font=("Segoe UI Semibold", 8),
+            font=("Segoe UI Semibold", 10),
         )
         self.previous_page_button.grid(row=0, column=0)
         self.page_label = ctk.CTkLabel(
             self.page_bar,
             text="",
-            font=("Segoe UI Semibold", 8),
+            font=("Segoe UI Semibold", 10),
             text_color=COLORS["muted"],
         )
         self.page_label.grid(row=0, column=1, padx=10)
@@ -258,7 +258,7 @@ class TreeTable(ctk.CTkFrame):
             border_width=1,
             border_color=COLORS["border"],
             text_color=COLORS["muted"],
-            font=("Segoe UI Semibold", 8),
+            font=("Segoe UI Semibold", 10),
         )
         self.next_page_button.grid(row=0, column=2)
         if self._page_size is None:
@@ -447,7 +447,7 @@ def labelled_combo(
     ctk.CTkLabel(
         frame,
         text=label.upper(),
-        font=("Segoe UI Semibold", 8),
+        font=("Segoe UI Semibold", 10),
         text_color=COLORS["muted_2"],
         anchor="w",
     ).pack(fill="x", pady=(0, 4))
@@ -467,7 +467,7 @@ def labelled_combo(
         dropdown_fg_color=COLORS["panel_alt"],
         dropdown_hover_color=COLORS["accent_dark"],
         text_color=COLORS["text"],
-        font=("Segoe UI", 10),
+        font=("Segoe UI", 12),
         state="readonly",
     )
     combo.pack(fill="x")
@@ -494,6 +494,6 @@ class EmptyState(ctk.CTkFrame):
             text=message,
             wraplength=320,
             justify="center",
-            font=("Segoe UI", 10),
+            font=("Segoe UI", 12),
             text_color=COLORS["muted"],
         ).pack(pady=(7, 25))

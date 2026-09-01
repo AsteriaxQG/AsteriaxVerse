@@ -1,7 +1,7 @@
 {
-  "version": "1.7.0",
+  "version": "1.7.1",
   "download_url": "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe",
   "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
   "size": 0,
-  "release_notes": "Navigation réduite à sept boutons, traduction française retirée, équipements et outils de mise à jour regroupés dans des pages plus simples."
+  "release_notes": "Police agrandie dans toutes les pages, petits textes plus lisibles et tableaux dotés de lignes plus hautes."
 }

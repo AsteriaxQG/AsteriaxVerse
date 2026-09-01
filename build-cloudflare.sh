@@ -8,6 +8,11 @@ cp data/asteriax_sc.db website/data/asteriax_sc.db
 cp assets/asteriax_mark.png website/assets/asteriax_mark.png
 cp assets/asteriax_logo.png website/assets/asteriax_logo.png
 
+# Force le navigateur à charger les dernières corrections du catalogue.
+sed -i 's/shipcatalog.js?v=4/shipcatalog.js?v=5/g' website/index.html
+sed -i 's/verified-status.js?v=2/verified-status.js?v=3/g' website/index.html
+sed -i 's/vehiclefilters.js?v=1/vehiclefilters.js?v=2/g' website/index.html
+
 # Charge le flux d'actualités RSI automatique sans alourdir index.html.
 if ! grep -q 'news.js' website/index.html; then
   sed -i 's#</body>#<script src="news.js"></script></body>#' website/index.html

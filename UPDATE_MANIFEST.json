@@ -1,7 +1,7 @@
 {
-  "version": "1.6.2",
+  "version": "1.7.0",
   "download_url": "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe",
-  "sha256": "ffa553e4c532f11be2a05f15b726ccab320df8348d44fdb4808c2e0c16d70561",
-  "size": 21913844,
-  "release_notes": "Scefra devient l’unique traduction française proposée ; l’ancienne traduction Circuspes et son sélecteur ont été entièrement retirés."
+  "sha256": "ce3f4e1f9edc6e7c2518da8545ca944bb16c21d4ee1a0a0d14c19005c7c8428e",
+  "size": 21916661,
+  "release_notes": "Navigation réduite à sept boutons, traduction française retirée, équipements et outils de mise à jour regroupés dans des pages plus simples."
 }

@@ -18,6 +18,7 @@ def main() -> int:
         from ui.site_shell import install_site_shell
         from ui.site_ships_fastfix import install_ship_fastfix
 
+        # Keep shell, ship and resize optimisations installed before the window is created.
         install_site_shell()
         install_ship_fastfix(ShipsPage)
         install_resize_fastfix()

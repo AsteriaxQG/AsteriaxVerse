@@ -1,1 +1,1 @@
-AsteriaxVerse Cloudflare deployment trigger — tri À suivre dans le Verse du plus récent au plus ancien — 2026-09-01
+AsteriaxVerse Cloudflare deployment trigger — rafraîchissement manuel + automatique du dernier patch — 2026-09-01

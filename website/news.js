@@ -10,7 +10,12 @@
   let items=[],active='ALL',loading=false,lastLoaded=0,autoRefreshTimer=0;
 
   function postedLabel(value=''){
-    return value.replace(/(\d+|an?|one) minute(s?) ago/i,'il y a $1 minute$2').replace(/(\d+|an?|one) hour(s?) ago/i,'il y a $1 heure$2').replace(/(\d+|an?|one) day(s?) ago/i,'il y a $1 jour$2').replace(/(\d+|an?|one) week(s?) ago/i,'il y a $1 semaine$2').replace(/\bone\b/gi,'1').replace(/\ban?\b/gi,'1');
+    const match=String(value).trim().match(/^(\d+|an?|one)\s+(minute|hour|day|week|month|year)s?\s+ago$/i);
+    if(!match)return value;
+    const amount=/^(?:a|an|one)$/i.test(match[1])?1:Number(match[1]);
+    const units={minute:['minute','minutes'],hour:['heure','heures'],day:['jour','jours'],week:['semaine','semaines'],month:['mois','mois'],year:['an','ans']};
+    const unit=units[match[2].toLowerCase()];
+    return `il y a ${amount} ${unit[amount===1?0:1]}`;
   }
   function card(x){
     const image=x.image?`<div class="news-image"><img loading="lazy" src="${esc(x.image)}" alt="" referrerpolicy="no-referrer"></div>`:'<div class="news-image news-image-fallback"><span>ASTERIAXVERSE</span></div>';

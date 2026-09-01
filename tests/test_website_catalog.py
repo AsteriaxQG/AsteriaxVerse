@@ -73,6 +73,29 @@ class WebsiteCatalogTests(unittest.TestCase):
         self.assertIn("parseImage", api)
         self.assertIn("if(!force)", api)
 
+    def test_hangar_only_contains_owned_ships_and_wishlist(self):
+        html = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
+        client = (ROOT / "website" / "shipcatalog.js").read_text(encoding="utf-8")
+        app = (ROOT / "website" / "app.js").read_text(encoding="utf-8")
+        self.assertIn('data-hangar-level="owned">Mes vaisseaux', html)
+        self.assertIn('data-hangar-level="wishlist">Wishlist', html)
+        self.assertNotIn('data-hangar-level="items"', html)
+        self.assertNotIn("hangarMode==='items'", client)
+        self.assertNotIn("favButton('i'", app)
+        self.assertIn("data-hangar-owned", client)
+        self.assertIn("data-hangar-wish", client)
+
+    def test_production_ships_and_news_order_are_preserved(self):
+        ships = (ROOT / "functions" / "api" / "ships.js").read_text(encoding="utf-8")
+        news_api = (ROOT / "functions" / "api" / "news.js").read_text(encoding="utf-8")
+        news_client = (ROOT / "website" / "news.js").read_text(encoding="utf-8")
+        self.assertIn("VERIFIED_PIPELINE_STATUS", ships)
+        self.assertIn("active-production", ships)
+        self.assertIn("long-term-production", ships)
+        self.assertIn("sort((a,b)=>ageMinutes(a.posted)-ageMinutes(b.posted))", news_api)
+        self.assertIn("il y a ${amount}", news_client)
+        self.assertNotIn("replace(/\\ban?\\b/gi,'1')", news_client)
+
 
 if __name__ == "__main__":
     unittest.main()

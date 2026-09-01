@@ -96,6 +96,36 @@ class WebsiteCatalogTests(unittest.TestCase):
         self.assertIn("il y a ${amount}", news_client)
         self.assertNotIn("replace(/\\ban?\\b/gi,'1')", news_client)
 
+    def test_current_view_survives_reload(self):
+        app = (ROOT / "website" / "app.js").read_text(encoding="utf-8")
+        self.assertIn("viewFromHash", app)
+        self.assertIn("history.pushState", app)
+        self.assertIn("window.addEventListener('popstate'", app)
+        self.assertIn("window.addEventListener('hashchange'", app)
+        self.assertIn("restoreView();", app)
+
+    def test_ship_catalog_is_paginated_by_24(self):
+        client = (ROOT / "website" / "vehiclefilters.js").read_text(encoding="utf-8")
+        html = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
+        self.assertIn("const PAGE_SIZE=24", client)
+        self.assertIn("id='vehiclePagination'", client)
+        self.assertIn("list.slice(start,start+PAGE_SIZE)", client)
+        self.assertIn("Page précédente", client)
+        self.assertIn("Page suivante", client)
+        self.assertIn("vehiclefilters.js?v=4", html)
+
+    def test_ship_cards_have_non_overlapping_hangar_actions(self):
+        client = (ROOT / "website" / "shipcatalog.js").read_text(encoding="utf-8")
+        styles = (ROOT / "website" / "catalog-fixes.css").read_text(encoding="utf-8")
+        html = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
+        self.assertIn("cardHangarActions", client)
+        self.assertIn("data-card-owned", client)
+        self.assertIn("data-card-wish", client)
+        self.assertIn("e.stopPropagation()", client)
+        self.assertIn(".card-hangar-actions", styles)
+        self.assertIn("max-width:calc(100% - 116px)", styles)
+        self.assertIn("shipcatalog.js?v=8", html)
+
 
 if __name__ == "__main__":
     unittest.main()

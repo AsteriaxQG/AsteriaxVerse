@@ -8,6 +8,23 @@
 .rsi-source a{display:inline-flex;padding:10px 13px;border:1px solid #2b5365;border-radius:9px;background:#0d202b}
 .compact-empty{padding:28px 18px}
 
+/* Actions du hangar sur les cartes, séparées du statut */
+.ship-state{max-width:calc(100% - 116px);flex-wrap:nowrap}
+.card-hangar-actions{position:absolute;z-index:3;right:10px;top:10px;display:flex;gap:6px}
+.card-hangar-btn{width:36px;height:36px;display:grid;place-items:center;padding:0;border:1px solid #315264;border-radius:50%;background:rgba(5,16,23,.92);color:#b7ccd6;font:inherit;font-size:20px;font-weight:900;line-height:1;cursor:pointer;backdrop-filter:blur(8px);box-shadow:0 5px 15px rgba(0,0,0,.25)}
+.card-hangar-btn:hover{border-color:#58b3d1;background:#12303e;color:#fff}
+.card-hangar-btn.active{border-color:#52c3e7;background:#15506a;color:#fff}
+.card-hangar-btn.wishlist.active{border-color:#d7b85c;background:#665219;color:#fff0a8}
+
+/* Pagination du catalogue */
+.catalog-pagination{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;margin:30px 0 4px}
+.catalog-pagination[hidden]{display:none}
+.catalog-pagination button{min-width:42px;height:42px;padding:0 12px;border:1px solid #28495a;border-radius:10px;background:#0b1b25;color:#b8d0dc;font:inherit;font-size:13px;font-weight:800;cursor:pointer}
+.catalog-pagination button:hover:not(:disabled){border-color:#50b4d5;background:#123242;color:#effcff}
+.catalog-pagination button.active{border-color:#52d9ff;background:#1b7898;color:#fff;box-shadow:0 0 0 2px rgba(82,217,255,.12)}
+.catalog-pagination button:disabled{cursor:not-allowed;opacity:.4}
+.catalog-pagination span{min-width:22px;text-align:center;color:#658696}
+
 /* Actualités RSI */
 .news-header{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:20px;padding:18px 20px;border:1px solid #25485b;border-radius:18px;background:linear-gradient(135deg,#12324a,#0c2230)}
 .news-heading{display:flex;align-items:center;gap:15px;min-width:0}
@@ -39,4 +56,4 @@
 #news .news-card strong{margin-top:auto;padding-top:15px;color:#62c9f1;font-size:12px}
 
 @media(max-width:760px){.news-header{align-items:flex-start}.news-heading-icon{width:42px;height:42px}.news-heading small{font-size:11px}.news-refresh{padding:10px}.news-refresh{font-size:0}.news-refresh span{font-size:21px}#news .news-grid{grid-template-columns:1fr}.news-image{height:190px}}
-@media(max-width:650px){.modal-panel{padding:66px 14px 22px}.modal-close{top:11px;right:12px}.detail-vehicle-image{height:220px}.news-header{padding:14px}.news-heading{gap:11px}}
+@media(max-width:650px){.modal-panel{padding:66px 14px 22px}.modal-close{top:11px;right:12px}.detail-vehicle-image{height:220px}.news-header{padding:14px}.news-heading{gap:11px}.ship-state{max-width:calc(100% - 108px)}.card-hangar-actions{right:8px;top:8px}.card-hangar-btn{width:34px;height:34px}.catalog-pagination{gap:5px}.catalog-pagination button{min-width:38px;height:40px;padding:0 9px}.catalog-pagination button[aria-label="Page précédente"],.catalog-pagination button[aria-label="Page suivante"]{font-size:0}.catalog-pagination button[aria-label="Page précédente"]::after{content:'←';font-size:16px}.catalog-pagination button[aria-label="Page suivante"]::after{content:'→';font-size:16px}}

@@ -4,8 +4,11 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const price=v=>Number(v)>0?Math.round(Number(v)).toLocaleString('fr-FR')+' aUEC':'—';
 function query(sql,params=[]){const stmt=state.db.prepare(sql);stmt.bind(params);const out=[];while(stmt.step())out.push(stmt.getAsObject());stmt.free();return out;}
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
-function go(view){$$('.view').forEach(v=>v.classList.toggle('active-view',v.id===view));$$('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===view));$('#globalResults').hidden=true;scrollTo({top:0,behavior:'smooth'});if(view==='hangar')renderHangar();}
+const validViews=new Set($$('.view').map(v=>v.id));
+const viewFromHash=()=>{const view=decodeURIComponent(location.hash.slice(1));return validViews.has(view)?view:'home'};
+function go(view,{syncHash=true,behavior='smooth'}={}){if(!validViews.has(view))view='home';$$('.view').forEach(v=>v.classList.toggle('active-view',v.id===view));$$('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===view));$('#globalResults').hidden=true;if(syncHash&&location.hash!==`#${view}`)history.pushState(null,'',`#${view}`);scrollTo({top:0,behavior});if(view==='hangar')renderHangar();}
 $$('.nav-btn').forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));$$('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
+const restoreView=()=>go(viewFromHash(),{syncHash:false,behavior:'auto'});window.addEventListener('popstate',restoreView);window.addEventListener('hashchange',restoreView);restoreView();
 function setOptions(el,values,label){el.innerHTML=`<option value="">${label}</option>`+values.map(v=>`<option>${esc(v)}</option>`).join('')}
 function imgUrl(v){let u=String(v||'').trim();if(!u)return'';if(u.startsWith('//'))u='https:'+u;if(u.startsWith('http://'))u='https://'+u.slice(7);return u}
 function favKey(type,id){return `${type}:${id}`}

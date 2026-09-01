@@ -3,12 +3,21 @@
   const filters=document.querySelector('#vehicles .filters');
   if(!typeEl||!filters)return;
   let statusFilter='all';
+  let currentPage=1,lastFilterKey='';
+  const PAGE_SIZE=24;
   typeEl.innerHTML='<option value="">Tous les types</option><option value="ship">Vaisseaux</option><option value="ground">Véhicules terrestres</option>';
 
   const bar=document.createElement('div');
   bar.className='ship-status-filter';
   bar.innerHTML='<span class="ship-status-label">Statut</span><button class="active" data-ship-status="all">Tous <b data-count="all"></b></button><button data-ship-status="disponible">Disponible <b data-count="disponible"></b></button><button data-ship-status="production">En production <b data-count="production"></b></button><button data-ship-status="concept">En concept <b data-count="concept"></b></button>';
   filters.appendChild(bar);
+
+  const grid=document.querySelector('#vehicleGrid');
+  const pager=document.createElement('nav');
+  pager.id='vehiclePagination';
+  pager.className='catalog-pagination';
+  pager.setAttribute('aria-label','Pages du catalogue des vaisseaux');
+  grid.insertAdjacentElement('afterend',pager);
 
   const style=document.createElement('style');
   style.textContent='.ship-status-filter{grid-column:1/-1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 2px 0}.ship-status-label{margin-right:4px;color:#6d8c9b;font-size:10px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase}.ship-status-filter button{appearance:none;border:1px solid #234454;border-radius:999px;background:#0b1922;color:#91aab6;padding:8px 12px;font:inherit;font-size:11px;font-weight:800;cursor:pointer;transition:.16s}.ship-status-filter button:hover{border-color:#39768d;color:#e4f9ff;background:#10232e}.ship-status-filter button.active{border-color:#49a6c5;background:#123242;color:#eafcff;box-shadow:inset 0 0 0 1px rgba(82,217,255,.08)}.ship-status-filter b{display:inline-block;margin-left:5px;color:#638795;font-size:9px}.ship-status-filter button.active b{color:#83dff9}@media(max-width:650px){.ship-status-filter{flex-wrap:nowrap;overflow-x:auto;padding-bottom:3px}.ship-status-label{display:none}.ship-status-filter button{flex:0 0 auto}}';
@@ -49,14 +58,35 @@
     scope.forEach(v=>{const s=statusOf(v);if(counts[s]!==undefined)counts[s]++});
     Object.entries(counts).forEach(([k,n])=>{const el=bar.querySelector(`[data-count="${k}"]`);if(el)el.textContent=n});
   }
+  function pageNumbers(total,current){
+    if(total<=7)return Array.from({length:total},(_,i)=>i+1);
+    const pages=[1];
+    if(current>3)pages.push('start-gap');
+    for(let n=Math.max(2,current-1);n<=Math.min(total-1,current+1);n++)pages.push(n);
+    if(current<total-2)pages.push('end-gap');
+    pages.push(total);
+    return pages;
+  }
+  function renderPager(totalPages){
+    if(totalPages<=1){pager.innerHTML='';pager.hidden=true;return}
+    pager.hidden=false;
+    const numbered=pageNumbers(totalPages,currentPage).map(n=>typeof n==='number'?`<button type="button" data-page="${n}" ${n===currentPage?'class="active" aria-current="page"':''} aria-label="Page ${n}">${n}</button>`:'<span aria-hidden="true">…</span>').join('');
+    pager.innerHTML=`<button type="button" data-page="${currentPage-1}" ${currentPage===1?'disabled':''} aria-label="Page précédente">← Précédent</button>${numbered}<button type="button" data-page="${currentPage+1}" ${currentPage===totalPages?'disabled':''} aria-label="Page suivante">Suivant →</button>`;
+    pager.querySelectorAll('[data-page]').forEach(btn=>btn.addEventListener('click',()=>{const next=Number(btn.dataset.page);if(!Number.isInteger(next)||next<1||next>totalPages||next===currentPage)return;currentPage=next;renderVehicles();document.querySelector('#vehicles')?.scrollIntoView({behavior:'smooth',block:'start'})}));
+  }
   renderVehicles=function(){
     const scope=scopeList();
     updateCounts(scope);
     const list=sortList(statusFilter==='all'?scope:scope.filter(v=>statusOf(v)===statusFilter));
-    document.querySelector('#vehicleCount').textContent=`${list.length} résultat${list.length>1?'s':''}`;
-    const grid=document.querySelector('#vehicleGrid');
-    grid.innerHTML=list.length?list.slice(0,600).map(vehicleCard).join(''):'<div class="empty">Aucun vaisseau ne correspond à ces filtres.</div>';
+    const filterKey=[document.querySelector('#vehicleSearch')?.value||'',typeEl.value,document.querySelector('#vehicleManufacturer')?.value||'',document.querySelector('#vehicleSort')?.value||'',statusFilter].join('|');
+    if(filterKey!==lastFilterKey){currentPage=1;lastFilterKey=filterKey}
+    const totalPages=Math.max(1,Math.ceil(list.length/PAGE_SIZE));
+    currentPage=Math.min(currentPage,totalPages);
+    const start=(currentPage-1)*PAGE_SIZE;
+    document.querySelector('#vehicleCount').textContent=list.length?`${list.length} résultat${list.length>1?'s':''} · page ${currentPage} sur ${totalPages}`:'0 résultat';
+    grid.innerHTML=list.length?list.slice(start,start+PAGE_SIZE).map(vehicleCard).join(''):'<div class="empty">Aucun vaisseau ne correspond à ces filtres.</div>';
     bindCards(grid);
+    renderPager(list.length?totalPages:0);
   };
   bar.querySelectorAll('[data-ship-status]').forEach(btn=>btn.addEventListener('click',()=>{
     statusFilter=btn.dataset.shipStatus;

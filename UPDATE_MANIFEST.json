@@ -1,7 +1,7 @@
 {
-  "version": "1.7.1",
+  "version": "1.7.2",
   "download_url": "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe",
-  "sha256": "e979863a1980168e81b0983d8ce8dc66560933c069fed6fda3a6730185727fec",
-  "size": 21915890,
-  "release_notes": "Police agrandie dans toutes les pages, petits textes plus lisibles et tableaux dotés de lignes plus hautes. Canal 1.7.1 actualisé."
+  "sha256": "0e27fe8ca7f4969eade7092b42a5d7d4b9522cd91a4ac65189cde6da5bbbb15b",
+  "size": 21918520,
+  "release_notes": "Tableaux conservés avec colonnes automatiques proportionnelles, titres alignés et redimensionnement manuel verrouillé."
 }

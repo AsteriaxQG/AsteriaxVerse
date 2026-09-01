@@ -8,15 +8,15 @@ having to touch the UI or the database layer.
 from __future__ import annotations
 
 APP_NAME = "Asteriax Verse"
-APP_VERSION = "1.7.5"
+APP_VERSION = "1.7.6"
 APP_AUTHOR = "AsteriaxTTV"
 USER_AGENT = f"AsteriaxTTV-StarCitizen-Companion/{APP_VERSION}"
 
 APP_RELEASE_NOTES = (
-    "Catalogue vaisseaux accéléré avec rendu progressif de 20 cartes par page.",
-    "Images des vaisseaux chargées en arrière-plan sans bloquer l’interface.",
-    "Toute la carte d’un vaisseau est de nouveau cliquable pour ouvrir sa fiche.",
-    "Correctif de stabilité et de réactivité de l’écran Vaisseaux & véhicules.",
+    "Passage fenêtre réduite / grand écran nettement plus fluide.",
+    "Navigation responsive recalculée uniquement lors d’un vrai changement de palier.",
+    "La page Vaisseaux suspend brièvement son rendu lourd pendant le redimensionnement.",
+    "Chargement des images mis en pause pendant le resize pour éviter les saccades.",
 )
 
 DISCORD_URL = "https://discord.com/invite/YSK3aJwATH"

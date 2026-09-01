@@ -1,6 +1,6 @@
 (()=>{
   const q=s=>document.querySelector(s);
-  const escHome=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+  const escHome=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const labels={'PATCH':'PATCH','ROADMAP':'ROADMAP','SNEAK PEEK':'SNEAK PEEK','VIDEO':'VIDÉO','KNOWN ISSUE':'KNOWN ISSUE','NEWS':'ACTU'};
   const norm=v=>String(v??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
   const keyName=v=>norm(v).replace(/\s+/g,'');
@@ -113,10 +113,9 @@
       const res=await fetch(`/api/status?ts=${Date.now()}`,{headers:{Accept:'application/json'},cache:'no-store'});if(!res.ok)throw new Error('Statut RSI indisponible');const data=await res.json();if(!data.ok)throw new Error('Statut incomplet');
       setEnv('Live',data.live,'Version LIVE officielle');setEnv('Ptu',data.ptu,'Public Test Universe');setEnv('Eptu',data.eptu,'Experimental PTU');
       if(q('#homePuStatus'))q('#homePuStatus').textContent=data.services?.persistentUniverse||'Inconnu';if(q('#homePlatformStatus'))q('#homePlatformStatus').textContent=data.services?.platform||'Inconnu';if(q('#homeArenaStatus'))q('#homeArenaStatus').textContent=data.services?.arenaCommander||'Inconnu';
-      if(q('#homePlayers')){q('#homePlayers').textContent=data.players?.available&&Number.isFinite(Number(data.players.count))?Number(data.players.count).toLocaleString('fr-FR'):'Non publié';q('#homePlayers').title=data.players?.label||''}
       const overall=q('#verseOverallStatus'),overallText=data.live?.status||data.services?.persistentUniverse||'Inconnu';if(overall){overall.textContent=overallText;overall.className=`verse-overall ${tone(overallText)}`}
       if(q('#verseStatusSummary'))q('#verseStatusSummary').textContent=`Persistent Universe : ${data.services?.persistentUniverse||'Inconnu'} · LIVE ${data.live?.version?`Alpha ${data.live.version}`:'version inconnue'}`;
-      if(q('#verseSourceNote')){const d=new Date(data.updatedAt);q('#verseSourceNote').textContent=`Sources officielles RSI · actualisé ${d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})} · compteur de joueurs non publié par RSI`}
+      if(q('#verseSourceNote')){const d=new Date(data.updatedAt);q('#verseSourceNote').textContent=`Sources officielles RSI · actualisé ${d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}`}
     }catch(e){
       const overall=q('#verseOverallStatus');if(overall){overall.textContent='Statut indisponible';overall.className='verse-overall warn'}if(q('#verseStatusSummary'))q('#verseStatusSummary').textContent='Impossible de joindre les sources de statut officielles pour le moment.';
     }
@@ -124,6 +123,7 @@
 
   function waitForShips(tries=0){const count=(typeof state!=='undefined'&&Array.isArray(state.vehicles))?state.vehicles.length:0;if(count&&renderFeaturedShips()){if(tries<14)setTimeout(()=>waitForShips(tries+1),700);return}if(tries<30)setTimeout(()=>waitForShips(tries+1),250)}
 
+  q('#homePlayers')?.closest('div')?.remove();
   renderHangarSummary();loadHomeNews();loadShipFeed();loadUniverseStatus();waitForShips();
   setInterval(loadUniverseStatus,120000);
   document.addEventListener('click',e=>{if(e.target.closest('[data-card-owned],[data-card-wish],[data-hangar-owned],[data-hangar-wish]'))setTimeout(renderHangarSummary,30)});

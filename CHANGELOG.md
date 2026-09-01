@@ -1,5 +1,14 @@
 # Historique
 
+## 1.7.2 — 1er septembre 2026
+
+- conservation du format tableau pour les vaisseaux, véhicules et équipements ;
+- répartition automatique et proportionnelle de la largeur entre toutes les colonnes ;
+- alignement de chaque titre de colonne sur les valeurs correspondantes ;
+- verrouillage du redimensionnement manuel des séparateurs pour éviter les présentations désorganisées ;
+- conservation des largeurs minimales et du défilement horizontal dans les petites fenêtres ;
+- recalcul temporisé des colonnes pour préserver la fluidité lors du redimensionnement.
+
 ## 1.7.1 — 1er septembre 2026
 
 - augmentation de la police dans l’ensemble des pages ;

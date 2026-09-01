@@ -73,7 +73,7 @@ async function loadCatalog(){try{
  }
  state.vehicles=merged.sort((a,b)=>human(a.name).localeCompare(human(b.name),'fr',{numeric:true}));
  state.manufacturers=[...new Set([...state.manufacturers.map(x=>human(x.name)),...state.vehicles.map(v=>human(v.manufacturer)).filter(Boolean)])].sort((a,b)=>a.localeCompare(b)).map(name=>({name,n:state.vehicles.filter(v=>human(v.manufacturer)===name).length+state.items.filter(v=>human(v.manufacturer)===name).length}));
- setOptions($('#vehicleManufacturer'),state.manufacturers.map(x=>x.name),'Tous les constructeurs');$('#statVehicles').textContent=state.vehicles.length;renderVehicles();renderDirectories();ready=true;
+ setOptions($('#vehicleManufacturer'),state.manufacturers.map(x=>x.name),'Tous les constructeurs');$('#statVehicles').textContent=state.vehicles.length;renderVehicles();ready=true;
 }catch(e){console.warn('Catalogue complet indisponible',e)}}
 function wait(){if(state.db){bindHangarTabs();loadCatalog()}else setTimeout(wait,150)}wait();
 })();

@@ -1,12 +1,15 @@
 (()=>{
-  const grid=document.querySelector('#newsFeed');
-  const status=document.querySelector('#newsStatus');
-  if(!grid)return;
+  const section=document.querySelector('#news');
+  const grid=section?.querySelector('.news-grid');
+  if(!section||!grid)return;
+  const status=document.createElement('p');
+  status.className='news-status';
+  section.querySelector('.section-head')?.appendChild(status);
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const labels={'PATCH':'PATCH','ROADMAP':'ROADMAP','SNEAK PEEK':'SNEAK PEEK','VIDEO':'VIDÉO','KNOWN ISSUE':'KNOWN ISSUE','NEWS':'ACTU'};
   function card(x,i){return `<a class="news-card ${i===0?'featured':''}" href="${esc(x.url)}" target="_blank" rel="noopener"><span>${esc(labels[x.category]||x.category||'ACTU')}</span><h3>${esc(x.title)}</h3><p>Source officielle Roberts Space Industries.</p><strong>Lire sur RSI ↗</strong></a>`}
   async function load(){
-    status.textContent='Mise à jour des actualités…';
+    status.textContent='Mise à jour automatique…';
     try{
       const res=await fetch('/api/news',{headers:{Accept:'application/json'}});
       if(!res.ok)throw new Error('API indisponible');
@@ -21,5 +24,5 @@
     }
   }
   load();
-  document.querySelectorAll('.nav-btn[data-view="news"]').forEach(b=>b.addEventListener('click',()=>{if(!grid.dataset.refreshed){grid.dataset.refreshed='1';setTimeout(load,50)}}));
+  document.querySelectorAll('.nav-btn[data-view="news"]').forEach(b=>b.addEventListener('click',()=>setTimeout(load,50)));
 })();

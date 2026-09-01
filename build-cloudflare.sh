@@ -35,10 +35,14 @@ fi
 
 # Rend la flèche du dernier patch cliquable et garde une actualisation automatique.
 if ! grep -q 'patch-refresh.css' website/index.html; then
-  sed -i 's#</head>#<link rel="stylesheet" href="patch-refresh.css?v=1"/></head>#' website/index.html
+  sed -i 's#</head>#<link rel="stylesheet" href="patch-refresh.css?v=2"/></head>#' website/index.html
+else
+  sed -i 's/patch-refresh.css?v=1/patch-refresh.css?v=2/g' website/index.html
 fi
 if ! grep -q 'patch-refresh.js' website/index.html; then
-  sed -i 's#</body>#<script src="patch-refresh.js?v=1"></script></body>#' website/index.html
+  sed -i 's#</body>#<script src="patch-refresh.js?v=2"></script></body>#' website/index.html
+else
+  sed -i 's/patch-refresh.js?v=1/patch-refresh.js?v=2/g' website/index.html
 fi
 
 # Charge le flux d'actualités RSI automatique sans alourdir index.html.

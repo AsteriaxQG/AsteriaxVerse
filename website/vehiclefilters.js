@@ -16,11 +16,11 @@
 
   const norm=v=>String(v??'').toLowerCase().replace(/_/g,'-').replace(/\s+/g,'-');
   function statusOf(v){
-    if(Number(v?.price_min)>0||v?.in_game===true||v?.in_game===1||String(v?.in_game)==='true')return'disponible';
     const s=norm(v?.production_status);
     if(['flight-ready','flightready','hangar-ready','hangarready'].includes(s))return'disponible';
     if(['active-production','activeproduction','long-term-production','longtermproduction'].includes(s))return'production';
     if(['in-concept','inconcept','concept'].includes(s))return'concept';
+    if(Number(v?.price_min)>0||v?.in_game===true||v?.in_game===1||String(v?.in_game)==='true')return'disponible';
     return'autre';
   }
   const num=v=>Number(v)||0;

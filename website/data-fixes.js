@@ -16,7 +16,7 @@
         if(name) replacement=name;
       }else if(detail){
         const label=detail.querySelector('span,small,.label')?.textContent?.trim()?.toLowerCase()||'';
-        if(label.includes('statut')) replacement='Disponible';
+        if(label.includes('statut')) replacement='Statut non renseigné';
         else if(label.includes('taille')) replacement='Non renseignée';
       }
       node.nodeValue=replacement;

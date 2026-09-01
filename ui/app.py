@@ -3,11 +3,17 @@
 from __future__ import annotations
 
 import json
+import hashlib
+import io
 import queue
 import re
 import threading
 import tkinter as tk
+import urllib.parse
+import urllib.request
+import urllib.error
 import webbrowser
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from tkinter import messagebox
 from typing import Any, Callable
@@ -49,7 +55,7 @@ from core.database import (
     location_label,
     price_freshness_label,
 )
-from core.paths import data_database_path, resource_path, user_database_path
+from core.paths import data_database_path, resource_path, user_data_dir, user_database_path
 from core.sync import fetch_json, sync_database
 from core.updater import check_app_update as fetch_app_update, consume_update_result
 from ui.advanced_pages import (
@@ -75,6 +81,81 @@ def _safe_json_list(raw: str | None) -> list[str]:
         return [str(value) for value in parsed] if isinstance(parsed, list) else []
     except (TypeError, ValueError, json.JSONDecodeError):
         return []
+
+
+_VEHICLE_IMAGE_HOSTS = {
+    "assets.uexcorp.space",
+    "cdn.uexcorp.space",
+    "media.robertsspaceindustries.com",
+    "robertsspaceindustries.com",
+}
+_VEHICLE_IMAGE_LIMIT = 8 * 1024 * 1024
+
+
+def _load_vehicle_photo(url: str) -> Image.Image | None:
+    """Return a validated cached ship image from an approved data host."""
+
+    parsed = urllib.parse.urlparse(str(url or "").strip())
+    if parsed.scheme != "https" or (parsed.hostname or "").casefold() not in _VEHICLE_IMAGE_HOSTS:
+        return None
+    cache_dir = user_data_dir() / "vehicle_images"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_path = cache_dir / f"{hashlib.sha256(url.encode('utf-8')).hexdigest()}.jpg"
+    if cache_path.exists():
+        try:
+            with Image.open(cache_path) as cached:
+                image = cached.convert("RGB")
+                image.load()
+                return image
+        except (OSError, ValueError):
+            cache_path.unlink(missing_ok=True)
+    request = urllib.request.Request(
+        url,
+        headers={"User-Agent": f"{APP_NAME}/{APP_VERSION}", "Accept": "image/*"},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=12) as response:
+            final = urllib.parse.urlparse(response.geturl())
+            if final.scheme != "https" or (final.hostname or "").casefold() not in _VEHICLE_IMAGE_HOSTS:
+                return None
+            announced = int(response.headers.get("Content-Length") or 0)
+            if announced > _VEHICLE_IMAGE_LIMIT:
+                return None
+            payload = response.read(_VEHICLE_IMAGE_LIMIT + 1)
+        if not payload or len(payload) > _VEHICLE_IMAGE_LIMIT:
+            return None
+        with Image.open(io.BytesIO(payload)) as downloaded:
+            image = downloaded.convert("RGB")
+            image.load()
+        image.thumbnail((720, 400), Image.Resampling.LANCZOS)
+        image.save(cache_path, format="JPEG", quality=86, optimize=True)
+        return image
+    except (OSError, ValueError, urllib.error.URLError):
+        return None
+
+
+def _responsive_catalogue_split(event: Any, table: Any, detail: Any) -> None:
+    """Give the table the full width when a catalogue page becomes narrow."""
+
+    content = event.widget
+    compact = int(getattr(event, "width", 0) or 0) < 1020
+    if getattr(content, "_asteriax_compact_split", None) == compact:
+        return
+    content._asteriax_compact_split = compact
+    if compact:
+        content.grid_columnconfigure(0, weight=1, minsize=0)
+        content.grid_columnconfigure(1, weight=0, minsize=0)
+        content.grid_rowconfigure(0, weight=3)
+        content.grid_rowconfigure(1, weight=2)
+        table.grid_configure(row=0, column=0, columnspan=2, padx=0, pady=(0, 10))
+        detail.grid_configure(row=1, column=0, columnspan=2)
+    else:
+        content.grid_columnconfigure(0, weight=5, minsize=620)
+        content.grid_columnconfigure(1, weight=2, minsize=300)
+        content.grid_rowconfigure(0, weight=1)
+        content.grid_rowconfigure(1, weight=0)
+        table.grid_configure(row=0, column=0, columnspan=1, padx=(0, 10), pady=0)
+        detail.grid_configure(row=0, column=1, columnspan=1)
 
 
 class BasePage(ctk.CTkFrame):
@@ -488,15 +569,15 @@ class CatalogPage(BasePage):
         content = ctk.CTkFrame(self, fg_color="transparent")
         content.grid(row=1, column=0, sticky="nsew")
         content.grid_rowconfigure(0, weight=1)
-        content.grid_columnconfigure(0, weight=3, minsize=520)
+        content.grid_columnconfigure(0, weight=5, minsize=620)
         content.grid_columnconfigure(1, weight=2, minsize=300)
         self.table = TreeTable(
             content,
             [
-                ("name", "OBJET", 220, "w"),
-                ("category", "CATÉGORIE", 145, "w"),
-                ("size", "TAILLE", 62, "center"),
-                ("price", "MEILLEUR PRIX", 128, "e"),
+                ("name", "OBJET", 210, "w"),
+                ("category", "CATÉGORIE", 135, "w"),
+                ("size", "TAILLE", 80, "center"),
+                ("price", "MEILLEUR PRIX", 140, "e"),
                 ("location", "LIEU", 150, "w"),
             ],
             on_select=self._on_select,
@@ -518,6 +599,11 @@ class CatalogPage(BasePage):
         )
         self.detail.grid(row=0, column=1, sticky="nsew")
         self.detail.grid_columnconfigure(0, weight=1)
+        content.bind(
+            "<Configure>",
+            lambda event: _responsive_catalogue_split(event, self.table, self.detail),
+            add="+",
+        )
         self._show_empty_detail()
 
     def _schedule_refresh(self, _event: Any = None) -> None:
@@ -901,6 +987,7 @@ class CatalogPage(BasePage):
 class ShipsPage(BasePage):
     title = "Vaisseaux & véhicules"
     subtitle = "Tous les modèles actuellement vendus en jeu contre des aUEC."
+    _photo_pool = ThreadPoolExecutor(max_workers=4, thread_name_prefix="asteriax-ship-photo")
 
     def __init__(self, master: Any, app: "AsteriaxApp"):
         super().__init__(master, app)
@@ -909,6 +996,13 @@ class ShipsPage(BasePage):
         self._debounce_id: str | None = None
         self._query_generation = 0
         self._saved_filter_state: dict[str, Any] = {}
+        self._gallery_page = 0
+        self._gallery_page_size = 24
+        self._gallery_images: dict[int, ctk.CTkImage] = {}
+        self._gallery_photo_labels: dict[int, Any] = {}
+        self._photo_requested: set[int] = set()
+        self._photo_results: queue.SimpleQueue[tuple[int, Image.Image | None]] = queue.SimpleQueue()
+        self._photo_polling = False
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
         self._build_filters()
@@ -945,6 +1039,24 @@ class ShipsPage(BasePage):
         entry.bind("<KeyRelease>", self._schedule_refresh)
         self.result_label = ctk.CTkLabel(search, text="", width=120, text_color=COLORS["muted"], font=("Segoe UI Semibold", 11))
         self.result_label.grid(row=0, column=1, padx=12)
+        self.view_var = tk.StringVar(value="Tableau")
+        self.view_switch = ctk.CTkSegmentedButton(
+            search,
+            values=["Tableau", "Galerie"],
+            variable=self.view_var,
+            command=self._set_view,
+            width=175,
+            height=34,
+            corner_radius=9,
+            fg_color=COLORS["panel_alt"],
+            selected_color=COLORS["accent_dark"],
+            selected_hover_color=COLORS["accent_dark"],
+            unselected_color=COLORS["panel_alt"],
+            unselected_hover_color=COLORS["panel_hover"],
+            text_color=COLORS["text"],
+            font=("Segoe UI Semibold", 11),
+        )
+        self.view_switch.grid(row=0, column=2, padx=(0, 8))
         ctk.CTkButton(
             search,
             text="Réinitialiser",
@@ -958,7 +1070,7 @@ class ShipsPage(BasePage):
             border_color=COLORS["border"],
             text_color=COLORS["muted"],
             font=("Segoe UI Semibold", 11),
-        ).grid(row=0, column=2)
+        ).grid(row=0, column=3)
         self.manufacturer_var = tk.StringVar(value="Tous")
         self.type_var = tk.StringVar(value="Tous")
         self.class_var = tk.StringVar(value="Toutes")
@@ -973,6 +1085,7 @@ class ShipsPage(BasePage):
             self.class_var.set(str(saved.get("class") or "Toutes"))
             self.system_var.set(str(saved.get("system") or "Tous"))
             self.planet_var.set(str(saved.get("planet") or "Toutes"))
+            self.view_var.set(str(saved.get("view") or "Tableau"))
         self.filter_row = ctk.CTkFrame(panel, fg_color="transparent")
         self.filter_row.grid(row=1, column=0, padx=14, pady=(0, 13), sticky="ew")
         for column in range(5):
@@ -1005,26 +1118,40 @@ class ShipsPage(BasePage):
         content = ctk.CTkFrame(self, fg_color="transparent")
         content.grid(row=1, column=0, sticky="nsew")
         content.grid_rowconfigure(0, weight=1)
-        content.grid_columnconfigure(0, weight=3, minsize=520)
+        content.grid_columnconfigure(0, weight=5, minsize=620)
         content.grid_columnconfigure(1, weight=2, minsize=300)
+        self.primary_view = ctk.CTkFrame(content, fg_color="transparent", corner_radius=0)
+        self.primary_view.grid(row=0, column=0, padx=(0, 10), sticky="nsew")
+        self.primary_view.grid_rowconfigure(0, weight=1)
+        self.primary_view.grid_columnconfigure(0, weight=1)
         self.table = TreeTable(
-            content,
+            self.primary_view,
             [
-                ("name", "MODÈLE", 205, "w"),
-                ("maker", "CONSTRUCTEUR", 145, "w"),
-                ("class", "CLASSE", 165, "center"),
-                ("scu", "SCU", 58, "center"),
-                ("price", "MEILLEUR PRIX", 128, "e"),
-                ("location", "LIEU", 130, "w"),
+                ("name", "MODÈLE", 190, "w"),
+                ("maker", "CONSTRUCTEUR", 170, "w"),
+                ("class", "CLASSE", 140, "center"),
+                ("scu", "SCU", 55, "center"),
+                ("price", "MEILLEUR PRIX", 140, "e"),
+                ("location", "LIEU", 135, "w"),
             ],
             on_select=self._on_select,
             on_sort=lambda _column, _reverse: self._save_filters(),
             page_size=self.app.catalog_page_size,
         )
-        self.table.grid(row=0, column=0, padx=(0, 10), sticky="nsew")
+        self.table.grid(row=0, column=0, sticky="nsew")
         sort_column = self._saved_filter_state.get("sort_column")
         if isinstance(sort_column, int):
             self.table.restore_sort(sort_column, bool(self._saved_filter_state.get("sort_reverse")))
+        self.gallery = ctk.CTkScrollableFrame(
+            self.primary_view,
+            fg_color="transparent",
+            corner_radius=0,
+            scrollbar_button_color=COLORS["border"],
+            scrollbar_button_hover_color=COLORS["accent_dark"],
+        )
+        self.gallery.grid(row=0, column=0, sticky="nsew")
+        self.gallery.grid_remove()
+        self.gallery.grid_columnconfigure((0, 1, 2), weight=1, uniform="shipcard")
         self.detail = ctk.CTkScrollableFrame(
             content,
             fg_color=COLORS["panel"],
@@ -1036,7 +1163,27 @@ class ShipsPage(BasePage):
         )
         self.detail.grid(row=0, column=1, sticky="nsew")
         self.detail.grid_columnconfigure(0, weight=1)
+        content.bind(
+            "<Configure>",
+            lambda event: _responsive_catalogue_split(event, self.primary_view, self.detail),
+            add="+",
+        )
         self._show_empty_detail()
+        self._set_view(self.view_var.get())
+
+    def _set_view(self, value: str) -> None:
+        mode = "Galerie" if value == "Galerie" else "Tableau"
+        self.view_var.set(mode)
+        if not hasattr(self, "gallery"):
+            return
+        if mode == "Galerie":
+            self.table.grid_remove()
+            self.gallery.grid()
+            self._render_gallery(list(self.rows_by_id.values()))
+        else:
+            self.gallery.grid_remove()
+            self.table.grid()
+        self._save_filters()
 
     def _schedule_refresh(self, _event: Any = None) -> None:
         if self._debounce_id:
@@ -1100,6 +1247,7 @@ class ShipsPage(BasePage):
                 "class": self.class_var.get(),
                 "system": self.system_var.get(),
                 "planet": self.planet_var.get(),
+                "view": self.view_var.get(),
                 "sort_column": sort_column,
                 "sort_reverse": sort_reverse,
             },
@@ -1185,6 +1333,9 @@ class ShipsPage(BasePage):
             )
             for row in rows
         )
+        self._gallery_page = 0
+        if self.view_var.get() == "Galerie":
+            self._render_gallery(rows)
         self.result_label.configure(text=f"{len(rows)} modèles")
         target = select_id if select_id in self.rows_by_id else None
         if target is None and rows and not self.app.performance_mode:
@@ -1195,6 +1346,190 @@ class ShipsPage(BasePage):
             self._show_empty_detail("Sélectionnez un modèle", "Les résultats sont chargés par blocs pour garder l’interface fluide.")
         else:
             self._show_empty_detail("Aucun modèle", "Modifiez les filtres pour élargir la recherche.")
+
+    def _render_gallery(self, rows: list[dict[str, Any]]) -> None:
+        for child in self.gallery.winfo_children():
+            child.destroy()
+        self._gallery_photo_labels = {}
+        if not rows:
+            EmptyState(self.gallery, "Aucun modèle", "Modifiez les filtres pour élargir la recherche.").grid(
+                row=0, column=0, columnspan=3, pady=30, sticky="ew"
+            )
+            return
+        pages = max(1, (len(rows) + self._gallery_page_size - 1) // self._gallery_page_size)
+        self._gallery_page = max(0, min(self._gallery_page, pages - 1))
+        start = self._gallery_page * self._gallery_page_size
+        visible = rows[start : start + self._gallery_page_size]
+        for index, row in enumerate(visible):
+            self._build_vehicle_card(index // 3, index % 3, row)
+        footer_row = (len(visible) + 2) // 3
+        footer = ctk.CTkFrame(
+            self.gallery,
+            fg_color=COLORS["panel"],
+            corner_radius=12,
+            border_width=1,
+            border_color=COLORS["border"],
+        )
+        footer.grid(row=footer_row, column=0, columnspan=3, padx=5, pady=(8, 16), sticky="ew")
+        footer.grid_columnconfigure(1, weight=1)
+        ctk.CTkButton(
+            footer,
+            text="‹  Précédent",
+            command=lambda: self._change_gallery_page(-1),
+            state="normal" if self._gallery_page > 0 else "disabled",
+            width=120,
+            height=34,
+            corner_radius=9,
+            fg_color=COLORS["panel_alt"],
+            hover_color=COLORS["panel_hover"],
+            text_color=COLORS["text"],
+        ).grid(row=0, column=0, padx=10, pady=10)
+        ctk.CTkLabel(
+            footer,
+            text=f"Page {self._gallery_page + 1} / {pages}  ·  {len(rows)} modèles",
+            font=("Segoe UI Semibold", 11),
+            text_color=COLORS["muted"],
+        ).grid(row=0, column=1)
+        ctk.CTkButton(
+            footer,
+            text="Suivant  ›",
+            command=lambda: self._change_gallery_page(1),
+            state="normal" if self._gallery_page + 1 < pages else "disabled",
+            width=120,
+            height=34,
+            corner_radius=9,
+            fg_color=COLORS["panel_alt"],
+            hover_color=COLORS["panel_hover"],
+            text_color=COLORS["text"],
+        ).grid(row=0, column=2, padx=10, pady=10)
+
+    def _build_vehicle_card(self, grid_row: int, grid_column: int, row: dict[str, Any]) -> None:
+        vehicle_id = int(row["id"])
+        card = ctk.CTkFrame(
+            self.gallery,
+            fg_color=COLORS["panel"],
+            corner_radius=15,
+            border_width=1,
+            border_color=COLORS["border"],
+        )
+        card.grid(row=grid_row, column=grid_column, padx=5, pady=5, sticky="nsew")
+        card.grid_columnconfigure(0, weight=1)
+        photo = ctk.CTkLabel(
+            card,
+            text="CHARGEMENT DE L’IMAGE…" if row.get("url_photo") else "PHOTO INDISPONIBLE",
+            height=126,
+            corner_radius=11,
+            fg_color=COLORS["panel_alt"],
+            text_color=COLORS["muted_2"],
+            font=("Segoe UI Semibold", 10),
+        )
+        photo.grid(row=0, column=0, padx=9, pady=(9, 8), sticky="ew")
+        self._gallery_photo_labels[vehicle_id] = photo
+        self._queue_vehicle_photo(vehicle_id, str(row.get("url_photo") or ""))
+        ctk.CTkLabel(
+            card,
+            text=str(row.get("name") or "Vaisseau"),
+            wraplength=230,
+            justify="left",
+            font=("Segoe UI Semibold", 16),
+            text_color=COLORS["text"],
+            anchor="w",
+        ).grid(row=1, column=0, padx=12, sticky="ew")
+        ctk.CTkLabel(
+            card,
+            text=f"{row.get('manufacturer') or '—'}  ·  {row.get('vehicle_class') or 'Multirôle'}",
+            wraplength=230,
+            justify="left",
+            font=("Segoe UI", 11),
+            text_color=COLORS["muted"],
+            anchor="w",
+        ).grid(row=2, column=0, padx=12, pady=(3, 8), sticky="ew")
+        ctk.CTkLabel(
+            card,
+            text=format_price(row.get("price_min")),
+            font=("Segoe UI Semibold", 15),
+            text_color=COLORS["accent"],
+            anchor="w",
+        ).grid(row=3, column=0, padx=12, sticky="ew")
+        ctk.CTkLabel(
+            card,
+            text=_short_location(row),
+            wraplength=230,
+            justify="left",
+            font=("Segoe UI", 10),
+            text_color=COLORS["muted_2"],
+            anchor="w",
+        ).grid(row=4, column=0, padx=12, pady=(1, 9), sticky="ew")
+        ctk.CTkButton(
+            card,
+            text="Voir la fiche",
+            command=lambda value=vehicle_id: self._open_gallery_vehicle(value),
+            height=34,
+            corner_radius=9,
+            fg_color=COLORS["accent_dark"],
+            hover_color=COLORS["panel_hover"],
+            text_color=COLORS["accent"],
+            font=("Segoe UI Semibold", 11),
+        ).grid(row=5, column=0, padx=12, pady=(0, 11), sticky="ew")
+
+    def _change_gallery_page(self, delta: int) -> None:
+        self._gallery_page += delta
+        self._render_gallery(list(self.rows_by_id.values()))
+        try:
+            self.gallery._parent_canvas.yview_moveto(0)
+        except (AttributeError, tk.TclError):
+            pass
+
+    def _open_gallery_vehicle(self, vehicle_id: int) -> None:
+        self.table.select(str(vehicle_id))
+        self._show_vehicle_detail(vehicle_id)
+
+    def _queue_vehicle_photo(self, vehicle_id: int, url: str) -> None:
+        label = self._gallery_photo_labels.get(vehicle_id)
+        cached = self._gallery_images.get(vehicle_id)
+        if label is not None and cached is not None:
+            label.configure(text="", image=cached)
+            return
+        if not url or vehicle_id in self._photo_requested:
+            return
+        self._photo_requested.add(vehicle_id)
+        future = self._photo_pool.submit(_load_vehicle_photo, url)
+        future.add_done_callback(
+            lambda completed, value=vehicle_id: self._store_photo_result(value, completed)
+        )
+        if not self._photo_polling:
+            self._photo_polling = True
+            self.after(80, self._poll_vehicle_photos)
+
+    def _store_photo_result(self, vehicle_id: int, completed: Any) -> None:
+        try:
+            image = completed.result()
+        except Exception:
+            image = None
+        self._photo_results.put((vehicle_id, image))
+
+    def _poll_vehicle_photos(self) -> None:
+        try:
+            while True:
+                vehicle_id, image = self._photo_results.get_nowait()
+                self._photo_requested.discard(vehicle_id)
+                label = self._gallery_photo_labels.get(vehicle_id)
+                if label is None or not label.winfo_exists():
+                    continue
+                if image is None:
+                    label.configure(text="PHOTO INDISPONIBLE")
+                    continue
+                displayed = ctk.CTkImage(light_image=image, dark_image=image, size=(230, 126))
+                self._gallery_images[vehicle_id] = displayed
+                while len(self._gallery_images) > 48:
+                    self._gallery_images.pop(next(iter(self._gallery_images)))
+                label.configure(text="", image=displayed)
+        except queue.Empty:
+            pass
+        if self._photo_requested:
+            self.after(80, self._poll_vehicle_photos)
+        else:
+            self._photo_polling = False
 
     def open_entity(self, entity_id: int) -> None:
         self.reset_filters(refresh=False)

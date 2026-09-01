@@ -271,7 +271,7 @@ class UserStoreTests(unittest.TestCase):
             self.assertEqual(store.get_json_setting("filters:test", {})["planet"], "ArcCorp")
 
     def test_brand_links_version_and_assets(self) -> None:
-        self.assertEqual(APP_VERSION, "1.7.2")
+        self.assertEqual(APP_VERSION, "1.8.0")
         self.assertEqual(
             APP_UPDATE_MANIFEST_URL,
             "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/UPDATE_MANIFEST.json",
@@ -347,6 +347,21 @@ class UserStoreTests(unittest.TestCase):
         self.assertIn("anchor=display_anchor", widgets)
         self.assertIn("stretch=False", widgets)
         self.assertIn("_block_manual_column_resize", widgets)
+        self.assertIn('"CONSTRUCTEUR": "MARQUE"', widgets)
+        self.assertIn('"MEILLEUR PRIX": "PRIX MIN."', widgets)
+        app_source = (ROOT / "ui" / "app.py").read_text(encoding="utf-8")
+        self.assertIn("def _responsive_catalogue_split", app_source)
+        self.assertIn('("size", "TAILLE", 80, "center")', app_source)
+
+    def test_vehicle_gallery_is_lazy_and_keeps_the_table(self) -> None:
+        source = (ROOT / "ui" / "app.py").read_text(encoding="utf-8")
+        self.assertIn('values=["Tableau", "Galerie"]', source)
+        self.assertIn("self._gallery_page_size = 24", source)
+        self.assertIn("ThreadPoolExecutor(max_workers=4", source)
+        self.assertIn("def _load_vehicle_photo", source)
+        self.assertIn('user_data_dir() / "vehicle_images"', source)
+        self.assertIn("def _build_vehicle_card", source)
+        self.assertIn("self.table = TreeTable(", source)
 
     def test_fluid_catalogues_and_responsive_mode_are_wired(self) -> None:
         source = (ROOT / "ui" / "app.py").read_text(encoding="utf-8")

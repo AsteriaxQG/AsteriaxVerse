@@ -8,16 +8,16 @@ having to touch the UI or the database layer.
 from __future__ import annotations
 
 APP_NAME = "Asteriax Verse"
-APP_VERSION = "1.7.2"
+APP_VERSION = "1.8.0"
 APP_AUTHOR = "AsteriaxTTV"
 USER_AGENT = f"AsteriaxTTV-StarCitizen-Companion/{APP_VERSION}"
 
 APP_RELEASE_NOTES = (
-    "Colonnes des tableaux désormais automatiques et proportionnelles.",
-    "Titres de colonnes alignés exactement avec leur contenu.",
-    "Redimensionnement manuel verrouillé pour éviter les tableaux désorganisés.",
-    "Largeur minimale conservée dans les petites fenêtres avec défilement horizontal.",
-    "Police agrandie et navigation à sept boutons conservées.",
+    "Nouveau choix Tableau / Galerie dans Vaisseaux & véhicules.",
+    "Cartes illustrées avec photo, constructeur, classe, prix et lieu d’achat.",
+    "Images chargées en arrière-plan par lots de 24 puis conservées dans un cache local.",
+    "Tableaux affichés sur toute la largeur dans les fenêtres réduites.",
+    "Colonnes Constructeur, Meilleur prix et Taille mieux dimensionnées.",
 )
 
 DISCORD_URL = "https://discord.com/invite/YSK3aJwATH"

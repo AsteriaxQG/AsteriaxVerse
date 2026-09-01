@@ -140,6 +140,7 @@ class TreeTable(ctk.CTkFrame):
     """Dark ttk.Treeview wrapped in a rounded CustomTkinter panel."""
 
     _CENTERED_VALUE_COLUMNS = frozenset({"price", "location"})
+    _COMPACT_HEADINGS = {"CONSTRUCTEUR": "MARQUE", "MEILLEUR PRIX": "PRIX MIN."}
 
     @classmethod
     def display_anchor(cls, column_id: str, requested_anchor: str) -> str:
@@ -169,6 +170,7 @@ class TreeTable(ctk.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
         self._columns = columns
         self._base_column_widths = {column_id: width for column_id, _heading, width, _anchor in columns}
+        self._column_headings = {column_id: heading for column_id, heading, _width, _anchor in columns}
         self._column_layout_after: str | None = None
         self._rows: list[tuple[str, tuple[Any, ...], bool]] = []
         self._sort_column: int | None = None
@@ -311,11 +313,17 @@ class TreeTable(ctk.CTkFrame):
         self._column_layout_after = None
         available = max(0, self.tree.winfo_width() - 2)
         ids = [column[0] for column in self._columns]
+        compact = available < 760
         widths = self.proportional_widths(
             [self._base_column_widths[column_id] for column_id in ids],
             available,
         )
         for column_id, width in zip(ids, widths):
+            heading = self._column_headings[column_id]
+            self.tree.heading(
+                column_id,
+                text=self._COMPACT_HEADINGS.get(heading, heading) if compact else heading,
+            )
             self.tree.column(column_id, width=width, stretch=False)
 
     def _block_manual_column_resize(self, event: tk.Event[Any]) -> str | None:

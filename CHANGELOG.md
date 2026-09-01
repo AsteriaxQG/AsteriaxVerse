@@ -1,5 +1,16 @@
 # Historique
 
+## 1.6.1 — 1er septembre 2026
+
+- remplacement de la traduction proposée par défaut par **Scefra**, une autre base française corrigée par sa communauté ;
+- ajout d’un sélecteur permettant de choisir entre Scefra et la traduction classique Circuspes ;
+- conservation automatique de la source choisie entre les lancements ;
+- indication claire que Scefra est réservée au canal LIVE et peut encore présenter quelques problèmes d’accents ;
+- affichage de la source réellement installée dans l’état de la traduction ;
+- barre de navigation redessinée d’après la référence fournie : grand panneau arrondi et onglets sous forme de cartes séparées ;
+- coins plus arrondis, contours fins, espacements plus généreux et sélection active mise en évidence ;
+- nouveau style conservé lorsque la barre latérale est repliée.
+
 ## 1.6.0 — 31 août 2026
 
 - nouvel onglet **Traduction française** dans la navigation principale ;

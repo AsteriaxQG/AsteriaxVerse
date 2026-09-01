@@ -23,7 +23,9 @@ if ! grep -q 'status-ui.css' website/index.html; then
   sed -i 's#</head>#<link rel="stylesheet" href="status-ui.css?v=1"/></head>#' website/index.html
 fi
 if ! grep -q 'status-ui.js' website/index.html; then
-  sed -i 's#</body>#<script src="status-ui.js?v=1"></script></body>#' website/index.html
+  sed -i 's#</body>#<script src="status-ui.js?v=2"></script></body>#' website/index.html
+else
+  sed -i 's/status-ui.js?v=1/status-ui.js?v=2/g' website/index.html
 fi
 
 # Charge le flux d'actualités RSI automatique sans alourdir index.html.

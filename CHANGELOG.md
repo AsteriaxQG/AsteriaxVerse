@@ -1,5 +1,21 @@
 # Historique
 
+## 1.8.0 — 1er septembre 2026
+
+- ajout d’un sélecteur **Tableau / Galerie** dans la page Vaisseaux & véhicules ;
+- nouvelle galerie en cartes modernes affichant photo, modèle, constructeur, classe, meilleur prix et lieu ;
+- navigation par pages de 24 cartes pour ne jamais charger les 184 images simultanément ;
+- téléchargement des photos en arrière-plan avec quatre tâches maximum ;
+- cache local validé pour éviter de retélécharger les images aux lancements suivants ;
+- restriction des images aux hôtes HTTPS UEX et RSI présents dans la base ;
+- clic sur **Voir la fiche** ouvrant les caractéristiques et toutes les concessions sans quitter la galerie ;
+- tableau affiché sur toute la largeur lorsque la fenêtre devient étroite ;
+- fiche détaillée déplacée automatiquement sous le tableau en mode compact ;
+- retour automatique à la disposition côte à côte dans une grande fenêtre ;
+- colonnes **Constructeur** et **Meilleur prix** rééquilibrées dans les vaisseaux ;
+- colonne **Taille** élargie dans les équipements, y compris en plein écran ;
+- en-têtes **Constructeur** et **Meilleur prix** raccourcis en **Marque** et **Prix min.** lorsque la place manque.
+
 ## 1.7.2 — 1er septembre 2026
 
 - conservation du format tableau pour les vaisseaux, véhicules et équipements ;

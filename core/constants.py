@@ -8,16 +8,15 @@ having to touch the UI or the database layer.
 from __future__ import annotations
 
 APP_NAME = "Asteriax Verse"
-APP_VERSION = "1.7.2"
+APP_VERSION = "1.7.3"
 APP_AUTHOR = "AsteriaxTTV"
 USER_AGENT = f"AsteriaxTTV-StarCitizen-Companion/{APP_VERSION}"
 
 APP_RELEASE_NOTES = (
-    "Colonnes des tableaux désormais automatiques et proportionnelles.",
-    "Titres de colonnes alignés exactement avec leur contenu.",
-    "Redimensionnement manuel verrouillé pour éviter les tableaux désorganisés.",
-    "Largeur minimale conservée dans les petites fenêtres avec défilement horizontal.",
-    "Police agrandie et navigation à sept boutons conservées.",
+    "Nouvelle navigation horizontale inspirée du site AsteriaxVerse.",
+    "Interface sombre et cyan harmonisée entre le site et le logiciel.",
+    "Accès direct aux pages principales et à la recherche globale.",
+    "Toutes les fonctions existantes, la base locale et les mises à jour sont conservées.",
 )
 
 DISCORD_URL = "https://discord.com/invite/YSK3aJwATH"

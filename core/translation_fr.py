@@ -24,10 +24,6 @@ TRANSLATION_LIVE_URL = (
     "https://raw.githubusercontent.com/SPEED0U/Scefra/"
     "main/french_(france)/global.ini"
 )
-TRANSLATION_PTU_URL = (
-    "https://raw.githubusercontent.com/Dymerz/StarCitizen-Localization/"
-    "ptu/data/Localization/french_(france)/global.ini"
-)
 TRANSLATION_SOURCES: dict[str, dict[str, str]] = {
     "scefra": {
         "label": "Scefra — autre traduction (recommandée)",
@@ -36,17 +32,6 @@ TRANSLATION_SOURCES: dict[str, dict[str, str]] = {
         "live_url": TRANSLATION_LIVE_URL,
         "ptu_url": "",
         "description": "Autre base française, corrigée par la communauté. Disponible pour LIVE.",
-    },
-    "classic": {
-        "label": "Traduction classique — Circuspes",
-        "short_label": "Circuspes classique",
-        "project_url": "https://github.com/Dymerz/StarCitizen-Localization",
-        "live_url": (
-            "https://raw.githubusercontent.com/Dymerz/StarCitizen-Localization/"
-            "main/data/Localization/french_(france)/global.ini"
-        ),
-        "ptu_url": TRANSLATION_PTU_URL,
-        "description": "Ancienne traduction utilisée par Asteriax Verse. Compatible LIVE et PTU.",
     },
 }
 MAX_TRANSLATION_BYTES = 64 * 1024 * 1024
@@ -164,7 +149,7 @@ def translation_source_url(
     if not url:
         raise ValueError(
             f"La traduction {source['short_label']} n’est pas disponible pour le canal "
-            f"{game_folder.name.upper()}. Choisissez la traduction classique pour ce canal."
+            f"{game_folder.name.upper()}. Scefra est actuellement proposée uniquement pour LIVE."
         )
     return url
 
@@ -172,17 +157,13 @@ def translation_source_url(
 def _validate_source_url(value: str) -> str:
     url = str(value or "").strip()
     parsed = urllib.parse.urlparse(url)
-    allowed_paths = (
-        "/SPEED0U/Scefra/main/french_(france)/global.ini",
-        "/Dymerz/StarCitizen-Localization/main/data/Localization/french_(france)/global.ini",
-        "/Dymerz/StarCitizen-Localization/ptu/data/Localization/french_(france)/global.ini",
-    )
+    allowed_path = "/SPEED0U/Scefra/main/french_(france)/global.ini"
     if (
         parsed.scheme != "https"
         or parsed.hostname != "raw.githubusercontent.com"
         or parsed.username
         or parsed.password
-        or parsed.path not in allowed_paths
+        or parsed.path != allowed_path
     ):
         raise ValueError("La source de traduction française n’est pas autorisée.")
     return url

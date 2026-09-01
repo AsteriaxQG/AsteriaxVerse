@@ -45,6 +45,14 @@ else
   sed -i 's/patch-refresh.js?v=1/patch-refresh.js?v=2/g' website/index.html
 fi
 
+# Crédit du créateur dans le footer.
+if ! grep -q 'footer-credit.css' website/index.html; then
+  sed -i 's#</head>#<link rel="stylesheet" href="footer-credit.css?v=1"/></head>#' website/index.html
+fi
+if ! grep -q 'class="footer-credit"' website/index.html; then
+  sed -i 's#</footer>#<p class="footer-credit">© AsteriaxVerse · Créé par <a href="https://www.twitch.tv/asteriaxttv/about" target="_blank" rel="noopener">AsteriaxTTV</a></p></footer>#' website/index.html
+fi
+
 # Charge le flux d'actualités RSI automatique sans alourdir index.html.
 if ! grep -q 'news.js' website/index.html; then
   sed -i 's#</body>#<script src="news.js"></script></body>#' website/index.html

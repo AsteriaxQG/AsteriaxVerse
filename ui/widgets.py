@@ -168,6 +168,8 @@ class TreeTable(ctk.CTkFrame):
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
         self._columns = columns
+        self._base_column_widths = {column_id: width for column_id, _heading, width, _anchor in columns}
+        self._column_layout_after: str | None = None
         self._rows: list[tuple[str, tuple[Any, ...], bool]] = []
         self._sort_column: int | None = None
         self._sort_reverse = False
@@ -192,17 +194,19 @@ class TreeTable(ctk.CTkFrame):
             selectmode="browse",
         )
         for index, (column_id, heading, width, anchor) in enumerate(columns):
+            display_anchor = self.display_anchor(column_id, anchor)
             self.tree.heading(
                 column_id,
                 text=heading,
+                anchor=display_anchor,
                 command=lambda position=index: self.sort_by(position),
             )
             self.tree.column(
                 column_id,
                 width=width,
                 minwidth=45,
-                anchor=self.display_anchor(column_id, anchor),
-                stretch=column_id in {"name", "location"},
+                anchor=display_anchor,
+                stretch=False,
             )
         scrollbar = ttk.Scrollbar(
             self.table_shell,
@@ -221,6 +225,9 @@ class TreeTable(ctk.CTkFrame):
         )
         self.tree.configure(xscrollcommand=horizontal.set)
         horizontal.grid(row=1, column=0, padx=(7, 1), pady=(2, 6), sticky="ew")
+        self.tree.bind("<Configure>", self._schedule_column_layout, add="+")
+        self.tree.bind("<Button-1>", self._block_manual_column_resize, add="+")
+        self.tree.bind("<B1-Motion>", self._block_manual_column_resize, add="+")
         self.page_bar = ctk.CTkFrame(self, fg_color="transparent")
         self.page_bar.grid(row=1, column=0, padx=8, pady=(0, 8), sticky="ew")
         self.page_bar.grid_columnconfigure(1, weight=1)
@@ -277,6 +284,44 @@ class TreeTable(ctk.CTkFrame):
                 lambda _event: on_double_click(self.selected_id()),
                 add="+",
             )
+
+    @staticmethod
+    def proportional_widths(base_widths: list[int], available: int) -> list[int]:
+        """Fill extra width proportionally while never squeezing the columns."""
+
+        widths = [max(45, int(width)) for width in base_widths]
+        base_total = sum(widths)
+        if not widths or available <= base_total:
+            return widths
+        scaled = [max(45, round(width * available / base_total)) for width in widths]
+        scaled[-1] += available - sum(scaled)
+        return scaled
+
+    def _schedule_column_layout(self, event: tk.Event[Any]) -> None:
+        if event.widget is not self.tree:
+            return
+        if self._column_layout_after:
+            try:
+                self.after_cancel(self._column_layout_after)
+            except tk.TclError:
+                pass
+        self._column_layout_after = self.after(90, self._apply_column_layout)
+
+    def _apply_column_layout(self) -> None:
+        self._column_layout_after = None
+        available = max(0, self.tree.winfo_width() - 2)
+        ids = [column[0] for column in self._columns]
+        widths = self.proportional_widths(
+            [self._base_column_widths[column_id] for column_id in ids],
+            available,
+        )
+        for column_id, width in zip(ids, widths):
+            self.tree.column(column_id, width=width, stretch=False)
+
+    def _block_manual_column_resize(self, event: tk.Event[Any]) -> str | None:
+        if self.tree.identify_region(event.x, event.y) == "separator":
+            return "break"
+        return None
 
     def selected_id(self) -> str:
         selection = self.tree.selection()

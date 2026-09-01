@@ -1907,8 +1907,14 @@ class AsteriaxApp(ctk.CTk):
             anchor="w",
         )
         self.nav_title.grid(row=1, column=0, padx=23, pady=(0, 5), sticky="ew")
-        self.nav_frame = ctk.CTkFrame(self.sidebar, fg_color="transparent")
-        self.nav_frame.grid(row=2, column=0, padx=10, sticky="nsew")
+        self.nav_frame = ctk.CTkFrame(
+            self.sidebar,
+            fg_color=COLORS["panel"],
+            corner_radius=16,
+            border_width=1,
+            border_color=COLORS["border"],
+        )
+        self.nav_frame.grid(row=2, column=0, padx=10, pady=(2, 0), sticky="nsew")
         self.nav_frame.grid_columnconfigure(0, weight=1)
         entries = [
             ("dashboard", "⌂", "Vue d'ensemble"),
@@ -1929,15 +1935,23 @@ class AsteriaxApp(ctk.CTk):
                 self.nav_frame,
                 text=f"{icon}  {label}",
                 command=lambda page=name: self.show_page(page),
-                height=36,
-                corner_radius=8,
+                height=40,
+                corner_radius=11,
                 anchor="w",
-                fg_color="transparent",
+                fg_color=COLORS["panel_alt"],
                 hover_color=COLORS["panel_hover"],
                 text_color=COLORS["muted"],
+                border_width=1,
+                border_color=COLORS["border"],
                 font=("Segoe UI Semibold", 11),
             )
-            button.grid(row=row, column=0, pady=1, sticky="ew")
+            button.grid(
+                row=row,
+                column=0,
+                padx=8,
+                pady=(8 if row == 0 else 3, 8 if row == len(entries) - 1 else 3),
+                sticky="ew",
+            )
             self.nav_buttons[name] = button
 
         self.sidebar_footer = ctk.CTkFrame(
@@ -2172,8 +2186,9 @@ class AsteriaxApp(ctk.CTk):
         for key, button in self.nav_buttons.items():
             active = key == name
             button.configure(
-                fg_color=COLORS["accent_dark"] if active else "transparent",
+                fg_color=COLORS["accent_dark"] if active else COLORS["panel_alt"],
                 text_color=COLORS["accent"] if active else COLORS["muted"],
+                border_color=COLORS["accent"] if active else COLORS["border"],
             )
         if self.user_store.setting_bool("remember_state", True):
             self.user_store.set_setting("last_page", name)

@@ -271,7 +271,7 @@ class UserStoreTests(unittest.TestCase):
             self.assertEqual(store.get_json_setting("filters:test", {})["planet"], "ArcCorp")
 
     def test_brand_links_version_and_assets(self) -> None:
-        self.assertEqual(APP_VERSION, "1.7.1")
+        self.assertEqual(APP_VERSION, "1.7.2")
         self.assertEqual(
             APP_UPDATE_MANIFEST_URL,
             "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/UPDATE_MANIFEST.json",
@@ -339,6 +339,14 @@ class UserStoreTests(unittest.TestCase):
         self.assertNotRegex(sources, r'font=\("Segoe UI(?: Semibold)?", [0-9]\)')
         self.assertIn('rowheight=44', sources)
         self.assertIn('font=("Segoe UI", 13)', sources)
+
+    def test_table_columns_are_proportional_and_locked(self) -> None:
+        widgets = (ROOT / "ui" / "widgets.py").read_text(encoding="utf-8")
+        self.assertIn("def proportional_widths", widgets)
+        self.assertIn("width * available / base_total", widgets)
+        self.assertIn("anchor=display_anchor", widgets)
+        self.assertIn("stretch=False", widgets)
+        self.assertIn("_block_manual_column_resize", widgets)
 
     def test_fluid_catalogues_and_responsive_mode_are_wired(self) -> None:
         source = (ROOT / "ui" / "app.py").read_text(encoding="utf-8")

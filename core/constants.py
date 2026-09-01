@@ -8,16 +8,16 @@ having to touch the UI or the database layer.
 from __future__ import annotations
 
 APP_NAME = "Asteriax Verse"
-APP_VERSION = "1.6.0"
+APP_VERSION = "1.6.1"
 APP_AUTHOR = "AsteriaxTTV"
 USER_AGENT = f"AsteriaxTTV-StarCitizen-Companion/{APP_VERSION}"
 
 APP_RELEASE_NOTES = (
-    "Nouvel onglet Traduction française pour Star Citizen.",
-    "Détection automatique des installations LIVE, PTU et EPTU.",
-    "Installation et mise à jour du pack français communautaire en un clic.",
-    "Sauvegarde automatique des fichiers avant toute modification.",
-    "Restauration de l’anglais et des fichiers d’origine depuis le logiciel.",
+    "Scefra devient la nouvelle traduction française proposée par défaut.",
+    "Choix possible entre Scefra et la traduction classique Circuspes.",
+    "Nouvelle navigation en cartes individuelles entièrement arrondies.",
+    "Contours, espacements et sélection active modernisés.",
+    "Sauvegarde et restauration de la traduction toujours conservées.",
 )
 
 DISCORD_URL = "https://discord.com/invite/YSK3aJwATH"

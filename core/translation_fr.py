@@ -18,15 +18,37 @@ from .paths import user_data_dir
 
 
 TRANSLATION_LANGUAGE = "french_(france)"
-TRANSLATION_PROJECT_URL = "https://github.com/Dymerz/StarCitizen-Localization"
+DEFAULT_TRANSLATION_SOURCE = "scefra"
+TRANSLATION_PROJECT_URL = "https://github.com/SPEED0U/Scefra"
 TRANSLATION_LIVE_URL = (
-    "https://raw.githubusercontent.com/Dymerz/StarCitizen-Localization/"
-    "main/data/Localization/french_(france)/global.ini"
+    "https://raw.githubusercontent.com/SPEED0U/Scefra/"
+    "main/french_(france)/global.ini"
 )
 TRANSLATION_PTU_URL = (
     "https://raw.githubusercontent.com/Dymerz/StarCitizen-Localization/"
     "ptu/data/Localization/french_(france)/global.ini"
 )
+TRANSLATION_SOURCES: dict[str, dict[str, str]] = {
+    "scefra": {
+        "label": "Scefra — autre traduction (recommandée)",
+        "short_label": "Scefra",
+        "project_url": "https://github.com/SPEED0U/Scefra",
+        "live_url": TRANSLATION_LIVE_URL,
+        "ptu_url": "",
+        "description": "Autre base française, corrigée par la communauté. Disponible pour LIVE.",
+    },
+    "classic": {
+        "label": "Traduction classique — Circuspes",
+        "short_label": "Circuspes classique",
+        "project_url": "https://github.com/Dymerz/StarCitizen-Localization",
+        "live_url": (
+            "https://raw.githubusercontent.com/Dymerz/StarCitizen-Localization/"
+            "main/data/Localization/french_(france)/global.ini"
+        ),
+        "ptu_url": TRANSLATION_PTU_URL,
+        "description": "Ancienne traduction utilisée par Asteriax Verse. Compatible LIVE et PTU.",
+    },
+}
 MAX_TRANSLATION_BYTES = 64 * 1024 * 1024
 MIN_TRANSLATION_BYTES = 5 * 1024
 ProgressCallback = Callable[[float, str], None]
@@ -125,21 +147,42 @@ def find_game_installations(extra_candidates: Iterable[str | os.PathLike[str]] =
     return result
 
 
-def translation_source_url(game_folder: Path) -> str:
-    return TRANSLATION_LIVE_URL if game_folder.name.upper() == "LIVE" else TRANSLATION_PTU_URL
+def translation_source_details(source_key: str = DEFAULT_TRANSLATION_SOURCE) -> dict[str, str]:
+    key = str(source_key or DEFAULT_TRANSLATION_SOURCE).strip().casefold()
+    source = TRANSLATION_SOURCES.get(key)
+    if source is None:
+        raise ValueError("Cette traduction française n’est pas reconnue.")
+    return {"key": key, **source}
+
+
+def translation_source_url(
+    game_folder: Path, source_key: str = DEFAULT_TRANSLATION_SOURCE
+) -> str:
+    source = translation_source_details(source_key)
+    key = "live_url" if game_folder.name.upper() == "LIVE" else "ptu_url"
+    url = source.get(key, "")
+    if not url:
+        raise ValueError(
+            f"La traduction {source['short_label']} n’est pas disponible pour le canal "
+            f"{game_folder.name.upper()}. Choisissez la traduction classique pour ce canal."
+        )
+    return url
 
 
 def _validate_source_url(value: str) -> str:
     url = str(value or "").strip()
     parsed = urllib.parse.urlparse(url)
-    expected_prefix = "/Dymerz/StarCitizen-Localization/"
+    allowed_paths = (
+        "/SPEED0U/Scefra/main/french_(france)/global.ini",
+        "/Dymerz/StarCitizen-Localization/main/data/Localization/french_(france)/global.ini",
+        "/Dymerz/StarCitizen-Localization/ptu/data/Localization/french_(france)/global.ini",
+    )
     if (
         parsed.scheme != "https"
         or parsed.hostname != "raw.githubusercontent.com"
         or parsed.username
         or parsed.password
-        or not parsed.path.startswith(expected_prefix)
-        or not parsed.path.endswith("/data/Localization/french_(france)/global.ini")
+        or parsed.path not in allowed_paths
     ):
         raise ValueError("La source de traduction française n’est pas autorisée.")
     return url
@@ -292,6 +335,10 @@ def translation_status(
     )
     root = _translation_root(state_root)
     entry = _load_state(root).get("targets", {}).get(_state_key(channel), {})
+    source_key = str(entry.get("source_key") or "")
+    source_label = "Installation manuelle"
+    if source_key in TRANSLATION_SOURCES:
+        source_label = TRANSLATION_SOURCES[source_key]["short_label"]
     return {
         "game_folder": str(channel),
         "channel": channel.name.upper(),
@@ -301,7 +348,9 @@ def translation_status(
         "managed": bool(entry),
         "installed_at": str(entry.get("installed_at") or ""),
         "sha256": str(entry.get("sha256") or ""),
-        "source_url": translation_source_url(channel),
+        "source_key": source_key,
+        "source_label": source_label,
+        "source_url": str(entry.get("source_url") or ""),
     }
 
 
@@ -310,6 +359,7 @@ def install_french_translation(
     progress: ProgressCallback | None = None,
     *,
     state_root: Path | None = None,
+    source_key: str = DEFAULT_TRANSLATION_SOURCE,
     source_url: str | None = None,
     timeout: int = 45,
 ) -> dict[str, Any]:
@@ -317,9 +367,10 @@ def install_french_translation(
 
     channel = validate_game_folder(game_folder)
     root = _translation_root(state_root)
-    url = _validate_source_url(source_url or translation_source_url(channel))
+    source = translation_source_details(source_key)
+    url = _validate_source_url(source_url or translation_source_url(channel, source["key"]))
     if progress:
-        progress(0.01, "Connexion à la source française…")
+        progress(0.01, f"Connexion à {source['short_label']}…")
     payload = _download_translation(url, progress, timeout=timeout)
 
     global_ini = channel / "data" / "Localization" / TRANSLATION_LANGUAGE / "global.ini"
@@ -366,6 +417,7 @@ def install_french_translation(
         {
             "installed_at": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
             "source_url": url,
+            "source_key": source["key"],
             "sha256": hashlib.sha256(payload).hexdigest(),
         }
     )

@@ -271,7 +271,7 @@ class UserStoreTests(unittest.TestCase):
             self.assertEqual(store.get_json_setting("filters:test", {})["planet"], "ArcCorp")
 
     def test_brand_links_version_and_assets(self) -> None:
-        self.assertEqual(APP_VERSION, "1.6.0")
+        self.assertEqual(APP_VERSION, "1.6.1")
         self.assertEqual(
             APP_UPDATE_MANIFEST_URL,
             "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/UPDATE_MANIFEST.json",
@@ -315,6 +315,16 @@ class UserStoreTests(unittest.TestCase):
         self.assertIn("self._page_factories", source)
         self.assertIn("previous.grid_remove()", source)
         self.assertIn("page = self._get_page(name)", source)
+
+    def test_sidebar_navigation_uses_rounded_cards(self) -> None:
+        source = (ROOT / "ui" / "app.py").read_text(encoding="utf-8")
+        nav_start = source.index("        self.nav_frame = ctk.CTkFrame(")
+        nav_end = source.index("        self.sidebar_footer =", nav_start)
+        navigation = source[nav_start:nav_end]
+        self.assertIn('corner_radius=16', navigation)
+        self.assertIn('corner_radius=11', navigation)
+        self.assertIn('fg_color=COLORS["panel_alt"]', navigation)
+        self.assertIn('border_width=1', navigation)
 
     def test_fluid_catalogues_and_responsive_mode_are_wired(self) -> None:
         source = (ROOT / "ui" / "app.py").read_text(encoding="utf-8")

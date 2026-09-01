@@ -1,7 +1,7 @@
 {
-  "version": "1.6.0",
+  "version": "1.6.1",
   "download_url": "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe",
   "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
   "size": 0,
-  "release_notes": "Nouvel onglet Traduction française : détection de Star Citizen, installation et mise à jour en un clic, sauvegarde et restauration de l’anglais."
+  "release_notes": "Scefra devient la traduction française par défaut, avec choix de la source et nouvelle navigation en cartes arrondies inspirée de la référence fournie."
 }

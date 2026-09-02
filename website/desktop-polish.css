@@ -76,3 +76,27 @@
   .active-view:not(#home){animation:none}
   .ship-card,.item-card,.news-card,.home-news-card,.ship-image img{transition:none!important}
 }
+
+/* Finition premium : lecture nette, contrôles de catalogue plus structurés. */
+:root{--font-ui:Inter,"Segoe UI Variable","Segoe UI",system-ui,sans-serif;--filter-surface:#0a1821;--filter-border:#244657;--filter-border-hover:#3e829b}
+html{-webkit-text-size-adjust:100%;text-rendering:optimizeLegibility}
+body{font-family:var(--font-ui);font-size:15px;line-height:1.5;font-synthesis:none}
+button,input,select{font-family:var(--font-ui)}
+.filters{align-items:center;gap:12px;padding:14px;border:1px solid #1d3d4d;border-radius:16px;background:linear-gradient(145deg,rgba(10,24,33,.98),rgba(7,17,24,.98));box-shadow:0 14px 34px rgba(0,0,0,.18),inset 0 1px 0 rgba(124,221,247,.035)}
+.filters select,.searchbox{min-height:48px;border:1px solid var(--filter-border)!important;border-radius:11px;background-color:var(--filter-surface)!important;color:#e9f7fb!important;font-size:14px;font-weight:600;letter-spacing:.01em;transition:border-color .16s ease,background-color .16s ease,box-shadow .16s ease}
+.filters select{appearance:none;-webkit-appearance:none;padding:0 42px 0 15px!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='8' viewBox='0 0 14 8'%3E%3Cpath d='m1 1 6 6 6-6' fill='none' stroke='%237daabd' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 15px center;background-size:13px 8px}
+.filters select:hover,.searchbox:hover{border-color:#315f72!important;background-color:#0c1d28!important}
+.filters select:focus-visible,.searchbox:focus-within{border-color:var(--filter-border-hover)!important;outline:0;box-shadow:0 0 0 3px rgba(82,217,255,.12)!important}
+.filters select option,.filters select optgroup{background:#0b1b25;color:#e9f7fb}
+.searchbox{padding:0 15px;gap:11px}.searchbox span{font-size:20px;color:#75b0c7}.searchbox input{font-size:15px!important;font-weight:500;letter-spacing:.005em}.searchbox input::placeholder{color:#7f9eab!important}
+.ship-status-filter{align-items:center!important;gap:9px!important;margin-top:1px;padding:14px 2px 2px!important;border-top:1px solid #1a3542}
+.ship-status-label{margin-right:5px!important;color:#a9c8d3!important;font-size:11px!important;font-weight:800!important;letter-spacing:1.1px!important}
+.ship-status-filter button{display:inline-flex;align-items:center;gap:7px;min-height:38px;padding:8px 13px!important;border:1px solid #2b5264!important;border-radius:999px;background:#0c1c26!important;color:#b7cdd6!important;font-size:13px!important;font-weight:700!important;line-height:1.1;letter-spacing:.005em;transition:border-color .16s ease,background-color .16s ease,color .16s ease,transform .16s ease}
+.ship-status-filter button:hover{transform:translateY(-1px);border-color:#4a91aa!important;background:#102a37!important;color:#eefcff!important}
+.ship-status-filter button.active{border-color:#54c5e6!important;background:linear-gradient(180deg,#16485d,#123547)!important;color:#f1fdff!important;box-shadow:0 5px 16px rgba(29,139,175,.18),inset 0 1px 0 rgba(155,238,255,.12)}
+.ship-status-filter b{display:inline-grid!important;min-width:22px;height:20px;place-items:center;margin:0!important;padding:0 6px;border:1px solid #2b5363;border-radius:999px;background:#08151d;color:#94b6c2!important;font-size:11px!important;font-variant-numeric:tabular-nums;line-height:1}
+.ship-status-filter button.active b{border-color:#4b9eb8;background:#0e2a38;color:#a9edff!important}
+.result-count{color:#a4bec9;font-weight:600;font-variant-numeric:tabular-nums}.card-kicker,.card-meta span{letter-spacing:.7px}.card-meta span{color:#7d9eab}.card-meta strong{color:#e5f3f7}
+@media (max-width:900px){.filters{padding:12px}.ship-status-filter{padding-top:12px!important}}
+@media (max-width:650px){.filters select,.searchbox{min-height:50px;font-size:15px}.ship-status-filter{padding-bottom:4px!important}.ship-status-filter button{min-height:40px;font-size:14px!important}}
+

@@ -25,6 +25,8 @@
     "Voir les dernières actus →":"View latest news →",
     "Version officielle en cours":"Official version in progress",
     "Sources officielles RSI · actualisation automatique":"Official RSI sources · auto-refresh",
+    "Sources officielles RSI":"Official RSI sources",
+    "actualisé":"updated",
     "Vaisseaux & véhicules":"Ships & vehicles",
     "Boutiques référencées":"Referenced shops",
     "DERNIÈRES PUBLICATIONS":"LATEST POSTS",
@@ -84,6 +86,7 @@
     "Rafraîchir":"Refresh",
     "Filtres actualités":"News filters",
     "Tout":"All",
+    "ACTU":"NEWS",
     "Vidéos":"Videos",
     "Chargement du flux officiel…":"Loading official feed…",
     "Chargement des dernières publications…":"Loading latest posts…",
@@ -170,6 +173,12 @@
     "Dégradé":"Degraded",
     "Hors ligne":"Offline",
     "Inconnu":"Unknown",
+    "Persistent Universe":"Persistent Universe",
+    "Plateforme RSI":"RSI platform",
+    "PLATEFORME RSI":"RSI PLATFORM",
+    "PERSISTENT UNIVERSE":"PERSISTENT UNIVERSE",
+    "Arena Commander":"Arena Commander",
+    "ARENA COMMANDER":"ARENA COMMANDER",
     "Statut indisponible":"Status unavailable",
     "Non publié":"Not published"
   };
@@ -190,6 +199,12 @@
     if(language==='fr'&&(match=value.match(/^(\d+) ships?$/u)))replacement=`${match[1]} vaisseau${Number(match[1])>1?'x':''}`;
     if(language==='en'&&(match=value.match(/^Taille\s+(.+)$/u)))replacement=`Size ${match[1]}`;
     if(language==='fr'&&(match=value.match(/^Size\s+(.+)$/u)))replacement=`Taille ${match[1]}`;
+    if(language==='en'&&(match=value.match(/^il y a (\d+) (heure|heures|jour|jours|semaine|semaines)$/u)))replacement=`${match[1]} ${match[2].startsWith('semaine')?'week':match[2].startsWith('jour')?'day':'hour'}${Number(match[1])>1?'s':''} ago`;
+    if(language==='fr'&&!replacement&&(match=value.match(/^(\d+) (?:hour|hours|day|days|week|weeks) ago$/u)))replacement=`il y a ${match[1]} ${match[0].includes('week')?'semaine':match[0].includes('day')?'jour':'heure'}${Number(match[1])>1?'s':''}`;
+    if(language==='en'&&(match=value.match(/^Sources officielles RSI · actualisé (.+)$/u)))replacement=`Official RSI sources · updated ${match[1]}`;
+    if(language==='fr'&&!replacement&&(match=value.match(/^Official RSI sources · updated (.+)$/u)))replacement=`Sources officielles RSI · actualisé ${match[1]}`;
+    if(language==='en'&&(match=value.match(/^Persistent Universe\s*:\s*(Opérationnel|Dégradé|Hors ligne|Inconnu)\s*·\s*LIVE(.*)$/u)))replacement=`Persistent Universe: ${FR_TO_EN[match[1]]||match[1]} · LIVE${match[2]}`;
+    if(language==='fr'&&!replacement&&(match=value.match(/^Persistent Universe:\s*(Operational|Degraded|Offline|Unknown)\s*·\s*LIVE(.*)$/u)))replacement=`Persistent Universe : ${EN_TO_FR[match[1]]||match[1]} · LIVE${match[2]}`;
     if(language==='en'&&!replacement&&(match=value.match(/^il y a (\d+) (heure|heures|jour|jours)$/u)))replacement=`${match[1]} ${match[2].startsWith('jour')?'day':'hour'}${Number(match[1])>1?'s':''} ago`;
     if(language==='fr'&&!replacement&&(match=value.match(/^(\d+) (?:hour|hours|day|days) ago$/u)))replacement=`il y a ${match[1]} ${match[0].includes('day')?'jour':'heure'}${Number(match[1])>1?'s':''}`;
     return replacement&&replacement!==value?preserveWhitespace(raw,replacement):null;

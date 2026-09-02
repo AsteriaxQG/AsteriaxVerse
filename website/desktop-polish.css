@@ -105,5 +105,5 @@ button,input,select{font-family:var(--font-ui)}
 /* Fiche : seul le contenu défile, les contrôles du modal restent ancrés. */
 .modal-panel{display:flex;flex-direction:column;overflow:hidden!important}
 #itemDetail{min-height:0;overflow:auto;overscroll-behavior:contain}
-.modal-close{position:absolute!important;top:14px!important;right:16px!important;float:none!important;margin:0!important}
-@media (max-width:650px){.modal-close{top:11px!important;right:12px!important}}
+.modal-close{position:fixed!important;top:38px!important;right:calc((100vw - min(1080px, calc(100vw - 48px)))/2 + 32px)!important;float:none!important;margin:0!important}
+@media (max-width:900px){.modal-close{top:calc(6vh + 11px)!important;right:26px!important}}

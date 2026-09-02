@@ -180,7 +180,27 @@ class WebsiteCatalogTests(unittest.TestCase):
         self.assertIn("e.stopPropagation()", client)
         self.assertIn(".card-hangar-actions", styles)
         self.assertIn("max-width:calc(100% - 116px)", styles)
-        self.assertIn("shipcatalog.js?v=12", html)
+        self.assertIn("shipcatalog.js?v=13", html)
+
+    def test_desktop_polish_and_catalog_performance(self):
+        html = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
+        styles = (ROOT / "website" / "desktop-polish.css").read_text(encoding="utf-8")
+        performance = (ROOT / "website" / "performance.js").read_text(encoding="utf-8")
+        app = (ROOT / "website" / "app.js").read_text(encoding="utf-8")
+        catalog = (ROOT / "website" / "shipcatalog.js").read_text(encoding="utf-8")
+        self.assertIn("desktop-polish.css?v=1", html)
+        self.assertIn("performance.js?v=1", html)
+        self.assertIn("app.js?v=14", html)
+        self.assertIn("position:sticky!important", styles)
+        self.assertIn(".detail-head{margin:0 0 26px;padding:0 2px 28px", styles)
+        self.assertIn("grid-template-columns:repeat(4,minmax(0,1fr))", styles)
+        self.assertIn("scrollbar-gutter:stable", styles)
+        self.assertIn("const ITEM_PAGE_SIZE=48", performance)
+        self.assertIn("itemPagination", performance)
+        self.assertIn("list.slice(start,start+ITEM_PAGE_SIZE)", performance)
+        self.assertIn("const debounce=", app)
+        self.assertIn("debounce(()=>renderVehicles())", app)
+        self.assertIn('decoding="async"', catalog)
 
     def test_mobile_layout_is_touch_friendly_and_safe_area_aware(self):
         html = (ROOT / "website" / "index.html").read_text(encoding="utf-8")

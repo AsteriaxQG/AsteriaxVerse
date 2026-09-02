@@ -1,0 +1,86 @@
+/* Polissage desktop : grille plus stable, hiérarchie plus nette et fiches sans chevauchement. */
+.modal-panel{scrollbar-gutter:stable;overscroll-behavior:contain}
+.ship-card,.item-card,.news-card,.home-news-card{contain:layout paint style}
+.filters{position:sticky!important;z-index:24;isolation:isolate;backdrop-filter:none}
+
+@media (min-width:901px){
+  body{line-height:1.45}
+  .topbar{height:82px;padding-inline:max(28px,calc((100vw - 1480px)/2));border-color:#1a3341;box-shadow:0 12px 38px rgba(0,0,0,.18)}
+  .nav{gap:7px}
+  .nav-btn{min-height:42px;padding:10px 15px;border:1px solid transparent;transition:background-color .16s ease,border-color .16s ease,color .16s ease}
+  .nav-btn:hover{border-color:#203f50}
+  .nav-btn.active{border-color:#295268;background:linear-gradient(180deg,#12303e,#0e2430);box-shadow:inset 0 0 0 1px rgba(82,217,255,.05)}
+  .shell{max-width:1480px;padding:44px 32px 96px}
+  .active-view:not(#home){animation:desktop-view-in .18s ease-out both}
+  .section-head{align-items:center;margin-bottom:27px;padding-bottom:18px;border-bottom:1px solid #172f3c}
+  .section-head h2{font-size:clamp(34px,3vw,43px);line-height:1.05}
+  .result-count{padding:9px 13px;border:1px solid #1d3b4b;border-radius:999px;background:#0a1922;color:#9bb4c0;font-weight:700}
+  .filters{top:96px;grid-template-columns:minmax(320px,1.4fr) repeat(3,minmax(170px,.72fr));gap:12px;margin-bottom:30px;padding:14px;border:1px solid #183441;background:rgba(7,16,24,.96);box-shadow:0 16px 44px rgba(0,0,0,.24)}
+  .filters select,.searchbox{height:48px;border-color:#254655}
+  .filters select{min-width:0;padding-inline:14px;cursor:pointer}
+  .searchbox{padding-inline:16px}
+  .ship-status-filter{margin-top:2px;padding:13px 2px 1px!important;border-top:1px solid #16313e}
+  .ship-status-filter button{min-height:36px;padding-inline:14px!important}
+  .card-grid{grid-template-columns:repeat(auto-fill,minmax(292px,1fr));gap:20px}
+  .ship-card{display:grid;grid-template-rows:190px 1fr;min-height:438px;border-color:#1c3948;border-radius:18px;box-shadow:0 12px 30px rgba(0,0,0,.1)}
+  .ship-card:hover,.item-card:hover{transform:translateY(-2px);border-color:#39758c;box-shadow:0 18px 46px rgba(0,0,0,.28)}
+  .ship-image{height:190px}
+  .card-body{display:flex;min-width:0;flex-direction:column;padding:19px 20px 21px}
+  .card-body h3{margin:8px 0 19px;font-size:20px}
+  .card-meta{margin-top:auto;column-gap:14px;row-gap:11px;padding-top:16px}
+  .card-meta span{font-size:10px;letter-spacing:.45px}
+  .card-meta strong{font-size:13px}
+  .item-card{min-height:230px;border-color:#1c3948;border-radius:16px}
+  .equipment-grid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+  .catalog-pagination{margin-top:36px;padding-top:22px;border-top:1px solid #16303c}
+  .hangar-tabs{margin-bottom:22px}
+  .hangar-tabs button{min-height:42px;padding-inline:17px;font-weight:800}
+  .modal-backdrop{background:rgba(1,8,13,.8);backdrop-filter:blur(10px)}
+  .modal-panel{width:min(1080px,calc(100% - 48px));max-height:calc(100vh - 48px);margin:24px auto;padding:78px 38px 42px;border-color:#315568;border-radius:22px;background:linear-gradient(155deg,#0b1b25,#07131b);box-shadow:0 34px 110px rgba(0,0,0,.68)}
+  .modal-close{position:sticky;z-index:8;top:0;float:right;margin:-60px 0 12px;width:46px;height:46px;box-shadow:0 10px 30px rgba(0,0,0,.42)}
+  #itemDetail{clear:both}
+  .detail-vehicle-image{height:clamp(270px,30vw,390px);margin-bottom:30px;border:1px solid #193746;border-radius:18px;background:radial-gradient(circle at 50% 62%,#173c50,#07131b 70%)}
+  .detail-head{margin:0 0 26px;padding:0 2px 28px;border-bottom:1px solid #1b3846}
+  .detail-head .eyebrow{margin-bottom:10px}
+  .detail-head h2,.detail-title-row h2{margin:0;font-size:clamp(34px,4vw,48px);line-height:1.04;letter-spacing:-1.8px}
+  .detail-sub{margin:12px 0 0;font-size:14px}
+  .hangar-actions{gap:11px;margin:21px 0 0}
+  .hangar-actions .detail-fav{min-height:44px;padding:11px 16px;border-color:#315365}
+  .detail-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 30px}
+  .detail-stat{min-width:0;min-height:78px;padding:15px 16px;border-color:#203e4d;background:linear-gradient(145deg,#0f222d,#0b1a23)}
+  .detail-stat span{font-size:10px;letter-spacing:.5px}
+  .detail-stat strong{display:block;font-size:14px;line-height:1.35;overflow-wrap:anywhere}
+  .ship-description{margin-bottom:28px;padding:18px 20px}
+  #itemDetail>h3{margin:31px 0 12px;font-size:20px}
+  .shops{overflow:hidden;border:1px solid #1c3948;border-radius:13px;border-collapse:separate;border-spacing:0;background:#091820}
+  .shops th{background:#0d202a;letter-spacing:.55px}
+  .shops th,.shops td{padding:14px 16px}
+  .shops tbody tr:last-child td{border-bottom:0}
+  .rsi-source{margin-top:20px}
+  .rsi-source a{min-height:42px;align-items:center;padding-inline:15px;transition:border-color .16s ease,background-color .16s ease}
+  .rsi-source a:hover{border-color:#58b3d1;background:#12303e}
+  .news-header{padding:20px 22px}
+  #news .news-grid{gap:20px}
+}
+
+@media (min-width:901px) and (max-width:1180px){
+  .filters{grid-template-columns:minmax(280px,1fr) repeat(2,minmax(170px,.7fr))}
+  .filters .extra-sort{grid-column:2/4}
+  .detail-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+
+@media (min-width:651px) and (max-width:900px){
+  .filters{top:126px;background:rgba(7,16,24,.97);box-shadow:0 14px 34px rgba(0,0,0,.28)}
+}
+
+@media (max-width:650px){
+  .filters{top:98px;background:rgba(7,16,24,.98)!important;box-shadow:0 12px 30px rgba(0,0,0,.32)}
+}
+
+@keyframes desktop-view-in{from{opacity:.55;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .active-view:not(#home){animation:none}
+  .ship-card,.item-card,.news-card,.home-news-card,.ship-image img{transition:none!important}
+}

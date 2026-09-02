@@ -82,7 +82,7 @@ async function loadCatalog(){if(loading||ready)return;loading=true;try{
  const vehicleManufacturers=[...new Set(state.vehicles.map(v=>human(v.manufacturer)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr'));
  setOptions($('#vehicleManufacturer'),vehicleManufacturers,'Tous les constructeurs');$('#statVehicles').textContent=state.vehicles.length;if(viewFromHash()==='vehicles')renderVehicles();ready=true;document.dispatchEvent(new CustomEvent('asteriax:catalog-ready',{detail:{source:'catalog'}}));
 }catch(e){console.warn('Catalogue complet indisponible',e);if(state.db&&viewFromHash()==='vehicles')renderVehicles()}finally{loading=false}}
-function maybeLoadCatalog(view=viewFromHash()){if(state.db&&(view==='vehicles'||view==='hangar'))loadCatalog()}
+function maybeLoadCatalog(){if(state.db)loadCatalog()}
 document.addEventListener('asteriax:view-change',e=>maybeLoadCatalog(e.detail));
 document.addEventListener('asteriax:catalog-ready',e=>{if(e.detail?.source==='database')maybeLoadCatalog()});
 function wait(){if(state.db){bindHangarTabs();maybeLoadCatalog()}else setTimeout(wait,150)}wait();

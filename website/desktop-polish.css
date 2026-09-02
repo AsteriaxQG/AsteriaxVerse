@@ -112,12 +112,13 @@ button,input,select{font-family:var(--font-ui)}
 /* Barre supérieure : recherche centrée sur desktop, sans déplacer les menus. */
 @media (min-width:1101px){
   /* Quatre zones fixes : la recherche reste centrée sans recouvrir Accueil. */
-  .topbar{position:sticky;display:grid;grid-template-columns:minmax(220px,1fr) clamp(260px,26vw,360px) minmax(270px,1fr) auto;gap:18px}
+  .topbar{position:sticky;display:grid;grid-template-columns:minmax(220px,1fr) auto clamp(260px,26vw,360px) minmax(270px,1fr) auto;gap:18px}
   .brand{grid-column:1;margin-right:0;min-width:0}
-  .global-search{grid-column:2;position:static;transform:none;width:100%;justify-self:center}
-  .nav{grid-column:3;justify-self:end}
-  .language-toggle{grid-column:4;justify-self:end}
-  .nav-btn[data-view="home"]{position:absolute;top:50%;left:calc(50% - clamp(130px,13vw,180px) - 78px);z-index:2;transform:translateY(-50%)}
+  .global-search{grid-column:3;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:clamp(260px,26vw,360px);justify-self:center}
+  .nav{display:contents}
+  .nav-btn[data-view="home"]{grid-column:2;position:static;z-index:auto;transform:none;justify-self:center}
+  .nav-secondary{grid-column:4;display:flex;align-items:center;gap:7px;justify-self:end}
+  .language-toggle{grid-column:5;justify-self:end}
 }
 @media (min-width:901px) and (max-width:1100px){.topbar{gap:12px}.global-search{width:clamp(220px,25vw,280px);flex:0 1 280px}.nav{max-width:none}.nav-btn{padding-inline:8px}.language-toggle{flex:0 0 auto}}
 
@@ -134,8 +135,9 @@ button,input,select{font-family:var(--font-ui)}
 .language-toggle:focus-visible{outline:0;box-shadow:0 0 0 3px rgba(82,217,255,.14)}
 .language-code{color:#61d9f7;font-size:10px;font-weight:900}
 .language-label{white-space:nowrap}
+.nav-secondary{display:flex;align-items:center;gap:7px}
 @media (max-width:1000px){.language-toggle{padding-inline:9px}.language-label{display:none}}
-@media (max-width:650px){.language-toggle{position:absolute;top:8px;right:12px;min-height:40px;padding:8px}.topbar{padding-right:64px}}
+@media (max-width:650px){.nav-secondary{display:contents}.language-toggle{position:absolute;top:8px;right:12px;min-height:40px;padding:8px}.topbar{padding-right:64px}}
 
 /* Retour visuel immédiat pendant l'ouverture du catalogue. */
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}

@@ -28,6 +28,8 @@
     "Sources officielles RSI":"Official RSI sources",
     "actualisé":"updated",
     "Vaisseaux & véhicules":"Ships & vehicles",
+    "Nouveau":"New",
+    "Synchronisation de la date des données…":"Syncing data date…",
     "Boutiques référencées":"Referenced shops",
     "DERNIÈRES PUBLICATIONS":"LATEST POSTS",
     "Actualités Star Citizen":"Star Citizen news",

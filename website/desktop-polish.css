@@ -100,3 +100,10 @@ button,input,select{font-family:var(--font-ui)}
 @media (max-width:900px){.filters{padding:12px}.ship-status-filter{padding-top:12px!important}}
 @media (max-width:650px){.filters select,.searchbox{min-height:50px;font-size:15px}.ship-status-filter{padding-bottom:4px!important}.ship-status-filter button{min-height:40px;font-size:14px!important}}
 
+
+
+/* Fiche : seul le contenu défile, les contrôles du modal restent ancrés. */
+.modal-panel{display:flex;flex-direction:column;overflow:hidden!important}
+#itemDetail{min-height:0;overflow:auto;overscroll-behavior:contain}
+.modal-close{position:absolute!important;top:14px!important;right:16px!important;float:none!important;margin:0!important}
+@media (max-width:650px){.modal-close{top:11px!important;right:12px!important}}

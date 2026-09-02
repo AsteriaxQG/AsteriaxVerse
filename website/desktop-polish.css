@@ -107,3 +107,10 @@ button,input,select{font-family:var(--font-ui)}
 #itemDetail{min-height:0;overflow:auto;overscroll-behavior:contain}
 .modal-close{position:fixed!important;top:38px!important;right:calc((100vw - min(1080px, calc(100vw - 48px)))/2 + 32px)!important;float:none!important;margin:0!important}
 @media (max-width:900px){.modal-close{top:calc(6vh + 11px)!important;right:26px!important}}
+
+
+/* Barre supérieure : recherche centrée sur desktop, sans déplacer les menus. */
+@media (min-width:1101px){
+  .topbar{position:sticky}
+  .global-search{position:absolute;left:50%;transform:translateX(-50%);width:min(360px,28vw)}
+}

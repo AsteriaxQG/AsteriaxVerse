@@ -97,6 +97,8 @@ button,input,select{font-family:var(--font-ui)}
 .ship-status-filter b{display:inline-grid!important;min-width:22px;height:20px;place-items:center;margin:0!important;padding:0 6px;border:1px solid #2b5363;border-radius:999px;background:#08151d;color:#94b6c2!important;font-size:11px!important;font-variant-numeric:tabular-nums;line-height:1}
 .ship-status-filter button.active b{border-color:#4b9eb8;background:#0e2a38;color:#a9edff!important}
 .result-count{color:#a4bec9;font-weight:600;font-variant-numeric:tabular-nums}.card-kicker,.card-meta span{letter-spacing:.7px}.card-meta span{color:#7d9eab}.card-meta strong{color:#e5f3f7}
+.data-updated{display:flex;align-items:center;gap:7px;margin:9px 0 0;color:#7f9fac;font-size:12px;font-weight:650}.data-updated::before{content:"";width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:#55e2ad;box-shadow:0 0 10px rgba(85,226,173,.45)}
+.new-badge{display:inline-flex;align-items:center;min-height:27px;padding:5px 9px;border:1px solid #4ed9ff;border-radius:999px;background:rgba(10,61,78,.94);color:#bff4ff;font-size:9px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;backdrop-filter:blur(8px);box-shadow:0 0 18px rgba(82,217,255,.18)}
 @media (max-width:900px){.filters{padding:12px}.ship-status-filter{padding-top:12px!important}}
 @media (max-width:650px){.filters select,.searchbox{min-height:50px;font-size:15px}.ship-status-filter{padding-bottom:4px!important}.ship-status-filter button{min-height:40px;font-size:14px!important}}
 

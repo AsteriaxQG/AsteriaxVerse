@@ -53,7 +53,9 @@ class WebsiteCatalogTests(unittest.TestCase):
         self.assertIn("Prix en jeu", source)
         self.assertIn("Prix Pledge Store", source)
         self.assertIn("Indisponible actuellement", source)
+        self.assertIn("Indisponible · Collector", source)
         self.assertIn("Non vérifié", source)
+        self.assertIn("const normalizedName=v=>human(v?.name)||human(v?.name_full)||''", source)
         self.assertNotIn("Meilleur prix", source)
         self.assertNotIn("CURRENT_STATUS_OVERRIDES", source)
 
@@ -70,6 +72,7 @@ class WebsiteCatalogTests(unittest.TestCase):
         self.assertIn("snapshotStore", api)
         self.assertIn("RSI_STORE_SNAPSHOT_UPDATED_AT", api)
         self.assertIn("pledge_price:c.pledge_price", client)
+        self.assertIn("pledge_collector:c.pledge_collector===true", client)
         self.assertIn("$ US", client)
         for value in ("auec-asc", "auec-desc", "pledge-asc", "pledge-desc"):
             self.assertIn(f'value="{value}"', html)
@@ -98,6 +101,12 @@ class WebsiteCatalogTests(unittest.TestCase):
         self.assertGreaterEqual(len(offers), 240)
         self.assertEqual(700, offers["odyssey"]["price"])
         self.assertFalse(offers["odyssey"]["available"])
+        for key in ("auroramkicl", "auroramkies", "auroramkiln", "auroramkilx", "auroramkimr", "auroramkise"):
+            self.assertFalse(offers[key]["available"])
+            self.assertTrue(offers[key]["collector"])
+            self.assertEqual("historical", offers[key]["price_kind"])
+        self.assertTrue(offers["auroramkii"]["available"])
+        self.assertFalse(offers["auroramkii"].get("collector", False))
 
     def test_ship_detail_has_safe_image_fallback_and_full_dimensions(self):
         source = (ROOT / "website" / "shipcatalog.js").read_text(encoding="utf-8")
@@ -171,7 +180,7 @@ class WebsiteCatalogTests(unittest.TestCase):
         self.assertIn("e.stopPropagation()", client)
         self.assertIn(".card-hangar-actions", styles)
         self.assertIn("max-width:calc(100% - 116px)", styles)
-        self.assertIn("shipcatalog.js?v=11", html)
+        self.assertIn("shipcatalog.js?v=12", html)
 
     def test_mobile_layout_is_touch_friendly_and_safe_area_aware(self):
         html = (ROOT / "website" / "index.html").read_text(encoding="utf-8")

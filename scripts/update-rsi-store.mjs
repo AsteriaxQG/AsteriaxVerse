@@ -8,6 +8,9 @@ const output=fileURLToPath(new URL('../functions/api/ships-snapshot.js',import.m
 const query='query AsteriaxPledgeStore($query: SearchQuery) { store(name: "pledge", browse: true) { listing: search(query: $query) { resources { id title url nativePrice { amount discounted discountDescription } stock { unlimited qty level } ... on TySku { isWarbond } } } } }';
 const slug=value=>String(value??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
 const storeKey=value=>{const key=slug(value).replace(/\s+(?:2|10)\s+year$/,'').replace(/\s+(?:warbond|standalone ship|standalone vehicle)$/,'').replace(/[^a-z0-9]/g,'').replace(/starlifter/g,'');return({ptvbuggy:'ptv',ursarover:'ursa'}[key]||key)};
+// RSI a officiellement retiré les Aurora Mk I au profit du Mk II.
+// https://robertsspaceindustries.com/en/comm-link/transmission/21037-RSI-Aurora-Mk-I-Celebration
+const isRetiredPledgeKey=key=>/^auroramki(?!i)/.test(String(key||''));
 const headers={Accept:'application/json','Accept-Language':'en','User-Agent':'AsteriaxVerse-catalog-updater/1.1'};
 let previousEntries=[];
 try{
@@ -67,6 +70,7 @@ await mapLimit([...missing],6,async([key,ship])=>{
     if(offer?.price>0)index.set(key,{url,title:String(ship.name||''),available:offer.available,price:offer.price,currency:offer.currency,is_warbond:false,discounted:false,price_kind:offer.available?'current':'historical'});
   }catch(error){pageFailures++;console.warn(`Prix officiel non récupéré pour ${ship.name}: ${error?.message||error}`)}
 });
+for(const [key,offer] of index){if(isRetiredPledgeKey(key))index.set(key,{...offer,available:false,price_kind:'historical',collector:true})}
 const entries=[...index].sort(([a],[b])=>a.localeCompare(b,'en'));
 if(JSON.stringify(previousEntries)===JSON.stringify(entries)){
   console.log(`${entries.length} prix RSI vérifiés, aucun changement (${pageFailures} pages à réessayer).`);

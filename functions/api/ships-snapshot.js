@@ -1,5 +1,5 @@
 // Généré automatiquement depuis le Pledge Store officiel RSI.
-export const RSI_STORE_SNAPSHOT_UPDATED_AT="2026-09-02T00:04:10.728Z";
+export const RSI_STORE_SNAPSHOT_UPDATED_AT="2026-09-02T00:26:05.377Z";
 export const RSI_STORE_SNAPSHOT=[
   [
     "100i",
@@ -344,12 +344,13 @@ export const RSI_STORE_SNAPSHOT=[
     {
       "url": "https://robertsspaceindustries.com/pledge/Standalone-Ships/Aurora-Mk-I-CL",
       "title": "Aurora Mk I CL",
-      "available": true,
+      "available": false,
       "price": 45,
       "currency": "USD",
       "is_warbond": false,
       "discounted": false,
-      "price_kind": "current"
+      "price_kind": "historical",
+      "collector": true
     }
   ],
   [
@@ -357,12 +358,13 @@ export const RSI_STORE_SNAPSHOT=[
     {
       "url": "https://robertsspaceindustries.com/pledge/Standalone-Ships/Aurora-Mk-I-ES",
       "title": "Aurora Mk I ES",
-      "available": true,
+      "available": false,
       "price": 20,
       "currency": "USD",
       "is_warbond": false,
       "discounted": false,
-      "price_kind": "current"
+      "price_kind": "historical",
+      "collector": true
     }
   ],
   [
@@ -383,12 +385,13 @@ export const RSI_STORE_SNAPSHOT=[
     {
       "url": "https://robertsspaceindustries.com/pledge/Standalone-Ships/Aurora-Mk-I-LN",
       "title": "Aurora Mk I LN ",
-      "available": true,
+      "available": false,
       "price": 40,
       "currency": "USD",
       "is_warbond": false,
       "discounted": false,
-      "price_kind": "current"
+      "price_kind": "historical",
+      "collector": true
     }
   ],
   [
@@ -396,12 +399,13 @@ export const RSI_STORE_SNAPSHOT=[
     {
       "url": "https://robertsspaceindustries.com/pledge/Standalone-Ships/Aurora-Mk-I-LX",
       "title": "Aurora Mk I LX",
-      "available": true,
+      "available": false,
       "price": 35,
       "currency": "USD",
       "is_warbond": false,
       "discounted": false,
-      "price_kind": "current"
+      "price_kind": "historical",
+      "collector": true
     }
   ],
   [
@@ -409,12 +413,13 @@ export const RSI_STORE_SNAPSHOT=[
     {
       "url": "https://robertsspaceindustries.com/pledge/Standalone-Ships/Aurora-Mk-I-MR",
       "title": "Aurora Mk I MR",
-      "available": true,
+      "available": false,
       "price": 30,
       "currency": "USD",
       "is_warbond": false,
       "discounted": false,
-      "price_kind": "current"
+      "price_kind": "historical",
+      "collector": true
     }
   ],
   [
@@ -427,7 +432,8 @@ export const RSI_STORE_SNAPSHOT=[
       "currency": "USD",
       "is_warbond": false,
       "discounted": false,
-      "price_kind": "historical"
+      "price_kind": "historical",
+      "collector": true
     }
   ],
   [

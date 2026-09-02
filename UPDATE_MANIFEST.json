@@ -1,7 +1,7 @@
 {
   "version": "1.7.6",
   "download_url": "https://raw.githubusercontent.com/AsteriaxQG/AsteriaxVerse/main/AsteriaxVerse.exe",
-  "sha256": "37002145e63b68134d46f1fa7cc825f55a7ecfa708f9a73440d21c7c19ea9e12",
-  "size": 21956825,
+  "sha256": "cc51f4740c4e8d1c1937ca95edf4a44b94cc3b9957db7d4dcdfa5a5ba7f4cf8c",
+  "size": 21956971,
   "release_notes": "Correctif fluidité : passage fenêtre réduite / grand écran optimisé, navigation responsive allégée et rendu lourd des vaisseaux suspendu pendant le redimensionnement."
 }

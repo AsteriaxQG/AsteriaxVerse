@@ -40,6 +40,7 @@
     return Number.MAX_SAFE_INTEGER;
   }
   function updatedTime(ship){const t=Date.parse(ship?.updated||'');return Number.isFinite(t)?t:0}
+  function addedTime(ship){const t=Number(ship?.date_added);return Number.isFinite(t)&&t>0?t*1000:0}
   function findStateVehicle(feedShip){
     if(typeof state==='undefined'||!Array.isArray(state.vehicles))return null;
     const target=keyName(feedShip?.name);if(!target)return null;
@@ -52,9 +53,9 @@
     if(typeof state==='undefined'||!Array.isArray(state.vehicles)||!state.vehicles.length)return[];
     const picked=[],used=new Set();
     if(shipFeed.length){
-      const sorted=shipFeed.filter(v=>String(v.status).toLowerCase()==='flight-ready'&&!isGroundFeed(v)).sort((a,b)=>updatedTime(b)-updatedTime(a));
-      for(const feedShip of sorted){
-        const v=findStateVehicle(feedShip);if(!v||used.has(String(v.id))||Number(v.is_ground_vehicle)===1)continue;
+      const sorted=shipFeed.filter(v=>String(v.status).toLowerCase()==='flight-ready'&&!isGroundFeed(v)).map(feedShip=>({feedShip,v:findStateVehicle(feedShip)})).filter(x=>x.v&&!Number(x.v.is_ground_vehicle)).sort((a,b)=>addedTime(b.v)-addedTime(a.v)||updatedTime(b.feedShip)-updatedTime(a.feedShip));
+      for(const entry of sorted){
+        const v=entry.v;if(used.has(String(v.id)))continue;
         picked.push(v);used.add(String(v.id));if(picked.length===3)break;
       }
     }

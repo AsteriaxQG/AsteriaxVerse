@@ -5,7 +5,7 @@
   const knownLiveBuild=version=>String(version||'').startsWith('4.10')?'4.10.0-live.12519617':'';
   function decorate(el,value){if(!el)return;el.classList.add('status-indicator');el.classList.remove('indicator-good','indicator-warn','indicator-bad','indicator-neutral');el.classList.add(`indicator-${tone(value)}`)}
   function setText(id,value){const el=q(id);if(!el)return;el.textContent=value;decorate(el,value)}
-  function setEnv(prefix,data,label){const status=data?.status||(prefix==='Eptu'?'Hors ligne':'Non publié');const version=data?.version?`Alpha ${data.version}`:'—';const fallback=prefix==='Live'?knownLiveBuild(data?.version):'';const build=data?.build||fallback||label;const statusEl=q(`#home${prefix}Status`),versionEl=q(`#home${prefix}Version`),buildEl=q(`#home${prefix}Build`);if(statusEl){statusEl.textContent=status;decorate(statusEl,status)}if(versionEl)versionEl.textContent=version;if(buildEl){buildEl.textContent=build;buildEl.title=build}}
+  function setEnv(prefix,data,label){const status=data?.status||((prefix==='Ptu'||prefix==='Eptu')?'Hors ligne':'Non publié');const version=data?.version?`Alpha ${data.version}`:'—';const fallback=prefix==='Live'?knownLiveBuild(data?.version):'';const build=data?.build||fallback||label;const statusEl=q(`#home${prefix}Status`),versionEl=q(`#home${prefix}Version`),buildEl=q(`#home${prefix}Build`);if(statusEl){statusEl.textContent=status;decorate(statusEl,status)}if(versionEl)versionEl.textContent=version;if(buildEl){buildEl.textContent=build;buildEl.title=build}}
   async function refresh(){
     try{
       const res=await fetch(`/api/status?ui=${Date.now()}`,{headers:{Accept:'application/json'},cache:'no-store'});if(!res.ok)throw 0;const data=await res.json();if(!data.ok)throw 0;

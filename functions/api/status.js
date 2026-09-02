@@ -32,7 +32,7 @@ function overallFromServices(noIssues,...services){if(noIssues)return'Operationa
 
 export async function onRequestGet(context){
   const cache=caches.default;
-  const cacheKey=new Request(new URL('/api/status?cache=v8',context.request.url).toString());
+  const cacheKey=new Request(new URL('/api/status?cache=v9',context.request.url).toString());
   const cached=await cache.match(cacheKey);if(cached)return cached;
   const settled=await Promise.allSettled([fetchText(STATUS_URL),fetchText(PTU_FAQ),fetchText(PTU_INSTALL),fetchText(LOANER_MATRIX),fetchText(PATCH_FORUM)]);
   const statusBody=settled[0].status==='fulfilled'?text(settled[0].value):'';
@@ -50,7 +50,7 @@ export async function onRequestGet(context){
   const ptuBuilds=[...buildMatches(patchBody,'ptu'),...buildMatches(ptuInstallBody,'ptu'),...buildMatches(ptuFaqBody,'ptu')];
   const eptuBuilds=[...buildMatches(patchBody,'eptu'),...buildMatches(ptuInstallBody,'eptu'),...buildMatches(ptuFaqBody,'eptu')];
   const ptuRaw=ptuStateFrom(ptuInstallBody)||ptuStateFrom(ptuFaqBody)||'';
-  const ptuStatus=environmentStatus(ptuRaw,ptuBuilds.length>0);
+  const ptuStatus=ptuBuilds.length>0?environmentStatus(ptuRaw,true):'Hors ligne';
   const eptuStatus=eptuBuilds.length>0?environmentStatus('',true):'Hors ligne';
 
   const platform=serviceStatus(statusBody,'Platform');

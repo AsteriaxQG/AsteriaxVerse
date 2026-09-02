@@ -104,7 +104,7 @@
 
   function tone(value=''){const s=norm(value);if(s.includes('operationnel')||s.includes('en ligne'))return'good';if(s.includes('incident majeur')||s.includes('hors ligne'))return'bad';if(s.includes('degrade')||s.includes('maintenance')||s.includes('incident partiel'))return'warn';return''}
   function setEnv(prefix,data,label){
-    const status=data?.status||(prefix==='Eptu'?'Hors ligne':'Inconnu'),version=data?.version?`Alpha ${data.version}`:'—',build=data?.build||label;
+    const status=data?.status||((prefix==='Ptu'||prefix==='Eptu')?'Hors ligne':'Inconnu'),version=data?.version?`Alpha ${data.version}`:'—',build=data?.build||label;
     const statusEl=q(`#home${prefix}Status`),versionEl=q(`#home${prefix}Version`),buildEl=q(`#home${prefix}Build`);
     if(statusEl){statusEl.textContent=status;statusEl.className=tone(status)}if(versionEl)versionEl.textContent=version;if(buildEl){buildEl.textContent=build;buildEl.title=build}
   }

@@ -1,3 +1,5 @@
+const REMOVED_VEHICLE_KEYS=new Set(['ballista dunestalker','anvil ballista dunestalker','ballista snowblind','anvil ballista snowblind']);
+const removedVehicle=v=>[v?.name,v?.name_full].some(name=>{const key=String(name??'').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();return REMOVED_VEHICLE_KEYS.has(key)});
 const state={db:null,vehicles:[],items:[],manufacturers:[],locations:[],favorites:new Set(JSON.parse(localStorage.getItem('ax_favorites')||'[]')),priceDelta:{}};
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const debounce=(fn,delay=120)=>{let timer;return(...args)=>{clearTimeout(timer);timer=setTimeout(()=>fn(...args),delay)}};
@@ -45,3 +47,17 @@ function ensureCatalog(){if(!catalogBoot)catalogBoot=boot();return catalogBoot}
 const catalogIntent=()=>ensureCatalog();
 $$('.nav-btn[data-view="vehicles"],.nav-btn[data-view="equipment"],.nav-btn[data-view="hangar"],[data-go="vehicles"],[data-go="equipment"],#globalSearch').forEach(element=>{element.addEventListener('pointerenter',catalogIntent,{once:true,passive:true});element.addEventListener('focus',catalogIntent,{once:true})});
 if(viewFromHash()==='home')setTimeout(ensureCatalog,150);else ensureCatalog();
+
+// Défense supplémentaire pour les copies de base encore en cache : ces deux variantes
+// ne doivent jamais réapparaître dans les listes, la recherche ou une fiche directe.
+document.addEventListener('asteriax:catalog-ready',()=>{
+  const filtered=state.vehicles.filter(v=>!removedVehicle(v));
+  if(filtered.length===state.vehicles.length)return;
+  state.vehicles=filtered;
+  $('#statVehicles').textContent=state.vehicles.length.toLocaleString('fr-FR');
+  setOptions($('#vehicleManufacturer'),[...new Set(state.vehicles.map(v=>v.manufacturer).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr')),'Tous les constructeurs');
+  renderActiveCatalog();
+});
+const openVehicleOriginal=openVehicle;
+openVehicle=id=>{const row=state.vehicles.find(v=>String(v.id)===String(id));if(row&&!removedVehicle(row))openVehicleOriginal(id)};
+

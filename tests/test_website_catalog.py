@@ -1,3 +1,4 @@
+import json
 import sqlite3
 import unittest
 from pathlib import Path
@@ -84,8 +85,17 @@ class WebsiteCatalogTests(unittest.TestCase):
         self.assertIn("RSI_STORE_SNAPSHOT", snapshot)
         self.assertIn("robertsspaceindustries.com", updater)
         self.assertIn("nativePrice", updater)
+        self.assertIn("application\\/ld\\+json", updater)
+        self.assertIn("historical", updater)
         self.assertIn('cron: "17 */6 * * *"', workflow)
         self.assertIn("node scripts/update-rsi-store.mjs", workflow)
+        for ship in ("Endeavor", "Arrastra", "Odyssey"):
+            self.assertIn(f'"title": "{ship}"', snapshot)
+        entries = json.loads(snapshot.split("RSI_STORE_SNAPSHOT=", 1)[1].rsplit(";", 1)[0])
+        offers = dict(entries)
+        self.assertGreaterEqual(len(offers), 240)
+        self.assertEqual(700, offers["odyssey"]["price"])
+        self.assertFalse(offers["odyssey"]["available"])
 
     def test_ship_detail_has_safe_image_fallback_and_full_dimensions(self):
         source = (ROOT / "website" / "shipcatalog.js").read_text(encoding="utf-8")
@@ -159,7 +169,7 @@ class WebsiteCatalogTests(unittest.TestCase):
         self.assertIn("e.stopPropagation()", client)
         self.assertIn(".card-hangar-actions", styles)
         self.assertIn("max-width:calc(100% - 116px)", styles)
-        self.assertIn("shipcatalog.js?v=10", html)
+        self.assertIn("shipcatalog.js?v=11", html)
 
     def test_mobile_layout_is_touch_friendly_and_safe_area_aware(self):
         html = (ROOT / "website" / "index.html").read_text(encoding="utf-8")

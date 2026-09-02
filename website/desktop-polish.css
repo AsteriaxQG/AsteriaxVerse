@@ -109,16 +109,16 @@ button,input,select{font-family:var(--font-ui)}
 @media (max-width:900px){.modal-close{top:calc(6vh + 11px)!important;right:26px!important}}
 
 
-/* Barre supérieure : recherche centrée sur desktop, sans déplacer les menus. */
+/* Barre supérieure : deux lignes équilibrées sur desktop. La recherche reste
+   réellement centrée et Accueil dispose toujours de sa propre zone. */
 @media (min-width:1101px){
-  /* Quatre zones fixes : la recherche reste centrée sans recouvrir Accueil. */
-  .topbar{position:sticky;display:grid;grid-template-columns:minmax(220px,1fr) auto clamp(260px,26vw,360px) minmax(270px,1fr) auto;gap:18px}
-  .brand{grid-column:1;margin-right:0;min-width:0}
-  .global-search{grid-column:3;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:clamp(260px,26vw,360px);justify-self:center}
+  .topbar{position:sticky;display:grid;height:auto;min-height:116px;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);grid-template-rows:56px 46px;column-gap:14px;row-gap:0;padding-top:7px;padding-bottom:7px}
+  .brand{grid-column:1;grid-row:1;margin-right:0;min-width:0;justify-self:start}
+  .global-search{grid-column:2;grid-row:2;position:static;width:clamp(300px,31vw,430px);transform:none;justify-self:center}
   .nav{display:contents}
-  .nav-btn[data-view="home"]{grid-column:2;position:static;z-index:auto;transform:none;justify-self:center}
-  .nav-secondary{grid-column:4;display:flex;align-items:center;gap:7px;justify-self:end}
-  .language-toggle{grid-column:5;justify-self:end}
+  .nav-btn[data-view="home"]{grid-column:1;grid-row:2;position:static;z-index:auto;transform:none;justify-self:end}
+  .nav-secondary{grid-column:2;grid-row:1;display:flex;align-items:center;gap:7px;justify-self:center}
+  .language-toggle{grid-column:3;grid-row:1;justify-self:end}
 }
 @media (min-width:901px) and (max-width:1100px){.topbar{gap:12px}.global-search{width:clamp(220px,25vw,280px);flex:0 1 280px}.nav{max-width:none}.nav-btn{padding-inline:8px}.language-toggle{flex:0 0 auto}}
 

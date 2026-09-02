@@ -59,7 +59,7 @@
         picked.push(v);used.add(String(v.id));if(picked.length===3)break;
       }
     }
-    const fallback=state.vehicles.filter(v=>!used.has(String(v.id))&&Number(v.is_ground_vehicle)!==1&&statusGroup(v)==='flight').sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'fr',{numeric:true}));
+    const fallback=state.vehicles.filter(v=>!used.has(String(v.id))&&Number(v.is_ground_vehicle)!==1&&statusGroup(v)==='flight').sort((a,b)=>addedTime(b)-addedTime(a)||updatedTime(b)-updatedTime(a));
     while(picked.length<3&&fallback.length){const v=fallback.shift();if(!used.has(String(v.id))){picked.push(v);used.add(String(v.id))}}
     return picked.slice(0,3);
   }

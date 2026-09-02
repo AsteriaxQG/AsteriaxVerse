@@ -37,7 +37,7 @@
   .hangar-tabs button{min-height:42px;padding-inline:17px;font-weight:800}
   .modal-backdrop{background:rgba(1,8,13,.8);backdrop-filter:blur(10px)}
   .modal-panel{width:min(1080px,calc(100% - 48px));max-height:calc(100vh - 48px);margin:24px auto;padding:78px 38px 42px;border-color:#315568;border-radius:22px;background:linear-gradient(155deg,#0b1b25,#07131b);box-shadow:0 34px 110px rgba(0,0,0,.68)}
-  .modal-close{position:sticky;z-index:8;top:0;float:right;margin:-60px 0 12px;width:46px;height:46px;box-shadow:0 10px 30px rgba(0,0,0,.42)}
+  .modal-close{z-index:8;width:46px;height:46px;box-shadow:0 10px 30px rgba(0,0,0,.42)}
   #itemDetail{clear:both}
   .detail-vehicle-image{height:clamp(270px,30vw,390px);margin-bottom:30px;border:1px solid #193746;border-radius:18px;background:radial-gradient(circle at 50% 62%,#173c50,#07131b 70%)}
   .detail-head{margin:0 0 26px;padding:0 2px 28px;border-bottom:1px solid #1b3846}
@@ -114,3 +114,21 @@ button,input,select{font-family:var(--font-ui)}
   .topbar{position:sticky}
   .global-search{position:absolute;left:50%;transform:translateX(-50%);width:min(360px,28vw)}
 }
+@media (min-width:1101px) and (max-width:1399px){.global-search{width:clamp(210px,18vw,250px)}}
+
+/* Signature plus nette : aucune ombre ni micro-texte flou dans l'identité. */
+.brand>span{display:grid;gap:3px;line-height:1}
+.brand strong{font-size:18px;font-weight:800;letter-spacing:-.25px;line-height:1.05;color:#effcff;text-shadow:none}
+.brand small{display:flex;align-items:center;gap:7px;margin:0;color:#a8c4cf;font-size:11px;font-weight:700;line-height:1.15;letter-spacing:.75px;text-transform:none;text-shadow:none}
+.brand small::before{content:"";width:13px;height:1px;flex:0 0 13px;background:#43c9ee}
+.global-search input,.filters input,.filters select{font-synthesis:none;text-shadow:none}
+
+/* Retour visuel immédiat pendant l'ouverture du catalogue. */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.catalog-skeleton{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+.catalog-skeleton i{display:block;min-height:438px;border:1px solid #1b3745;border-radius:18px;background:linear-gradient(105deg,#0a1821 22%,#102936 38%,#0a1821 54%);background-size:220% 100%;animation:catalog-shimmer 1.15s ease-in-out infinite}
+@keyframes catalog-shimmer{to{background-position:-220% 0}}
+@media (max-width:1180px){.catalog-skeleton{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:900px){.catalog-skeleton{grid-template-columns:repeat(2,minmax(0,1fr))}.brand small{font-size:10.5px}}
+@media (max-width:650px){.catalog-skeleton{grid-template-columns:1fr}.catalog-skeleton i{min-height:390px}.catalog-skeleton i:nth-of-type(n+3){display:none}}
+@media (prefers-reduced-motion:reduce){.catalog-skeleton i{animation:none;background:#0a1821}}

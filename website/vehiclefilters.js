@@ -94,6 +94,7 @@
     const start=(currentPage-1)*PAGE_SIZE;
     document.querySelector('#vehicleCount').textContent=list.length?`${list.length} résultat${list.length>1?'s':''} · page ${currentPage} sur ${totalPages}`:'0 résultat';
     grid.innerHTML=list.length?list.slice(start,start+PAGE_SIZE).map(vehicleCard).join(''):'<div class="empty">Aucun vaisseau ne correspond à ces filtres.</div>';
+    grid.classList.remove('catalog-loading');grid.setAttribute('aria-busy','false');
     bindCards(grid);
     renderPager(list.length?totalPages:0);
   };

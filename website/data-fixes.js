@@ -61,5 +61,7 @@
 
   function run(root=document){cleanObjectText(root);namedFallback(root)}
   run();
-  new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(run))).observe(document.body,{childList:true,subtree:true});
+  const pendingRoots=new Set();let scheduled=false;
+  function schedule(root){pendingRoots.add(root);if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;const roots=[...pendingRoots];pendingRoots.clear();roots.forEach(run)})}
+  new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(schedule))).observe(document.body,{childList:true,subtree:true});
 })();

@@ -152,6 +152,17 @@ class WebsiteCatalogTests(unittest.TestCase):
         self.assertIn("il y a ${amount}", news_client)
         self.assertNotIn("replace(/\\ban?\\b/gi,'1')", news_client)
 
+    def test_eptu_without_a_published_build_is_offline(self):
+        status_api = (ROOT / "functions" / "api" / "status.js").read_text(encoding="utf-8")
+        status_ui = (ROOT / "website" / "status-ui.js").read_text(encoding="utf-8")
+        home = (ROOT / "website" / "home.js").read_text(encoding="utf-8")
+        html = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
+        self.assertIn("eptuBuilds.length>0?environmentStatus('',true):'Hors ligne'", status_api)
+        self.assertIn("prefix==='Eptu'?'Hors ligne':'Non publié'", status_ui)
+        self.assertIn("prefix==='Eptu'?'Hors ligne':'Inconnu'", home)
+        self.assertIn("home.js?v=4", html)
+        self.assertIn("status-ui.js?v=3", html)
+
     def test_current_view_survives_reload(self):
         app = (ROOT / "website" / "app.js").read_text(encoding="utf-8")
         self.assertIn("viewFromHash", app)

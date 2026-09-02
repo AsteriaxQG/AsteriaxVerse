@@ -39,7 +39,6 @@
     }
     return Number.MAX_SAFE_INTEGER;
   }
-  function updateAge(ship){const raw=String(ship?.updated||''),match=raw.match(/(\d+|an?|one)\s+(minute|hour|day|week|month|year)/i);if(match){const amount=/^(?:a|an|one)$/i.test(match[1])?1:Number(match[1]),unit={minute:6e4,hour:36e5,day:864e5,week:6048e5,month:26298e5,year:315576e5}[match[2].toLowerCase()];return amount*unit}const stamp=Date.parse(raw);return Number.isFinite(stamp)?Math.max(0,Date.now()-stamp):Number.MAX_SAFE_INTEGER}
   function addedTime(ship){const t=Number(ship?.date_added);return Number.isFinite(t)&&t>0?t*1000:0}
   function findStateVehicle(feedShip){
     if(typeof state==='undefined'||!Array.isArray(state.vehicles))return null;
@@ -63,9 +62,11 @@
 
   function pickFeaturedShips(){
     if(typeof state==='undefined'||!Array.isArray(state.vehicles)||!state.vehicles.length)return[];
+    const officialNewest=['s65stingray','basher','tyilui'].map(wanted=>state.vehicles.find(v=>[v.name,v.name_full].some(name=>keyName(name)===wanted))).filter(Boolean);
+    if(officialNewest.length===3)return officialNewest;
     const picked=[],used=new Set();
     if(shipFeed.length){
-      const sorted=shipFeed.filter(v=>String(v.status).toLowerCase()==='flight-ready'&&!isGroundFeed(v)).map(feedShip=>({feedShip,v:findStateVehicle(feedShip)})).filter(x=>x.v&&!Number(x.v.is_ground_vehicle)).sort((a,b)=>updateAge(a.feedShip)-updateAge(b.feedShip)||String(a.feedShip.name||'').localeCompare(String(b.feedShip.name||''),'fr',{numeric:true}));
+      const sorted=shipFeed.filter(v=>String(v.status).toLowerCase()==='flight-ready'&&!isGroundFeed(v)).map(feedShip=>({feedShip,v:findStateVehicle(feedShip)})).filter(x=>x.v&&!Number(x.v.is_ground_vehicle)).sort((a,b)=>addedTime(b.v)-addedTime(a.v));
       for(const entry of sorted){
         const v=entry.v;if(used.has(String(v.id)))continue;
         picked.push(v);used.add(String(v.id));if(picked.length===3)break;

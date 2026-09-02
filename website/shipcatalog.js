@@ -74,9 +74,11 @@ async function loadCatalog(){if(loading||ready)return;loading=true;try{
  }
  state.vehicles=merged.sort((a,b)=>human(a.name).localeCompare(human(b.name),'fr',{numeric:true}));
  state.manufacturers=[...new Set([...state.manufacturers.map(x=>human(x.name)),...state.vehicles.map(v=>human(v.manufacturer)).filter(Boolean)])].sort((a,b)=>a.localeCompare(b)).map(name=>({name,n:state.vehicles.filter(v=>human(v.manufacturer)===name).length+state.items.filter(v=>human(v.manufacturer)===name).length}));
- setOptions($('#vehicleManufacturer'),state.manufacturers.map(x=>x.name),'Tous les constructeurs');$('#statVehicles').textContent=state.vehicles.length;if(viewFromHash()==='vehicles')renderVehicles();ready=true;document.dispatchEvent(new CustomEvent('asteriax:catalog-ready'));
+ const vehicleManufacturers=[...new Set(state.vehicles.map(v=>human(v.manufacturer)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr'));
+ setOptions($('#vehicleManufacturer'),vehicleManufacturers,'Tous les constructeurs');$('#statVehicles').textContent=state.vehicles.length;if(viewFromHash()==='vehicles')renderVehicles();ready=true;document.dispatchEvent(new CustomEvent('asteriax:catalog-ready'));
 }catch(e){console.warn('Catalogue complet indisponible',e)}finally{loading=false}}
 function maybeLoadCatalog(view=viewFromHash()){if(state.db&&(view==='vehicles'||view==='hangar'))loadCatalog()}
 document.addEventListener('asteriax:view-change',e=>maybeLoadCatalog(e.detail));
 function wait(){if(state.db){bindHangarTabs();maybeLoadCatalog()}else setTimeout(wait,150)}wait();
 })();
+

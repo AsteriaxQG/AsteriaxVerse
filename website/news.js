@@ -27,8 +27,7 @@
     loading=true;refresh?.classList.add('loading');if(refresh)refresh.disabled=true;status.textContent='Actualisation du flux officiel RSI…';
     try{
       const url=`/api/news?${force?'refresh=1&':''}ts=${Date.now()}`;
-      const res=await fetch(url,{headers:{Accept:'application/json'},cache:'no-store'});if(!res.ok)throw new Error('API indisponible');
-      const data=await res.json();if(!data.ok||!data.items?.length)throw new Error('Aucune actualité');
+      const data=await window.AsteriaxApi.getJson(url,{force,ttlMs:120000});if(!data.ok||!data.items?.length)throw new Error('Aucune actualité');
       items=data.items;lastLoaded=Date.now();render();
       const d=new Date(data.updatedAt);status.textContent=`${items.length} publications officielles · actualisé ${d.toLocaleString('fr-FR')}${data.live===false?' · mode secours':''}`;
       clearTimeout(autoRefreshTimer);autoRefreshTimer=setTimeout(()=>load(true),Math.max(300,Number(data.refreshSeconds)||300)*1000);
@@ -40,5 +39,6 @@
   filters.forEach(b=>b.addEventListener('click',()=>{active=b.dataset.newsFilter;render()}));
   refresh?.addEventListener('click',()=>load(true));
   document.querySelectorAll('.nav-btn[data-view="news"],[data-go="news"]').forEach(b=>b.addEventListener('click',()=>setTimeout(()=>load(false),80)));
-  load(false);
+  if(section.classList.contains('active-view'))load(false);
+  else status.textContent='Le flux complet sera préparé à l’ouverture de cet onglet.';
 })();

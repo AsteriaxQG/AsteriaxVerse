@@ -6,12 +6,10 @@
   ]);
   const NON_HULL=new Set(['valkyrie liberator edition','valkyrie 2948 liberator edition','anvil valkyrie liberator edition','anvil valkyrie 2948 liberator edition']);
   const norm=v=>String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
-  let attempts=0;
   function apply(){
-    attempts++;
     let vehicles;
     try{vehicles=state?.vehicles}catch{}
-    if(!Array.isArray(vehicles)){if(attempts<80)setTimeout(apply,150);return;}
+    if(!Array.isArray(vehicles)||!vehicles.length)return false;
     let changed=false;
     for(let i=vehicles.length-1;i>=0;i--){
       const v=vehicles[i],n=norm(v.name_full||v.name);
@@ -19,8 +17,11 @@
       const status=VERIFIED_STATUS.get(n);
       if(status&&v.production_status!==status){v.production_status=status;changed=true;}
     }
-    if(changed){try{renderVehicles()}catch{}try{renderHangar()}catch{}}
-    if(attempts<80)setTimeout(apply,250);
+    if(changed){try{renderActiveCatalog()}catch{}}
+    return true;
   }
-  apply();
+  let attempts=0;
+  function wait(){attempts++;if(!apply()&&attempts<80)setTimeout(wait,150)}
+  wait();
+  document.addEventListener('asteriax:catalog-ready',apply);
 })();

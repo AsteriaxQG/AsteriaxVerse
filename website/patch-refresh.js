@@ -46,9 +46,7 @@
     if(manual)showFeedback('Vérification…','checking',0);
     try{
       const url=`/api/news?${force?'refresh=1&':''}patch_refresh=${Date.now()}`;
-      const res=await fetch(url,{headers:{Accept:'application/json'},cache:'no-store'});
-      if(!res.ok)throw new Error('Flux RSI indisponible');
-      const data=await res.json();
+      const data=await window.AsteriaxApi.getJson(url,{force,ttlMs:120000});
       const items=Array.isArray(data.items)?data.items:[];
       const patch=items.find(x=>x.category==='PATCH')||items[0];
       if(!patch)throw new Error('Aucun patch trouvé');

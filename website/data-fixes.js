@@ -1,26 +1,28 @@
 (()=>{
   const bad=/^\s*\[object Object\]\s*$/i;
 
+  function cleanTextNode(node){
+    if(!bad.test(node.nodeValue||''))return;
+    const el=node.parentElement;
+    if(!el)return;
+    const card=el.closest('.ship-card,.vehicle-card,[data-vehicle-id]');
+    const detail=el.closest('.detail-stat');
+    let replacement='—';
+    if(card){
+      const name=card.querySelector('h3,[data-ship-name],.ship-name,.vehicle-name')?.textContent?.trim();
+      if(name)replacement=name;
+    }else if(detail){
+      const label=detail.querySelector('span,small,.label')?.textContent?.trim()?.toLowerCase()||'';
+      if(label.includes('statut'))replacement='Statut non renseigné';
+      else if(label.includes('taille'))replacement='Non renseignée';
+    }
+    node.nodeValue=replacement;
+  }
+
   function cleanObjectText(root=document){
+    if(root.nodeType===Node.TEXT_NODE){cleanTextNode(root);return}
     const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
-    const nodes=[];
-    while(walker.nextNode()) if(bad.test(walker.currentNode.nodeValue||'')) nodes.push(walker.currentNode);
-    nodes.forEach(node=>{
-      const el=node.parentElement;
-      if(!el)return;
-      const card=el.closest('.ship-card,.vehicle-card,[data-vehicle-id]');
-      const detail=el.closest('.detail-stat');
-      let replacement='—';
-      if(card){
-        const name=card.querySelector('h3,[data-ship-name],.ship-name,.vehicle-name')?.textContent?.trim();
-        if(name) replacement=name;
-      }else if(detail){
-        const label=detail.querySelector('span,small,.label')?.textContent?.trim()?.toLowerCase()||'';
-        if(label.includes('statut')) replacement='Statut non renseigné';
-        else if(label.includes('taille')) replacement='Non renseignée';
-      }
-      node.nodeValue=replacement;
-    });
+    while(walker.nextNode())cleanTextNode(walker.currentNode);
   }
 
   function proxyUrl(src){
@@ -44,7 +46,10 @@
   },true);
 
   function namedFallback(root=document){
-    root.querySelectorAll('.image-fallback').forEach(box=>{
+    const boxes=[];
+    if(root.matches?.('.image-fallback'))boxes.push(root);
+    if(root.querySelectorAll)boxes.push(...root.querySelectorAll('.image-fallback'));
+    boxes.forEach(box=>{
       const card=box.closest('.ship-card,.vehicle-card,[data-vehicle-id]');
       const name=card?.querySelector('h3,[data-ship-name],.ship-name,.vehicle-name')?.textContent?.trim();
       if(name&&box.dataset.axNamed!=='1'){
@@ -54,7 +59,7 @@
     });
   }
 
-  function run(){cleanObjectText();namedFallback();}
+  function run(root=document){cleanObjectText(root);namedFallback(root)}
   run();
-  new MutationObserver(run).observe(document.body,{childList:true,subtree:true});
+  new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(run))).observe(document.body,{childList:true,subtree:true});
 })();

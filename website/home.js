@@ -89,8 +89,7 @@
   async function loadHomeNews(){
     const grid=q('#homeNewsGrid');if(!grid)return;
     try{
-      const res=await fetch(`/api/news?ts=${Date.now()}`,{headers:{Accept:'application/json'},cache:'no-store'});if(!res.ok)throw new Error('API indisponible');
-      const data=await res.json();if(!data.ok||!Array.isArray(data.items)||!data.items.length)throw new Error('Aucune actualité');
+      const data=await window.AsteriaxApi.getJson('/api/news',{ttlMs:120000});if(!data.ok||!Array.isArray(data.items)||!data.items.length)throw new Error('Aucune actualité');
       homeNewsItems=data.items;grid.innerHTML=homeNewsItems.slice(0,3).map(newsCard).join('');updateHeroPatch(homeNewsItems);renderNow(homeNewsItems);renderFeaturedShips();
     }catch(e){
       grid.innerHTML=`<a class="home-news-card" href="https://robertsspaceindustries.com/en/comm-link" target="_blank" rel="noopener"><div class="home-news-image"><span>COMM-LINK</span></div><div class="home-news-body"><div class="home-news-meta"><span>ACTU</span></div><h3>Actualités officielles Star Citizen</h3><p>Le flux automatique est temporairement indisponible.</p></div></a>`;
@@ -99,7 +98,7 @@
   }
 
   async function loadShipFeed(){
-    try{const res=await fetch(`/api/ships?home=${Date.now()}`,{headers:{Accept:'application/json'},cache:'no-store'});if(!res.ok)throw 0;const data=await res.json();if(data.ok&&Array.isArray(data.items)){shipFeed=data.items;renderFeaturedShips()}}catch(e){console.warn('Derniers Flight Ready indisponibles',e)}
+    try{const data=await window.AsteriaxApi.getJson('/api/ships',{ttlMs:120000});if(data.ok&&Array.isArray(data.items)){shipFeed=data.items;renderFeaturedShips()}}catch(e){console.warn('Derniers Flight Ready indisponibles',e)}
   }
 
   function tone(value=''){const s=norm(value);if(s.includes('operationnel')||s.includes('en ligne'))return'good';if(s.includes('incident majeur')||s.includes('hors ligne'))return'bad';if(s.includes('degrade')||s.includes('maintenance')||s.includes('incident partiel'))return'warn';return''}
@@ -110,7 +109,7 @@
   }
   async function loadUniverseStatus(){
     try{
-      const res=await fetch(`/api/status?ts=${Date.now()}`,{headers:{Accept:'application/json'},cache:'no-store'});if(!res.ok)throw new Error('Statut RSI indisponible');const data=await res.json();if(!data.ok)throw new Error('Statut incomplet');
+      const data=await window.AsteriaxApi.getJson('/api/status',{ttlMs:15000});if(!data.ok)throw new Error('Statut incomplet');
       setEnv('Live',data.live,'Version LIVE officielle');setEnv('Ptu',data.ptu,'Public Test Universe');setEnv('Eptu',data.eptu,'Experimental PTU');
       if(q('#homePuStatus'))q('#homePuStatus').textContent=data.services?.persistentUniverse||'Inconnu';if(q('#homePlatformStatus'))q('#homePlatformStatus').textContent=data.services?.platform||'Inconnu';if(q('#homeArenaStatus'))q('#homeArenaStatus').textContent=data.services?.arenaCommander||'Inconnu';
       const overall=q('#verseOverallStatus'),overallText=data.live?.status||data.services?.persistentUniverse||'Inconnu';if(overall){overall.textContent=overallText;overall.className=`verse-overall ${tone(overallText)}`}

@@ -56,8 +56,7 @@ openVehicle=function(id){
 renderHangar=function(){const list=state.vehicles.filter(v=>hangarMode==='owned'?owned.has(key(v)):wished.has(key(v)));$('#hangarCount').textContent=`${list.length} vaisseau${list.length>1?'x':''}`;$('#hangarGrid').innerHTML=list.length?list.map(vehicleCard).join(''):`<div class="empty">${hangarMode==='owned'?'Aucun vaisseau enregistré dans Mes vaisseaux.':'Ta Wishlist est vide.'}</div>`;bindCards($('#hangarGrid'))}
 function bindHangarTabs(){document.querySelectorAll('[data-hangar-level]').forEach(b=>b.addEventListener('click',()=>{hangarMode=b.dataset.hangarLevel;document.querySelectorAll('[data-hangar-level]').forEach(x=>x.classList.toggle('active',x===b));renderHangar()}))}
 async function loadCatalog(){try{
- const r=await fetch('/api/ships',{headers:{Accept:'application/json'},cache:'no-store'});if(!r.ok)throw 0;
- const data=await r.json();if(!data.ok||!data.items?.length)throw 0;
+ const data=await window.AsteriaxApi.getJson('/api/ships',{ttlMs:120000});if(!data.ok||!data.items?.length)throw 0;
  const local=state.vehicles.filter(v=>!NON_HULL_ENTRIES.has(catalogKey(v)));
  const byName=new Map();for(const v of local){const k=catalogMatchKey(normalizedName(v));if(k&&!byName.has(k))byName.set(k,v)}
  const merged=[],seen=new Set();
@@ -75,7 +74,7 @@ async function loadCatalog(){try{
  }
  state.vehicles=merged.sort((a,b)=>human(a.name).localeCompare(human(b.name),'fr',{numeric:true}));
  state.manufacturers=[...new Set([...state.manufacturers.map(x=>human(x.name)),...state.vehicles.map(v=>human(v.manufacturer)).filter(Boolean)])].sort((a,b)=>a.localeCompare(b)).map(name=>({name,n:state.vehicles.filter(v=>human(v.manufacturer)===name).length+state.items.filter(v=>human(v.manufacturer)===name).length}));
- setOptions($('#vehicleManufacturer'),state.manufacturers.map(x=>x.name),'Tous les constructeurs');$('#statVehicles').textContent=state.vehicles.length;renderVehicles();ready=true;
+ setOptions($('#vehicleManufacturer'),state.manufacturers.map(x=>x.name),'Tous les constructeurs');$('#statVehicles').textContent=state.vehicles.length;if(viewFromHash()==='vehicles')renderVehicles();ready=true;document.dispatchEvent(new CustomEvent('asteriax:catalog-ready'));
 }catch(e){console.warn('Catalogue complet indisponible',e)}}
 function wait(){if(state.db){bindHangarTabs();loadCatalog()}else setTimeout(wait,150)}wait();
 })();

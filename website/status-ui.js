@@ -8,7 +8,7 @@
   function setEnv(prefix,data,label){const status=data?.status||((prefix==='Ptu'||prefix==='Eptu')?'Hors ligne':'Non publié');const version=data?.version?`Alpha ${data.version}`:'—';const fallback=prefix==='Live'?knownLiveBuild(data?.version):'';const build=data?.build||fallback||label;const statusEl=q(`#home${prefix}Status`),versionEl=q(`#home${prefix}Version`),buildEl=q(`#home${prefix}Build`);if(statusEl){statusEl.textContent=status;decorate(statusEl,status)}if(versionEl)versionEl.textContent=version;if(buildEl){buildEl.textContent=build;buildEl.title=build}}
   async function refresh(){
     try{
-      const res=await fetch(`/api/status?ui=${Date.now()}`,{headers:{Accept:'application/json'},cache:'no-store'});if(!res.ok)throw 0;const data=await res.json();if(!data.ok)throw 0;
+      const data=await window.AsteriaxApi.getJson('/api/status',{ttlMs:15000});if(!data.ok)throw 0;
       setEnv('Live',data.live,'Version LIVE officielle');setEnv('Ptu',data.ptu,'Public Test Universe');setEnv('Eptu',data.eptu,'Experimental PTU');
       setText('#homePuStatus',data.services?.persistentUniverse||'Inconnu');setText('#homePlatformStatus',data.services?.platform||'Inconnu');setText('#homeArenaStatus',data.services?.arenaCommander||'Inconnu');
       q('#homePlayers')?.closest('div')?.remove();

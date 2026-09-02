@@ -52,10 +52,7 @@
     if(typeof state==='undefined'||!Array.isArray(state.vehicles)||!state.vehicles.length)return[];
     const picked=[],used=new Set();
     if(shipFeed.length){
-      const sorted=shipFeed.filter(v=>String(v.status).toLowerCase()==='flight-ready'&&!isGroundFeed(v)).sort((a,b)=>{
-        const ai=shipMentionIndex(a),bi=shipMentionIndex(b);if(ai!==bi)return ai-bi;
-        return updatedTime(b)-updatedTime(a);
-      });
+      const sorted=shipFeed.filter(v=>String(v.status).toLowerCase()==='flight-ready'&&!isGroundFeed(v)).sort((a,b)=>updatedTime(b)-updatedTime(a));
       for(const feedShip of sorted){
         const v=findStateVehicle(feedShip);if(!v||used.has(String(v.id))||Number(v.is_ground_vehicle)===1)continue;
         picked.push(v);used.add(String(v.id));if(picked.length===3)break;
@@ -128,3 +125,4 @@
   document.addEventListener('click',e=>{if(e.target.closest('[data-card-owned],[data-card-wish],[data-hangar-owned],[data-hangar-wish]'))setTimeout(renderHangarSummary,30)});
   window.addEventListener('storage',renderHangarSummary);
 })();
+

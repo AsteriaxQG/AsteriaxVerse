@@ -49,8 +49,22 @@
     return state.vehicles.find(v=>[v.name,v.name_full].some(n=>{const k=keyName(n);return k.length>=6&&(k.endsWith(target)||target.endsWith(k))}))||null;
   }
 
+  function latestDatabaseShips(){
+    if(typeof query!=='function'||typeof state==='undefined'||!state.db)return[];
+    try{
+      const rows=query(`SELECT id,name,name_full,manufacturer,is_ground_vehicle,is_concept,url_photo,roles,scu,crew,date_added FROM vehicles WHERE COALESCE(is_ground_vehicle,0)=0 ORDER BY date_added DESC LIMIT 3`);
+      return rows.map(row=>{
+        const feed=shipFeed.find(x=>keyName(x?.name)===keyName(row?.name));
+        if(!feed)return row;
+        return Object.assign(row,{name:feed.name||row.name,name_full:feed.name||row.name,manufacturer:feed.manufacturer||row.manufacturer,production_status:feed.status||'',in_game:feed.in_game===true,catalog_image:feed.image||row.url_photo,catalog_description:feed.description||'',rsi_url:feed.rsi_url||'',store_url:feed.store_url||'',pledge_available:feed.pledge_available,pledge_collector:feed.pledge_collector===true,pledge_price:feed.pledge_price,pledge_currency:feed.pledge_currency||'',pledge_is_warbond:feed.pledge_is_warbond===true,pledge_discounted:feed.pledge_discounted===true,pledge_price_kind:feed.pledge_price_kind||''});
+      });
+    }catch{return[]}
+  }
+
   function pickFeaturedShips(){
     if(typeof state==='undefined'||!Array.isArray(state.vehicles)||!state.vehicles.length)return[];
+    const latest=latestDatabaseShips();
+    if(latest.length===3)return latest;
     const picked=[],used=new Set();
     if(shipFeed.length){
       const sorted=shipFeed.filter(v=>String(v.status).toLowerCase()==='flight-ready'&&!isGroundFeed(v)).map(feedShip=>({feedShip,v:findStateVehicle(feedShip)})).filter(x=>x.v&&!Number(x.v.is_ground_vehicle)).sort((a,b)=>addedTime(b.v)-addedTime(a.v)||updatedTime(b.feedShip)-updatedTime(a.feedShip));
@@ -126,4 +140,3 @@
   document.addEventListener('click',e=>{if(e.target.closest('[data-card-owned],[data-card-wish],[data-hangar-owned],[data-hangar-wish]'))setTimeout(renderHangarSummary,30)});
   window.addEventListener('storage',renderHangarSummary);
 })();
-

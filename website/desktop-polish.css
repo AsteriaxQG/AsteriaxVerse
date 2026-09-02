@@ -1,7 +1,7 @@
 /* Polissage desktop : grille plus stable, hiérarchie plus nette et fiches sans chevauchement. */
 .modal-panel{scrollbar-gutter:stable;overscroll-behavior:contain}
 .ship-card,.item-card,.news-card,.home-news-card{contain:layout paint style}
-.filters{position:sticky!important;z-index:24;isolation:isolate;backdrop-filter:none}
+.filters{position:static!important;top:auto!important;z-index:auto;isolation:auto;backdrop-filter:none}
 
 @media (min-width:901px){
   body{line-height:1.45}
@@ -15,7 +15,7 @@
   .section-head{align-items:center;margin-bottom:27px;padding-bottom:18px;border-bottom:1px solid #172f3c}
   .section-head h2{font-size:clamp(34px,3vw,43px);line-height:1.05}
   .result-count{padding:9px 13px;border:1px solid #1d3b4b;border-radius:999px;background:#0a1922;color:#9bb4c0;font-weight:700}
-  .filters{top:96px;grid-template-columns:minmax(320px,1.4fr) repeat(3,minmax(170px,.72fr));gap:12px;margin-bottom:30px;padding:14px;border:1px solid #183441;background:rgba(7,16,24,.96);box-shadow:0 16px 44px rgba(0,0,0,.24)}
+  .filters{grid-template-columns:minmax(320px,1.4fr) repeat(3,minmax(170px,.72fr));gap:12px;margin-bottom:30px;padding:14px;border:1px solid #183441;background:#071018;box-shadow:0 16px 44px rgba(0,0,0,.16)}
   .filters select,.searchbox{height:48px;border-color:#254655}
   .filters select{min-width:0;padding-inline:14px;cursor:pointer}
   .searchbox{padding-inline:16px}
@@ -67,14 +67,6 @@
   .filters{grid-template-columns:minmax(280px,1fr) repeat(2,minmax(170px,.7fr))}
   .filters .extra-sort{grid-column:2/4}
   .detail-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-}
-
-@media (min-width:651px) and (max-width:900px){
-  .filters{top:126px;background:rgba(7,16,24,.97);box-shadow:0 14px 34px rgba(0,0,0,.28)}
-}
-
-@media (max-width:650px){
-  .filters{top:98px;background:rgba(7,16,24,.98)!important;box-shadow:0 12px 30px rgba(0,0,0,.32)}
 }
 
 @keyframes desktop-view-in{from{opacity:.55;transform:translateY(5px)}to{opacity:1;transform:none}}

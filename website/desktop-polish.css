@@ -111,10 +111,15 @@ button,input,select{font-family:var(--font-ui)}
 
 /* Barre supérieure : recherche centrée sur desktop, sans déplacer les menus. */
 @media (min-width:1101px){
-  .topbar{position:sticky}
-  .global-search{position:absolute;left:50%;transform:translateX(-50%);width:min(360px,28vw)}
+  /* Quatre zones fixes : la recherche reste centrée sans recouvrir Accueil. */
+  .topbar{position:sticky;display:grid;grid-template-columns:minmax(220px,1fr) clamp(260px,26vw,360px) minmax(270px,1fr) auto;gap:18px}
+  .brand{grid-column:1;margin-right:0;min-width:0}
+  .global-search{grid-column:2;position:static;transform:none;width:100%;justify-self:center}
+  .nav{grid-column:3;justify-self:end}
+  .language-toggle{grid-column:4;justify-self:end}
+  .nav-btn[data-view="home"]{position:absolute;top:50%;left:calc(50% - clamp(130px,13vw,180px) - 78px);z-index:2;transform:translateY(-50%)}
 }
-@media (min-width:1101px) and (max-width:1399px){.global-search{width:clamp(210px,18vw,250px)}}
+@media (min-width:901px) and (max-width:1100px){.topbar{gap:12px}.global-search{width:clamp(220px,25vw,280px);flex:0 1 280px}.nav{max-width:none}.nav-btn{padding-inline:8px}.language-toggle{flex:0 0 auto}}
 
 /* Signature plus nette : aucune ombre ni micro-texte flou dans l'identité. */
 .brand>span{display:grid;gap:3px;line-height:1}
@@ -124,7 +129,7 @@ button,input,select{font-family:var(--font-ui)}
 .global-search input,.filters input,.filters select{font-synthesis:none;text-shadow:none}
 
 /* Sélecteur de langue : compact, visible et cohérent avec la barre supérieure. */
-.language-toggle{display:inline-flex;align-items:center;gap:7px;min-height:38px;padding:8px 11px;border:1px solid #2b5264;border-radius:10px;background:#0b1b25;color:#b7cdd6;font-size:11px;font-weight:800;letter-spacing:.04em;line-height:1;cursor:pointer;transition:border-color .16s ease,background-color .16s ease,color .16s ease,transform .16s ease}
+.language-toggle{-webkit-appearance:none;appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:8px 11px;border:1px solid #2b5264;border-radius:10px;background:#0b1b25!important;color:#b7cdd6!important;font:800 11px/1 var(--font-ui);letter-spacing:.04em;cursor:pointer;transition:border-color .16s ease,background-color .16s ease,color .16s ease,transform .16s ease}
 .language-toggle:hover{transform:translateY(-1px);border-color:#54c5e6;background:#12303e;color:#effcff}
 .language-toggle:focus-visible{outline:0;box-shadow:0 0 0 3px rgba(82,217,255,.14)}
 .language-code{color:#61d9f7;font-size:10px;font-weight:900}

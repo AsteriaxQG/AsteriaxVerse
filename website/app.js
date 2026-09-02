@@ -8,7 +8,7 @@ function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show'
 const validViews=new Set($$('.view').map(v=>v.id));
 const viewFromHash=()=>{const view=decodeURIComponent(location.hash.slice(1));return validViews.has(view)?view:'home'};
 function renderActiveCatalog(view=viewFromHash()){if(!state.db)return;if(view==='vehicles')renderVehicles();else if(view==='equipment')renderItems();else if(view==='hangar')renderHangar()}
-function go(view,{syncHash=true,behavior='smooth'}={}){if(!validViews.has(view))view='home';$$('.view').forEach(v=>v.classList.toggle('active-view',v.id===view));$$('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===view));$('#globalResults').hidden=true;if(syncHash&&location.hash!==`#${view}`)history.pushState(null,'',`#${view}`);scrollTo({top:0,behavior});renderActiveCatalog(view)}
+function go(view,{syncHash=true,behavior='smooth'}={}){if(!validViews.has(view))view='home';$$('.view').forEach(v=>v.classList.toggle('active-view',v.id===view));$$('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===view));$('#globalResults').hidden=true;if(syncHash&&location.hash!==`#${view}`)history.pushState(null,'',`#${view}`);scrollTo({top:0,behavior});renderActiveCatalog(view);document.dispatchEvent(new CustomEvent('asteriax:view-change',{detail:view}))}
 $$('.nav-btn').forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));$$('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
 const restoreView=()=>go(viewFromHash(),{syncHash:false,behavior:'auto'});window.addEventListener('popstate',restoreView);window.addEventListener('hashchange',restoreView);restoreView();
 function setOptions(el,values,label){el.innerHTML=`<option value="">${label}</option>`+values.map(v=>`<option>${esc(v)}</option>`).join('')}
@@ -44,4 +44,4 @@ async function boot(){try{await loadSqlJs();const SQL=await initSqlJs({locateFil
 function ensureCatalog(){if(!catalogBoot)catalogBoot=boot();return catalogBoot}
 const catalogIntent=()=>ensureCatalog();
 $$('.nav-btn[data-view="vehicles"],.nav-btn[data-view="equipment"],.nav-btn[data-view="hangar"],[data-go="vehicles"],[data-go="equipment"],#globalSearch').forEach(element=>{element.addEventListener('pointerenter',catalogIntent,{once:true,passive:true});element.addEventListener('focus',catalogIntent,{once:true})});
-if(viewFromHash()==='home')setTimeout(ensureCatalog,800);else ensureCatalog();
+if(viewFromHash()==='home')setTimeout(ensureCatalog,150);else ensureCatalog();

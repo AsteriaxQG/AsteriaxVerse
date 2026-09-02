@@ -120,7 +120,7 @@
     }
   }
 
-  function waitForShips(tries=0){const count=(typeof state!=='undefined'&&Array.isArray(state.vehicles))?state.vehicles.length:0;if(count&&renderFeaturedShips()){if(tries<14)setTimeout(()=>waitForShips(tries+1),700);return}if(tries<30)setTimeout(()=>waitForShips(tries+1),250)}
+  function waitForShips(tries=0){const count=(typeof state!=='undefined'&&Array.isArray(state.vehicles))?state.vehicles.length:0;if(count&&renderFeaturedShips())return;if(tries<30)setTimeout(()=>waitForShips(tries+1),250)}
 
   q('#homePlayers')?.closest('div')?.remove();
   renderHangarSummary();loadHomeNews();loadShipFeed();loadUniverseStatus();waitForShips();

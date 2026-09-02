@@ -1,7 +1,7 @@
 (()=>{
 const owned=new Set(JSON.parse(localStorage.getItem('ax_hangar_owned')||'[]'));
 const wished=new Set(JSON.parse(localStorage.getItem('ax_hangar_wishlist')||'[]'));
-let ready=false,hangarMode='owned';
+let ready=false,loading=false,hangarMode='owned';
 const human=(v,depth=0)=>{if(v===null||v===undefined||depth>4)return'';if(typeof v==='string'||typeof v==='number'||typeof v==='boolean')return String(v).trim();if(Array.isArray(v))return v.map(x=>human(x,depth+1)).find(Boolean)||'';if(typeof v==='object'){for(const k of ['name','display_name','label','value','title','code','slug','status','type','size','url','src']){const t=human(v[k],depth+1);if(t)return t}}return''};
 const normName=v=>human(v).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
 const NON_HULL_ENTRIES=new Set(['valkyrie liberator edition','valkyrie 2948 liberator edition','anvil valkyrie liberator edition','anvil valkyrie 2948 liberator edition','carrack w c8x','carrack expedition w c8x']);
@@ -55,7 +55,7 @@ openVehicle=function(id){
 }
 renderHangar=function(){const list=state.vehicles.filter(v=>hangarMode==='owned'?owned.has(key(v)):wished.has(key(v)));$('#hangarCount').textContent=`${list.length} vaisseau${list.length>1?'x':''}`;$('#hangarGrid').innerHTML=list.length?list.map(vehicleCard).join(''):`<div class="empty">${hangarMode==='owned'?'Aucun vaisseau enregistré dans Mes vaisseaux.':'Ta Wishlist est vide.'}</div>`;bindCards($('#hangarGrid'))}
 function bindHangarTabs(){document.querySelectorAll('[data-hangar-level]').forEach(b=>b.addEventListener('click',()=>{hangarMode=b.dataset.hangarLevel;document.querySelectorAll('[data-hangar-level]').forEach(x=>x.classList.toggle('active',x===b));renderHangar()}))}
-async function loadCatalog(){try{
+async function loadCatalog(){if(loading||ready)return;loading=true;try{
  const data=await window.AsteriaxApi.getJson('/api/ships',{ttlMs:120000});if(!data.ok||!data.items?.length)throw 0;
  const local=state.vehicles.filter(v=>!NON_HULL_ENTRIES.has(catalogKey(v)));
  const byName=new Map();for(const v of local){const k=catalogMatchKey(normalizedName(v));if(k&&!byName.has(k))byName.set(k,v)}
@@ -75,6 +75,8 @@ async function loadCatalog(){try{
  state.vehicles=merged.sort((a,b)=>human(a.name).localeCompare(human(b.name),'fr',{numeric:true}));
  state.manufacturers=[...new Set([...state.manufacturers.map(x=>human(x.name)),...state.vehicles.map(v=>human(v.manufacturer)).filter(Boolean)])].sort((a,b)=>a.localeCompare(b)).map(name=>({name,n:state.vehicles.filter(v=>human(v.manufacturer)===name).length+state.items.filter(v=>human(v.manufacturer)===name).length}));
  setOptions($('#vehicleManufacturer'),state.manufacturers.map(x=>x.name),'Tous les constructeurs');$('#statVehicles').textContent=state.vehicles.length;if(viewFromHash()==='vehicles')renderVehicles();ready=true;document.dispatchEvent(new CustomEvent('asteriax:catalog-ready'));
-}catch(e){console.warn('Catalogue complet indisponible',e)}}
-function wait(){if(state.db){bindHangarTabs();loadCatalog()}else setTimeout(wait,150)}wait();
+}catch(e){console.warn('Catalogue complet indisponible',e)}finally{loading=false}}
+function maybeLoadCatalog(view=viewFromHash()){if(state.db&&(view==='vehicles'||view==='hangar'))loadCatalog()}
+document.addEventListener('asteriax:view-change',e=>maybeLoadCatalog(e.detail));
+function wait(){if(state.db){bindHangarTabs();maybeLoadCatalog()}else setTimeout(wait,150)}wait();
 })();

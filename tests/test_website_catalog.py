@@ -87,7 +87,9 @@ class WebsiteCatalogTests(unittest.TestCase):
         self.assertIn("nativePrice", updater)
         self.assertIn("application\\/ld\\+json", updater)
         self.assertIn("historical", updater)
-        self.assertIn('cron: "17 */6 * * *"', workflow)
+        self.assertIn('cron: "*/10 15-17 * * *"', workflow)
+        self.assertIn('cron: "17 */2 * * *"', workflow)
+        self.assertIn("group: update-rsi-store", workflow)
         self.assertIn("node scripts/update-rsi-store.mjs", workflow)
         for ship in ("Endeavor", "Arrastra", "Odyssey"):
             self.assertIn(f'"title": "{ship}"', snapshot)

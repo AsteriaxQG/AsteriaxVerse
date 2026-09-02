@@ -3,7 +3,15 @@ name: Actualiser les prix officiels RSI
 on:
   workflow_dispatch:
   schedule:
-    - cron: "17 */6 * * *"
+    # 16 h UTC = 18 h en France l'été et 17 h l'hiver.
+    # Surveillance renforcée une heure avant et presque deux heures après.
+    - cron: "*/10 15-17 * * *"
+    # Contrôle régulier le reste de la journée.
+    - cron: "17 */2 * * *"
+
+concurrency:
+  group: update-rsi-store
+  cancel-in-progress: false
 
 permissions:
   contents: write

@@ -33,7 +33,7 @@
     logout.textContent=en?'Sign out':'Se déconnecter';topLogout.textContent=en?'Sign out':'Déconnexion';
     importButton.textContent=en?'Import this device’s ships':'Importer les vaisseaux de cet appareil';
     login.hidden=!!user||!configured;logout.hidden=!user;topUser.hidden=!user;topLogout.hidden=!user;
-    topUser.textContent=user?'@'+user.login:'';topUser.title=user?user.login:'';
+    topUser.textContent=user?user.login:'';topUser.title=user?user.login:'';
     logout.disabled=busy;topLogout.disabled=busy;importButton.hidden=!user||!(guest.owned.length+guest.wishlist.length);importButton.disabled=busy;
     stream.classList.toggle('live',streamIsLive);stream.classList.toggle('offline',!streamIsLive);
     streamLabel.textContent=streamIsLive?(en?'ONLINE':'EN LIGNE'):(en?'OFFLINE':'HORS LIGNE');

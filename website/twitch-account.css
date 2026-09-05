@@ -1,8 +1,14 @@
 .ax-account{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 22px;padding:18px 20px;background:#0b1b27;border:1px solid #274352;border-radius:14px}
 .ax-account-copy{min-width:0}.ax-account strong{display:block;color:#e1f3fc;font-size:16px}.ax-account p{margin:7px 0 0;color:#9eb5c2;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
 .ax-account-actions{display:flex;flex-wrap:wrap;gap:8px;flex-shrink:0}.ax-account-actions a,.ax-account-actions button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 15px;border:1px solid #8263b5;border-radius:10px;background:#302047;color:#f5edff;font:inherit;font-size:13px;font-weight:700;text-decoration:none;cursor:pointer}.ax-account-actions button:disabled{opacity:.55;cursor:wait}
-.ax-account-actions [hidden]{display:none!important}.ax-account-actions :focus-visible,.ax-live-strip:focus-visible{outline:2px solid #61dfff;outline-offset:3px}
+.ax-account-actions [hidden]{display:none!important}.ax-account-actions :focus-visible,.ax-live-strip:focus-visible,.ax-top-login:focus-visible{outline:2px solid #61dfff;outline-offset:3px}
+.ax-header-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;flex:0 0 auto}
+.ax-top-login{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:9px 13px;border:1px solid #8263b5;border-radius:10px;background:#302047;color:#f5edff;font:inherit;font-size:12px;font-weight:800;line-height:1;text-decoration:none;white-space:nowrap;box-shadow:inset 0 1px 0 rgba(255,255,255,.04);transition:border-color .16s ease,background-color .16s ease,transform .16s ease}.ax-top-login:hover{transform:translateY(-1px);border-color:#a27ad8;background:#3b2756}.ax-top-login[hidden]{display:none!important}
 .ax-live-strip{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;padding:12px 18px;background:#281526;border-bottom:1px solid #673152;color:#ffe6f4;text-decoration:none;font-size:14px;font-weight:750;text-align:center}.ax-live-strip[hidden]{display:none}.ax-live-dot{width:9px;height:9px;flex:0 0 9px;border-radius:50%;background:#fa6aa9;box-shadow:0 0 10px #fa6aa960;animation:ax-live-pulse 2.4s ease-in-out infinite}
 @keyframes ax-live-pulse{0%,100%{opacity:1}50%{opacity:.4}}
-@media(max-width:900px){.ax-account{flex-direction:column;align-items:stretch;padding:16px}.ax-account-actions{flex-direction:column}.ax-account-actions a,.ax-account-actions button{width:100%}.ax-live-strip{font-size:13px}}
-@media(prefers-reduced-motion:reduce){.ax-live-dot{animation:none}}
+@media(min-width:1101px){.ax-header-actions{grid-column:3;grid-row:1;justify-self:end}}
+@media(min-width:901px) and (max-width:1100px){.ax-header-actions{margin-left:auto}}
+@media(max-width:900px){.topbar{grid-template-columns:minmax(0,1fr) auto!important}.ax-header-actions{grid-column:2;grid-row:1;gap:6px}.ax-account{flex-direction:column;align-items:stretch;padding:16px}.ax-account-actions{flex-direction:column}.ax-account-actions a,.ax-account-actions button{width:100%}.ax-live-strip{font-size:13px}.ax-top-login{min-height:40px;padding:0 10px;font-size:11px;border-radius:10px}}
+@media(max-width:520px){.ax-top-login{width:58px;padding:0;font-size:0}.ax-top-login::after{content:'Twitch';font-size:11px;font-weight:800}}
+@media(max-width:370px){.ax-header-actions{gap:5px}.ax-top-login{width:54px}}
+@media(prefers-reduced-motion:reduce){.ax-live-dot{animation:none}.ax-top-login{transition:none}}

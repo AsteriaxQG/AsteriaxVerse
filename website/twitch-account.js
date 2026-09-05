@@ -8,7 +8,7 @@
   const title=panel.querySelector('#axAccountTitle'),status=panel.querySelector('#axAccountStatus'),importButton=panel.querySelector('#axImport'),logout=panel.querySelector('#axLogout');
 
   const headerActions=document.createElement('div');headerActions.className='ax-header-actions';headerActions.dataset.i18nSkip='';
-  const stream=document.createElement('a');stream.className='ax-stream-state';stream.href='https://www.twitch.tv/asteriaxttv';stream.target='_blank';stream.rel='noopener noreferrer';stream.innerHTML='<span class="ax-stream-dot" aria-hidden="true"></span><span class="ax-stream-label">TWITCH</span>';
+  const stream=document.createElement('a');stream.className='ax-stream-state offline';stream.href='https://www.twitch.tv/asteriaxttv';stream.target='_blank';stream.rel='noopener noreferrer';stream.innerHTML='<span class="ax-stream-dot" aria-hidden="true"></span><span class="ax-stream-label">HORS LIGNE</span>';
   const streamLabel=stream.querySelector('.ax-stream-label');
   const login=document.createElement('a');login.id='axLogin';login.className='ax-top-login';login.href='/api/twitch/login';login.hidden=true;
   const topUser=document.createElement('span');topUser.className='ax-top-user';topUser.hidden=true;
@@ -35,10 +35,10 @@
     login.hidden=!!user||!configured;logout.hidden=!user;topUser.hidden=!user;topLogout.hidden=!user;
     topUser.textContent=user?'@'+user.login:'';topUser.title=user?user.login:'';
     logout.disabled=busy;topLogout.disabled=busy;importButton.hidden=!user||!(guest.owned.length+guest.wishlist.length);importButton.disabled=busy;
-    stream.classList.toggle('live',streamKnown&&streamIsLive);stream.classList.toggle('offline',streamKnown&&!streamIsLive);
-    streamLabel.textContent=streamKnown?(streamIsLive?'LIVE':(en?'OFFLINE':'HORS LIGNE')):'TWITCH';
-    stream.setAttribute('aria-label',streamKnown?(streamIsLive?(en?'AsteriaxTTV is live on Twitch':'AsteriaxTTV est en live sur Twitch'):(en?'AsteriaxTTV is offline on Twitch':'AsteriaxTTV est hors ligne sur Twitch')):'Twitch AsteriaxTTV');
-    stream.title=streamIsLive&&streamTitle?streamTitle:(streamKnown?(streamIsLive?'AsteriaxTTV · LIVE':'AsteriaxTTV · hors ligne'):'AsteriaxTTV sur Twitch');
+    stream.classList.toggle('live',streamIsLive);stream.classList.toggle('offline',!streamIsLive);
+    streamLabel.textContent=streamIsLive?(en?'ONLINE':'EN LIGNE'):(en?'OFFLINE':'HORS LIGNE');
+    stream.setAttribute('aria-label',streamIsLive?(en?'AsteriaxTTV is online on Twitch':'AsteriaxTTV est en ligne sur Twitch'):(en?'AsteriaxTTV is offline on Twitch':'AsteriaxTTV est hors ligne sur Twitch'));
+    stream.title=streamIsLive&&streamTitle?streamTitle:(streamIsLive?'AsteriaxTTV · en ligne':'AsteriaxTTV · hors ligne');
   }
 
   function apply(snapshot){adapter.replace(validSnapshot(snapshot));document.querySelector('#homeOwnedCount').textContent=snapshot.owned.length;document.querySelector('#homeWishCount').textContent=snapshot.wishlist.length}

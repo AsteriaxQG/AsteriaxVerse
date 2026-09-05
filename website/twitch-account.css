@@ -28,11 +28,20 @@
   .topbar .language-toggle:hover{border-color:#3d7185;background:#0d2935!important;color:#effcff!important}
 }
 @media(min-width:1101px){
-  .topbar{min-height:108px!important;padding:8px 24px!important;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;grid-template-rows:52px 42px!important;column-gap:16px!important}
-  .ax-header-actions{grid-column:3;grid-row:1;justify-self:end}
+  .topbar{min-height:76px!important;padding:10px 22px!important;grid-template-columns:auto minmax(0,1fr) auto auto!important;grid-template-rows:1fr!important;column-gap:14px!important}
+  .brand{grid-column:1!important;grid-row:1!important;justify-self:start!important;margin:0!important}
+  .nav{grid-column:2!important;grid-row:1!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;min-width:0!important}
+  .nav-secondary{display:flex!important;align-items:center!important;gap:7px!important}
+  .nav-btn[data-view="home"]{grid-column:auto!important;grid-row:auto!important;position:static!important;z-index:auto!important;transform:none!important;justify-self:auto!important}
+  .global-search{grid-column:3!important;grid-row:1!important;position:static!important;width:220px!important;max-width:220px!important;min-width:180px!important;transform:none!important;justify-self:end!important}
+  .ax-header-actions{grid-column:4!important;grid-row:1!important;justify-self:end}
 }
 @media(min-width:901px) and (max-width:1100px){
   .topbar{width:calc(100% - 24px)!important;margin-top:12px!important;top:12px!important;padding-inline:18px!important;gap:11px!important}
+  .global-search{width:190px!important;max-width:190px!important;flex:0 1 190px!important}
+  .nav{display:flex!important;align-items:center!important;gap:5px!important}
+  .nav-secondary{display:flex!important;align-items:center!important;gap:5px!important}
+  .nav-btn[data-view="home"]{position:static!important;transform:none!important}
   .ax-header-actions{margin-left:auto}
   .ax-stream-state{display:none}
   .ax-top-user{max-width:105px}

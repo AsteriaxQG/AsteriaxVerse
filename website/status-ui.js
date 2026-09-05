@@ -1,7 +1,7 @@
 (()=>{
   const q=s=>document.querySelector(s);
   const norm=v=>String(v??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-  const tone=value=>{const s=norm(value);if(s.includes('operationnel')||s.includes('en ligne'))return'good';if(s.includes('incident majeur')||s.includes('hors ligne'))return'bad';if(s.includes('degrade')||s.includes('maintenance')||s.includes('incident partiel'))return'warn';return'neutral'};
+  const tone=value=>{const s=norm(value);if(s.includes('operationnel')||s.includes('en ligne'))return'good';if(s.includes('incident majeur')||s.includes('hors ligne')||s.includes('non disponible'))return'bad';if(s.includes('degrade')||s.includes('maintenance')||s.includes('incident partiel'))return'warn';return'neutral'};
   const knownLiveBuild=version=>String(version||'').startsWith('4.10')?'4.10.0-live.12519617':'';
   function decorate(el,value){if(!el)return;el.classList.add('status-indicator');el.classList.remove('indicator-good','indicator-warn','indicator-bad','indicator-neutral');el.classList.add(`indicator-${tone(value)}`)}
   function setText(id,value){const el=q(id);if(!el)return;el.textContent=value;decorate(el,value)}

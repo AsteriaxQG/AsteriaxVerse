@@ -243,11 +243,10 @@
   function mount(){
     const nav=document.querySelector('.nav');if(!nav)return;
     toggle=document.createElement('button');toggle.type='button';toggle.className='language-toggle';toggle.innerHTML='<span class="language-code">EN</span><span class="language-label">English</span>';toggle.addEventListener('click',()=>apply(language==='en'?'fr':'en'));nav.insertAdjacentElement('afterend',toggle);
-    const observer=new MutationObserver(records=>records.forEach(record=>{record.addedNodes.forEach(node=>{if(node.nodeType===Node.ELEMENT_NODE)translateTree(node);else if(node.nodeType===Node.TEXT_NODE&&!shouldSkip(node)){const next=transform(node.nodeValue);if(next)node.nodeValue=next}})}));observer.observe(document.body,{subtree:true,childList:true,characterData:true});
+    const observer=new MutationObserver(records=>records.forEach(record=>{if(record.type==='characterData'&&!shouldSkip(record.target)){const next=transform(record.target.nodeValue);if(next)record.target.nodeValue=next}record.addedNodes.forEach(node=>{if(node.nodeType===Node.ELEMENT_NODE)translateTree(node);else if(node.nodeType===Node.TEXT_NODE&&!shouldSkip(node)){const next=transform(node.nodeValue);if(next)node.nodeValue=next}})}));observer.observe(document.body,{subtree:true,childList:true,characterData:true});
     apply(language);
   }
   try{language=localStorage.getItem(STORAGE_KEY)==='en'?'en':'fr'}catch{}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
   window.AsteriaxI18n={get language(){return language},isEnglish:()=>language==='en',setLanguage:apply};
 })();
-

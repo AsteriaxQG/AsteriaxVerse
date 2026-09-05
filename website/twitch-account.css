@@ -4,6 +4,8 @@
 .ax-account-actions [hidden]{display:none!important}.ax-account-actions :focus-visible,.ax-top-login:focus-visible,.ax-stream-state:focus-visible,.ax-top-logout:focus-visible{outline:2px solid #61dfff;outline-offset:3px}
 
 .ax-header-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;flex:0 0 auto}
+.language-label{display:none!important}
+.language-toggle{min-width:42px!important;padding-inline:10px!important}
 .ax-stream-state{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;padding:0 11px;border:1px solid #294653;border-radius:999px;background:rgba(7,20,28,.68);color:#8fa9b5;font:850 10px/1 var(--font-ui,Inter,"Segoe UI",system-ui,sans-serif);letter-spacing:.08em;text-decoration:none;white-space:nowrap;transition:border-color .16s ease,background-color .16s ease,color .16s ease,transform .16s ease}
 .ax-stream-state:hover{transform:translateY(-1px);border-color:#3d6b7e;background:#0c2430;color:#dff8ff}
 .ax-stream-dot{width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:#657d88;box-shadow:0 0 0 3px rgba(101,125,136,.08)}

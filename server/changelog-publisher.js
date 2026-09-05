@@ -13,6 +13,14 @@ export async function publish(request,env,source,send=fetch) {
     if(url.protocol!=='https:' || url.hostname!=='discord.com' || url.port || !/^\/api\/webhooks\/\d+\/[A-Za-z0-9_-]+$/.test(url.pathname))throw Error();
     url.search='?wait=true';v=releases(source)[0];payload=embed(v);hash=await digest(JSON.stringify(v));
   }catch{return json({error:'Invalid changelog or webhook configuration'},422)}
+  // Authenticated, read-only check. Never expose the webhook URL/token or Discord response body.
+  if(request.headers.get('X-Changelog-Action')==='diagnose'){
+    try{
+      const check=await send(url.toString(),{redirect:'error',signal:AbortSignal.timeout(12000)});
+      const result=await check.json().catch(()=>({}));
+      return json({webhookReachable:check.ok,discordStatus:check.status,discordCode:Number.isInteger(result.code)?result.code:null,webhookType:Number.isInteger(result.type)?result.type:null});
+    }catch{return json({error:'Discord network request failed'},502)}
+  }
   try {
     // Claim before the external side effect. Never automatically reclaim an ambiguous send.
     const claim=await env.AX_DB.prepare("INSERT INTO ax_changelog_publications(version,status,content_hash,created_at) VALUES(?,'sending',?,?) ON CONFLICT(version) DO NOTHING RETURNING version").bind(v.version,hash,new Date().toISOString()).first();
@@ -23,11 +31,11 @@ export async function publish(request,env,source,send=fetch) {
     let message;
     try {
       const response=await send(url.toString(),{method:'POST',redirect:'error',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(12000)});
-      if(!response.ok)throw Error();
+      if(!response.ok){const details=await response.json().catch(()=>({}));throw Object.assign(new Error('Discord rejected request'),{discordStatus:response.status,discordCode:Number.isInteger(details.code)?details.code:null})}
       message=await response.json();if(!message.id)throw Error();
-    }catch{
+    }catch(error){
       await env.AX_DB.prepare("UPDATE ax_changelog_publications SET status='uncertain' WHERE version=?").bind(v.version).run();
-      return json({version:v.version,status:'uncertain',error:'Check Discord before any manual retry; automatic resend is blocked'},502);
+      return json({version:v.version,status:'uncertain',discordStatus:error.discordStatus||null,discordCode:error.discordCode||null,error:'Check Discord before any manual retry; automatic resend is blocked'},502);
     }
     await env.AX_DB.prepare("UPDATE ax_changelog_publications SET status='published',published_at=?,discord_message_id=? WHERE version=?").bind(new Date().toISOString(),message.id,v.version).run();
     return json({version:v.version,status:'published'});

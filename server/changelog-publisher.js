@@ -3,6 +3,15 @@ import {SITE,releases,embed,digest} from './changelog.js';
 const json=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 const networkReason=error=>/invocation|this reference/i.test(error?.message||'')?'fetch binding':/timeout/i.test(error?.message||'')?'timeout':/redirect/i.test(error?.message||'')?'redirect':/resolve|dns/i.test(error?.message||'')?'dns':'runtime';
 const networkKind=error=>['TypeError','TimeoutError','AbortError'].includes(error?.name)?error.name:'Error';
+const discordHosts=new Set(['discord.com','discordapp.com']);
+
+async function discordRequest(send,url,init={}){
+  const response=await send(url,{...init,redirect:'follow'});
+  const finalUrl=response.url||url;
+  const final=new URL(finalUrl);
+  if(final.protocol!=='https:'||!discordHosts.has(final.hostname)||final.port)throw Error('Unexpected Discord redirect');
+  return response;
+}
 
 export async function publish(request,env,source,send=(...args)=>fetch(...args)) {
   if(request.method!=='POST')return json({error:'Method not allowed'},405);
@@ -35,9 +44,9 @@ export async function publish(request,env,source,send=(...args)=>fetch(...args))
       return json({latestVersion:v.version,databaseReady:false,webhookConfigured:true,error:'Changelog D1 migration missing or unavailable'},503);
     }
     try{
-      const check=await send(url.toString(),{method:'GET',redirect:'error',signal:AbortSignal.timeout(12000)});
+      const check=await discordRequest(send,url.toString(),{method:'GET',signal:AbortSignal.timeout(12000)});
       const result=await check.json().catch(()=>({}));
-      return json({latestVersion:v.version,databaseReady:true,publicationStatus,contentChanged,webhookConfigured:true,webhookReachable:check.ok,discordStatus:check.status,discordCode:Number.isInteger(result.code)?result.code:null,webhookType:Number.isInteger(result.type)?result.type:null});
+      return json({latestVersion:v.version,databaseReady:true,publicationStatus,contentChanged,webhookConfigured:true,webhookReachable:check.ok,discordStatus:check.status,discordCode:Number.isInteger(result.code)?result.code:null,webhookType:Number.isInteger(result.type)?result.type:null,discordRedirected:Boolean(check.redirected)});
     }catch(error){
       return json({latestVersion:v.version,databaseReady:true,publicationStatus,contentChanged,webhookConfigured:true,webhookReachable:false,error:'Discord network request failed',kind:networkKind(error),reason:networkReason(error)},502);
     }
@@ -53,7 +62,7 @@ export async function publish(request,env,source,send=(...args)=>fetch(...args))
 
     let message;
     try {
-      const response=await send(url.toString(),{method:'POST',redirect:'error',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(12000)});
+      const response=await discordRequest(send,url.toString(),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(12000)});
       if(!response.ok){
         const details=await response.json().catch(()=>({}));
         throw Object.assign(new Error('Discord rejected request'),{discordStatus:response.status,discordCode:Number.isInteger(details.code)?details.code:null});

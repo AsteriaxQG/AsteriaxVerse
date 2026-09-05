@@ -1,0 +1,11 @@
+{
+  "versions": [{
+    "version": "1.1.0",
+    "date": "2026-09-05",
+    "title": {"fr": "Les nouveautés Asteriax Verse réunies", "en": "Asteriax Verse updates in one place"},
+    "new": [{"fr": "Un historique des versions du site, disponible en français et en anglais.", "en": "A website release history, available in French and English."}],
+    "ui": [{"fr": "Une barre supérieure arrondie avec un effet verre sombre et cyan.", "en": "A rounded header with a dark cyan glass effect."}, {"fr": "Un badge NOUVEAU signale la dernière version non consultée sur cet appareil.", "en": "A NEW badge highlights the latest release not yet viewed on this device."}],
+    "fixes": [],
+    "technical": [{"fr": "Publication Discord sécurisée par version, avec protection contre les doubles envois.", "en": "Secure per-release Discord publishing with duplicate-send protection."}]
+  }]
+}

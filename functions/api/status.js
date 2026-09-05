@@ -30,11 +30,33 @@ function ptuStateFrom(body=''){return body.match(/PTU STATUS\s*:\s*([^|]{1,50})/
 function environmentStatus(raw='',hasBuild=false){const s=String(raw).trim();if(hasBuild)return frStatus(s||'Online');if(!s||/unknown|not published|not available/i.test(s))return'Non publié';return frStatus(s)}
 function overallFromServices(noIssues,...services){if(noIssues)return'Operational';const joined=services.join(' ');if(/Major Outage/i.test(joined))return'Major Outage';if(/Partial Outage/i.test(joined))return'Partial Outage';if(/Degraded/i.test(joined))return'Degraded';if(/Maintenance/i.test(joined))return'Maintenance';if(services.every(x=>/Operational/i.test(x)))return'Operational';return'Unknown'}
 
+async function fetchPatchThreads(){
+  const response=await fetch('https://robertsspaceindustries.com/api/spectrum/forum/channel/threads',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({channel_id:'190048',page:1,sort:'newest'}),signal:AbortSignal.timeout(8000)});
+  if(!response.ok)throw new Error(`Spectrum ${response.status}`);
+  const payload=await response.json();
+  if(!payload.success||!Array.isArray(payload.data?.threads))throw new Error('Spectrum indisponible');
+  return payload.data.threads.filter(t=>!t.is_erased&&t.member?.meta?.badges?.some(b=>b.name==='Developer'));
+}
+export function testEnvironment(threads,label,liveVersion,now=Date.now()){
+  const latestLive=threads.filter(t=>/\bLIVE\b.*(?:Release|Patch) Notes/i.test(t.subject)).reduce((n,t)=>Math.max(n,Number(t.time_created)||0),0);
+  const candidates=threads.filter(t=>new RegExp(`\\b${label}\\b`,'i').test(t.subject)).sort((a,b)=>Number(b.time_created)-Number(a.time_created));
+  const t=candidates[0];
+  if(!t)return{status:'Non vérifié',version:'',build:''};
+  const age=now/1000-Number(t.time_created),subject=String(t.subject);
+  if(age<0||age>7*86400)return{status:'Non vérifié',version:'',build:''};
+  const version=subject.match(/Alpha\s+(\d+(?:\.\d+){1,3})/i)?.[1]||'';
+  const sequence=subject.match(/(?:Patch|Release) Notes\s+(\d{6,})\b/i)?.[1]||'';
+  const source=`https://robertsspaceindustries.com/spectrum/community/SC/forum/190048/thread/${t.slug}`;
+  if(/\b(?:offline|closed|shutdown)\b/i.test(subject))return{status:'Hors ligne',version,build:'',source};
+  if(!t.is_pinned||Number(t.time_created)<=latestLive||!version||compareVersions(version,liveVersion)<0||!/\[(?:all waves|wave\s*\d+)\]/i.test(subject))return{status:'Non vérifié',version:'',build:''};
+  return{status:'En ligne',version,build:sequence?`${version}-${label.toLowerCase()}.${sequence}`:'',access:/all waves/i.test(subject)?'Toutes les vagues':subject.match(/wave\s*\d+/i)?.[0]||'',source};
+}
+
 export async function onRequestGet(context){
   const cache=caches.default;
-  const cacheKey=new Request(new URL('/api/status?cache=v9',context.request.url).toString());
+  const cacheKey=new Request(new URL('/api/status?cache=v10',context.request.url).toString());
   const cached=await cache.match(cacheKey);if(cached)return cached;
-  const settled=await Promise.allSettled([fetchText(STATUS_URL),fetchText(PTU_FAQ),fetchText(PTU_INSTALL),fetchText(LOANER_MATRIX),fetchText(PATCH_FORUM)]);
+  const settled=await Promise.allSettled([fetchText(STATUS_URL),fetchText(PTU_FAQ),fetchText(PTU_INSTALL),fetchText(LOANER_MATRIX),fetchText(PATCH_FORUM),fetchPatchThreads()]);
   const statusBody=settled[0].status==='fulfilled'?text(settled[0].value):'';
   const ptuFaqBody=settled[1].status==='fulfilled'?text(settled[1].value):'';
   const ptuInstallBody=settled[2].status==='fulfilled'?text(settled[2].value):'';
@@ -47,12 +69,6 @@ export async function onRequestGet(context){
   const liveBuildCandidates=[...buildMatches(statusBody,'live'),...buildMatches(patchBody,'live'),...buildMatches(ptuFaqBody,'live'),...buildMatches(ptuInstallBody,'live'),...buildMatches(loanerBody,'live'),matrixBuild];
   const liveBuild=firstMatchingBuild(liveBuildCandidates,liveVersion);
 
-  const ptuBuilds=[...buildMatches(patchBody,'ptu'),...buildMatches(ptuInstallBody,'ptu'),...buildMatches(ptuFaqBody,'ptu')];
-  const eptuBuilds=[...buildMatches(patchBody,'eptu'),...buildMatches(ptuInstallBody,'eptu'),...buildMatches(ptuFaqBody,'eptu')];
-  const ptuRaw=ptuStateFrom(ptuInstallBody)||ptuStateFrom(ptuFaqBody)||'';
-  const ptuStatus=ptuBuilds.length>0?environmentStatus(ptuRaw,true):'Hors ligne';
-  const eptuStatus=eptuBuilds.length>0?environmentStatus('',true):'Hors ligne';
-
   const platform=serviceStatus(statusBody,'Platform');
   const pu=serviceStatus(statusBody,'Persistent Universe');
   const arena=serviceStatus(statusBody,'Arena Commander');
@@ -63,10 +79,10 @@ export async function onRequestGet(context){
     ok:Boolean(statusBody||ptuFaqBody||ptuInstallBody||loanerBody),
     updatedAt:new Date().toISOString(),
     live:{version:liveVersion,build:liveBuild,status:frStatus(overall)},
-    ptu:{version:versionOnly(ptuBuilds[0]||''),build:ptuBuilds[0]||'',status:ptuStatus},
-    eptu:{version:versionOnly(eptuBuilds[0]||''),build:eptuBuilds[0]||'',status:eptuStatus},
+    ptu:testEnvironment(settled[5].status==='fulfilled'?settled[5].value:[],'PTU',liveVersion),
+    eptu:testEnvironment(settled[5].status==='fulfilled'?settled[5].value:[],'EPTU',liveVersion),
     services:{platform:frStatus(platform),persistentUniverse:frStatus(pu),arenaCommander:frStatus(arena)},
-    sources:{status:STATUS_URL,ptu:PTU_INSTALL,liveBuild:LOANER_MATRIX}
+    sources:{status:STATUS_URL,ptu:PATCH_FORUM,liveBuild:LOANER_MATRIX}
   };
   const response=new Response(JSON.stringify(payload),{headers:{'content-type':'application/json; charset=utf-8','cache-control':'public, max-age=15, s-maxage=60, stale-while-revalidate=120','access-control-allow-origin':'*'}});
   context.waitUntil(cache.put(cacheKey,response.clone()));return response;

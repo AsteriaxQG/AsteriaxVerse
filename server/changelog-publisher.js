@@ -1,6 +1,6 @@
 import {SITE,releases,embed,digest} from './changelog.js';
 const json=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
-export async function publish(request,env,source,send=fetch) {
+export async function publish(request,env,source,send=(...args)=>fetch(...args)) {
   if(request.method!=='POST')return json({error:'Method not allowed'},405);
   if(new URL(request.url).origin!==SITE)return json({error:'Production only'},403);
   if(!env.CHANGELOG_PUBLISH_TOKEN || env.CHANGELOG_PUBLISH_TOKEN.length<32)return json({error:'Publisher not configured'},503);
@@ -19,7 +19,7 @@ export async function publish(request,env,source,send=fetch) {
       const check=await send(url.toString(),{redirect:'error',signal:AbortSignal.timeout(12000)});
       const result=await check.json().catch(()=>({}));
       return json({webhookReachable:check.ok,discordStatus:check.status,discordCode:Number.isInteger(result.code)?result.code:null,webhookType:Number.isInteger(result.type)?result.type:null});
-    }catch{return json({error:'Discord network request failed'},502)}
+    }catch(error){return json({error:'Discord network request failed',kind:['TypeError','TimeoutError','AbortError'].includes(error.name)?error.name:'Error',reason:/invocation|this reference/i.test(error.message)?'fetch binding':/timeout/i.test(error.message)?'timeout':/redirect/i.test(error.message)?'redirect':/resolve|dns/i.test(error.message)?'dns':'runtime'},502)}
   }
   try {
     // Claim before the external side effect. Never automatically reclaim an ambiguous send.

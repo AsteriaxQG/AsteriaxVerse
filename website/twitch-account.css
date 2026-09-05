@@ -1,0 +1,8 @@
+.ax-account{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 22px;padding:18px 20px;background:#0b1b27;border:1px solid #274352;border-radius:14px}
+.ax-account-copy{min-width:0}.ax-account strong{display:block;color:#e1f3fc;font-size:16px}.ax-account p{margin:7px 0 0;color:#9eb5c2;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+.ax-account-actions{display:flex;flex-wrap:wrap;gap:8px;flex-shrink:0}.ax-account-actions a,.ax-account-actions button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 15px;border:1px solid #8263b5;border-radius:10px;background:#302047;color:#f5edff;font:inherit;font-size:13px;font-weight:700;text-decoration:none;cursor:pointer}.ax-account-actions button:disabled{opacity:.55;cursor:wait}
+.ax-account-actions [hidden]{display:none!important}.ax-account-actions :focus-visible,.ax-live-strip:focus-visible{outline:2px solid #61dfff;outline-offset:3px}
+.ax-live-strip{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;padding:12px 18px;background:#281526;border-bottom:1px solid #673152;color:#ffe6f4;text-decoration:none;font-size:14px;font-weight:750;text-align:center}.ax-live-strip[hidden]{display:none}.ax-live-dot{width:9px;height:9px;flex:0 0 9px;border-radius:50%;background:#fa6aa9;box-shadow:0 0 10px #fa6aa960;animation:ax-live-pulse 2.4s ease-in-out infinite}
+@keyframes ax-live-pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@media(max-width:900px){.ax-account{flex-direction:column;align-items:stretch;padding:16px}.ax-account-actions{flex-direction:column}.ax-account-actions a,.ax-account-actions button{width:100%}.ax-live-strip{font-size:13px}}
+@media(prefers-reduced-motion:reduce){.ax-live-dot{animation:none}}

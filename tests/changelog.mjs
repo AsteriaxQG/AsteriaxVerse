@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
 import {readFileSync} from 'node:fs';
 import data from '../data/changelog.json' with {type:'json'};
-import {publish} from '../functions/api/changelog/publish.js';
+import {publish} from '../server/changelog-publisher.js';
 import {releases,embed,SITE} from '../server/changelog.js';
 const sql=new DatabaseSync(':memory:');sql.exec(readFileSync(new URL('../migrations/0002_changelog.sql',import.meta.url),'utf8'));
 const db={prepare(query){return {bind(...args){return {async first(){return sql.prepare(query).get(...args)||null},async run(){return sql.prepare(query).run(...args)}}}}}};

@@ -59,3 +59,23 @@
 @media(max-width:520px){.ax-top-login{width:58px;padding:0;font-size:0}.ax-top-login::after{content:'Twitch';font-size:11px;font-weight:800}}
 @media(max-width:370px){.ax-header-actions{gap:5px}.ax-top-login{width:54px}}
 @media(prefers-reduced-motion:reduce){.ax-stream-state,.ax-top-login,.ax-top-logout{transition:none}.ax-stream-state.live .ax-stream-dot{animation:none}}
+
+/* La recherche du header est une seule capsule, sans champ rectangulaire interne. */
+.topbar .global-search{overflow:hidden}
+.topbar .global-search input{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  width:100%!important;
+  min-width:0!important;
+  height:100%!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:var(--text)!important
+}
+.topbar .global-search input:focus,.topbar .global-search input:focus-visible{outline:0!important;border:0!important;box-shadow:none!important;background:transparent!important}
+.topbar .global-search input::-webkit-search-decoration,.topbar .global-search input::-webkit-search-cancel-button,.topbar .global-search input::-webkit-search-results-button,.topbar .global-search input::-webkit-search-results-decoration{-webkit-appearance:none;appearance:none}

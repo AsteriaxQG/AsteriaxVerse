@@ -61,7 +61,7 @@ assert.equal(changedDiagnosis.publicationStatus,'published');
 assert.equal(changedDiagnosis.contentChanged,true);
 
 const next=structuredClone(data);
-next.versions[0].version='1.2.0';
+next.versions[0].version=(Number(data.versions[0].version.split('.')[0])+1)+'.0.0';
 assert.equal((await publish(request(),env,next,async()=>{sends++;throw Error('timeout')})).status,502);
 assert.equal((await publish(request(),env,next,send)).status,409);
 assert.equal(sends,2);

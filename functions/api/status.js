@@ -29,10 +29,10 @@ function liveStatusVersion(body=''){return body.match(/LIVE STATUS\s*:\s*(\d+(?:
 function deploymentVersions(body=''){return [...body.matchAll(/(?:deploy|deployed|deployment of)\s+Star Citizen Alpha\s+(\d+(?:\.\d+){1,3})/ig)].map(m=>m[1])}
 function matrixVersion(body=''){return body.match(/Last Updated:[^|]{0,120}\|\s*(\d+(?:\.\d+){1,3})-live\.\d+/i)?.[1]||''}
 function mirrorLiveBuild(body=''){const m=body.match(/(\d+(?:\.\d+){1,3})-LIVE\s*\|\s*CL\s*(\d{6,})/i);return m?`${m[1]}-live.${m[2]}`:''}
-function hotfixFrom(releaseBody='',hotfixBody='',liveVersion='',liveBuild=''){
-  const channel=releaseBody.match(/"channel":"HOTFIX"[\s\S]{0,500}?"status":"([^"]+)"/i)?.[1]||'';
-  const match=hotfixBody.match(/LIVE Client CL:\s*(\d{6,})\s*\((?:CL\s*)?(\d{6,})[^)]*HOTFIX/i);
-  const sequence=Number(match?.[2]||0),online=/online|open/i.test(channel)&&sequence>buildSequence(liveBuild);
+export function hotfixFrom(releaseBody='',hotfixBody='',liveVersion='',liveBuild=''){
+  const channelOnline=/\\?"channel\\?":\\?"HOTFIX\\?"[\s\S]{0,500}?\\?"status\\?":\\?"ONLINE/i.test(releaseBody);
+  const sequences=[...hotfixBody.matchAll(/LIVE Client CL:\s*\d{6,}\s*\((?:CL\s*)?(\d{6,})[^)]*HOTFIX/ig)].map(match=>Number(match[1])||0);
+  const sequence=Math.max(0,...sequences),online=channelOnline&&sequence>buildSequence(liveBuild);
   return{status:online?'En ligne':'Hors ligne',version:online?liveVersion:'',build:online&&liveVersion?`${liveVersion}-hotfix.${sequence}`:'',source:PATCH_FORUM};
 }
 function ptuStateFrom(body=''){return body.match(/PTU STATUS\s*:\s*([^|]{1,50})/i)?.[1]?.trim()||''}
@@ -63,7 +63,7 @@ export function testEnvironment(threads,label,liveVersion,now=Date.now()){
 
 export async function onRequestGet(context){
   const cache=caches.default;
-  const cacheKey=new Request(new URL('/api/status?cache=v13',context.request.url).toString());
+  const cacheKey=new Request(new URL('/api/status?cache=v14',context.request.url).toString());
   const cached=await cache.match(cacheKey);if(cached)return cached;
   const settled=await Promise.allSettled([fetchText(STATUS_URL),fetchText(PTU_FAQ),fetchText(PTU_INSTALL),fetchText(LOANER_MATRIX),fetchText(PATCH_FORUM),fetchPatchThreads(),fetchText(RELEASE_MIRROR),fetchText(HOTFIX_MIRROR)]);
   const statusBody=settled[0].status==='fulfilled'?text(settled[0].value):'';

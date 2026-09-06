@@ -1,5 +1,23 @@
 {
   "versions": [{
+    "version": "1.2.0",
+    "date": "2026-09-06",
+    "title": {"fr": "Équipement devient un Loadout Builder", "en": "Equipment becomes a Loadout Builder"},
+    "new": [
+      {"fr": "Sélection du vaisseau, slots compatibles, catalogue filtrable et comparaison de composants.", "en": "Ship selection, compatible slots, filterable catalogue and component comparison."},
+      {"fr": "Statistiques théoriques, prix aUEC référencés, lieux d’achat et suggestions DPS, défense, quantum, PvE et PvP.", "en": "Theoretical statistics, listed aUEC prices, shop locations and DPS, defense, quantum, PvE and PvP suggestions."},
+      {"fr": "Sauvegardes multiples sur cet appareil, favoris de composants, liens de partage et exports JSON/image.", "en": "Multiple on-device saves, component favorites, share links and JSON/image exports."}
+    ],
+    "ui": [
+      {"fr": "Interface sombre bleu/cyan en français et anglais, organisée en trois colonnes sur grand écran.", "en": "Dark blue/cyan interface in French and English, with three columns on large screens."},
+      {"fr": "Navigation mobile par panneaux Vaisseau, Slots, Catalogue et Résumé.", "en": "Mobile navigation with Ship, Slots, Catalogue and Summary panels."}
+    ],
+    "fixes": [],
+    "technical": [
+      {"fr": "Catalogue technique chargé à l’ouverture du builder ; validation des tailles, types et restrictions des slots.", "en": "Technical catalogue loaded when opening the builder; validation of slot sizes, types and restrictions."},
+      {"fr": "Les prix manquants restent signalés. Les statistiques et suggestions ne simulent pas un combat ; la synchronisation Mon Verse viendra ultérieurement.", "en": "Missing prices remain identified. Statistics and suggestions do not simulate combat; Mon Verse synchronization is planned for later."}
+    ]
+  }, {
     "version": "1.1.0",
     "date": "2026-09-05",
     "title": {"fr": "Les nouveautés Asteriax Verse réunies", "en": "Asteriax Verse updates in one place"},

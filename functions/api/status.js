@@ -70,7 +70,8 @@ export async function onRequestGet(context){
   const liveVersion=newestVersion(liveVersions);
   const matrixBuild=loanerBody.match(/(?:Last Updated:[^|]{0,120}\|\s*)?(\d+(?:\.\d+){1,3}-live\.\d+)/i)?.[1]||'';
   const liveBuildCandidates=[...buildMatches(statusBody,'live'),...buildMatches(patchBody,'live'),...buildMatches(ptuFaqBody,'live'),...buildMatches(ptuInstallBody,'live'),...buildMatches(loanerBody,'live'),matrixBuild,mirrorLiveBuild(releaseMirrorBody)];
-  const liveBuild=firstMatchingBuild(liveBuildCandidates,liveVersion);
+  const detectedLiveBuild=firstMatchingBuild(liveBuildCandidates,liveVersion);
+  const liveBuild=detectedLiveBuild&&liveVersion?`${liveVersion}-live.${buildSequence(detectedLiveBuild)}`:detectedLiveBuild;
 
   const platform=serviceStatus(statusBody,'Platform');
   const pu=serviceStatus(statusBody,'Persistent Universe');

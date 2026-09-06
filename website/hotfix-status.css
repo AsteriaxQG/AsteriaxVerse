@@ -1,0 +1,6 @@
+.verse-env-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+.verse-env.hotfix{border-color:rgba(255,185,75,.34)!important}
+.verse-env.hotfix .verse-env-head span{color:#ffc45f}
+@media(max-width:900px) and (min-width:651px){.verse-env-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:650px){.verse-env-grid{display:flex!important;grid-template-columns:none!important}}
+

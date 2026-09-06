@@ -1,5 +1,19 @@
 {
   "versions": [{
+    "version": "1.4.2",
+    "date": "2026-09-06",
+    "title": {"fr": "Suivi automatique du canal HOTFIX", "en": "Automatic HOTFIX channel tracking"},
+    "new": [
+      {"fr": "Un bloc HOTFIX distinct affiche son ouverture et le correctif actuellement en test.", "en": "A separate HOTFIX block shows whether the channel is open and which fix is being tested."}
+    ],
+    "ui": [
+      {"fr": "LIVE, HOTFIX, PTU et EPTU restent lisibles sur ordinateur, tablette et mobile.", "en": "LIVE, HOTFIX, PTU and EPTU remain readable on desktop, tablet and mobile."}
+    ],
+    "fixes": [],
+    "technical": [
+      {"fr": "Le HOTFIX disparaît automatiquement lorsqu’il ferme ou que son build rejoint LIVE, puis le prochain build est détecté.", "en": "HOTFIX automatically clears when it closes or its build reaches LIVE, then the next build is detected."}
+    ]
+  }, {
     "version": "1.4.1",
     "date": "2026-09-06",
     "title": {"fr": "Fiches vaisseaux fluides et statut LIVE fiable", "en": "Smoother ship details and reliable LIVE status"},

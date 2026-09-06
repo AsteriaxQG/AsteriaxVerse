@@ -4,6 +4,7 @@ const PTU_INSTALL='https://support.robertsspaceindustries.com/hc/en-us/articles/
 const LOANER_MATRIX='https://support.robertsspaceindustries.com/hc/en-us/articles/360003093114-Loaner-Ship-Matrix';
 const PATCH_FORUM='https://robertsspaceindustries.com/spectrum/community/SC/forum/190048?page=1&sort=newest';
 const RELEASE_MIRROR='https://scstarter.guide/';
+const HOTFIX_MIRROR='https://t.me/s/starcitizenru_news?q=%23patchnotes';
 
 function decode(s=''){return String(s).replace(/&nbsp;|&#160;/gi,' ').replace(/&amp;/gi,'&').replace(/&quot;/gi,'"').replace(/&#39;|&apos;/gi,"'").replace(/&lt;/gi,'<').replace(/&gt;/gi,'>')}
 function text(html=''){return decode(html.replace(/<script[\s\S]*?<\/script>/gi,' ').replace(/<style[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim())}
@@ -28,6 +29,12 @@ function liveStatusVersion(body=''){return body.match(/LIVE STATUS\s*:\s*(\d+(?:
 function deploymentVersions(body=''){return [...body.matchAll(/(?:deploy|deployed|deployment of)\s+Star Citizen Alpha\s+(\d+(?:\.\d+){1,3})/ig)].map(m=>m[1])}
 function matrixVersion(body=''){return body.match(/Last Updated:[^|]{0,120}\|\s*(\d+(?:\.\d+){1,3})-live\.\d+/i)?.[1]||''}
 function mirrorLiveBuild(body=''){const m=body.match(/(\d+(?:\.\d+){1,3})-LIVE\s*\|\s*CL\s*(\d{6,})/i);return m?`${m[1]}-live.${m[2]}`:''}
+function hotfixFrom(releaseBody='',hotfixBody='',liveVersion='',liveBuild=''){
+  const channel=releaseBody.match(/"channel":"HOTFIX"[\s\S]{0,500}?"status":"([^"]+)"/i)?.[1]||'';
+  const match=hotfixBody.match(/LIVE Client CL:\s*(\d{6,})\s*\((?:CL\s*)?(\d{6,})[^)]*HOTFIX/i);
+  const sequence=Number(match?.[2]||0),online=/online|open/i.test(channel)&&sequence>buildSequence(liveBuild);
+  return{status:online?'En ligne':'Hors ligne',version:online?liveVersion:'',build:online&&liveVersion?`${liveVersion}-hotfix.${sequence}`:'',source:PATCH_FORUM};
+}
 function ptuStateFrom(body=''){return body.match(/PTU STATUS\s*:\s*([^|]{1,50})/i)?.[1]?.trim()||''}
 function environmentStatus(raw='',hasBuild=false){const s=String(raw).trim();if(hasBuild)return frStatus(s||'Online');if(!s||/unknown|not published|not available/i.test(s))return'Non publié';return frStatus(s)}
 function overallFromServices(noIssues,...services){if(noIssues)return'Operational';const joined=services.join(' ');if(/Major Outage/i.test(joined))return'Major Outage';if(/Partial Outage/i.test(joined))return'Partial Outage';if(/Degraded/i.test(joined))return'Degraded';if(/Maintenance/i.test(joined))return'Maintenance';if(services.every(x=>/Operational/i.test(x)))return'Operational';return'Unknown'}
@@ -56,15 +63,16 @@ export function testEnvironment(threads,label,liveVersion,now=Date.now()){
 
 export async function onRequestGet(context){
   const cache=caches.default;
-  const cacheKey=new Request(new URL('/api/status?cache=v12',context.request.url).toString());
+  const cacheKey=new Request(new URL('/api/status?cache=v13',context.request.url).toString());
   const cached=await cache.match(cacheKey);if(cached)return cached;
-  const settled=await Promise.allSettled([fetchText(STATUS_URL),fetchText(PTU_FAQ),fetchText(PTU_INSTALL),fetchText(LOANER_MATRIX),fetchText(PATCH_FORUM),fetchPatchThreads(),fetchText(RELEASE_MIRROR)]);
+  const settled=await Promise.allSettled([fetchText(STATUS_URL),fetchText(PTU_FAQ),fetchText(PTU_INSTALL),fetchText(LOANER_MATRIX),fetchText(PATCH_FORUM),fetchPatchThreads(),fetchText(RELEASE_MIRROR),fetchText(HOTFIX_MIRROR)]);
   const statusBody=settled[0].status==='fulfilled'?text(settled[0].value):'';
   const ptuFaqBody=settled[1].status==='fulfilled'?text(settled[1].value):'';
   const ptuInstallBody=settled[2].status==='fulfilled'?text(settled[2].value):'';
   const loanerBody=settled[3].status==='fulfilled'?text(settled[3].value):'';
   const patchBody=settled[4].status==='fulfilled'?text(settled[4].value):'';
   const releaseMirrorBody=settled[6].status==='fulfilled'?decode(settled[6].value):'';
+  const hotfixMirrorBody=settled[7].status==='fulfilled'?text(settled[7].value):'';
 
   const liveVersions=[liveStatusVersion(ptuFaqBody),liveStatusVersion(ptuInstallBody),matrixVersion(loanerBody),...deploymentVersions(statusBody),...buildMatches(statusBody,'live').map(versionOnly),...buildMatches(patchBody,'live').map(versionOnly),...buildMatches(ptuFaqBody,'live').map(versionOnly),...buildMatches(ptuInstallBody,'live').map(versionOnly)];
   const liveVersion=newestVersion(liveVersions);
@@ -83,6 +91,7 @@ export async function onRequestGet(context){
     ok:Boolean(statusBody||ptuFaqBody||ptuInstallBody||loanerBody),
     updatedAt:new Date().toISOString(),
     live:{version:liveVersion,build:liveBuild,status:frStatus(overall)},
+    hotfix:hotfixFrom(releaseMirrorBody,hotfixMirrorBody,liveVersion,liveBuild),
     ptu:testEnvironment(settled[5].status==='fulfilled'?settled[5].value:[],'PTU',liveVersion),
     eptu:testEnvironment(settled[5].status==='fulfilled'?settled[5].value:[],'EPTU',liveVersion),
     services:{platform:frStatus(platform),persistentUniverse:frStatus(pu),arenaCommander:frStatus(arena)},

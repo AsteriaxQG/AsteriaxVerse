@@ -27,6 +27,8 @@
     "Récupération de l’état officiel des services et des environnements.":"Fetching the official status of services and environments.",
     "Voir les dernières actus →":"View latest news →",
     "Version officielle en cours":"Official version in progress",
+    "Correctif LIVE en test":"LIVE fix under testing",
+    "Aucun hotfix actif":"No active hotfix",
     "Sources officielles RSI · actualisation automatique":"Official RSI sources · auto-refresh",
     "Sources officielles RSI":"Official RSI sources",
     "actualisé":"updated",
@@ -253,3 +255,4 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
   window.AsteriaxI18n={get language(){return language},isEnglish:()=>language==='en',setLanguage:apply};
 })();
+

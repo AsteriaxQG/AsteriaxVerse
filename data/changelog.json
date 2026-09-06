@@ -1,5 +1,20 @@
 {
   "versions": [{
+    "version": "1.4.0",
+    "date": "2026-09-06",
+    "title": {"fr": "Identité Liquid Glass", "en": "Liquid Glass identity"},
+    "new": [],
+    "ui": [
+      {"fr": "Le style liquid glass est maintenant appliqué à la navigation, aux cartes, filtres, fiches, modales, boutons et au pied de page.", "en": "Liquid glass styling now covers navigation, cards, filters, detail panels, modals, buttons and the footer."},
+      {"fr": "Les transparences, reflets cyan, flous et ombres ont été adaptés au mobile pour préserver la lisibilité.", "en": "Transparency, cyan highlights, blur and shadows are adapted for mobile readability."}
+    ],
+    "fixes": [
+      {"fr": "Contraste renforcé sur les actions principales.", "en": "Improved contrast for primary actions."}
+    ],
+    "technical": [
+      {"fr": "La couche visuelle reste séparée des fonctions Twitch, Hangar et du catalogue.", "en": "The visual layer remains isolated from Twitch, Hangar and catalogue logic."}
+    ]
+  }, {
     "version": "1.3.0",
     "date": "2026-09-06",
     "title": {"fr": "Données automatiques et builder intelligent", "en": "Automatic data and smarter builder"},

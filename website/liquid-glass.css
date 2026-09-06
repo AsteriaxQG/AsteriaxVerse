@@ -68,3 +68,19 @@ input,select,.searchbox,.global-search,#loadoutRoot input,#loadoutRoot select{
   .topbar,.modal-panel,#loadoutRoot .lb-panel,.verse-status-banner,.ship-card,.news-card{-webkit-backdrop-filter:blur(16px) saturate(135%);backdrop-filter:blur(16px) saturate(135%)}
 }
 @media(prefers-reduced-motion:reduce){.ship-card,.news-card,.equipment-card,.nav-btn{transition:none!important;transform:none!important}}
+
+/* Fiche catalogue : contrôle ancré, défilement discret et image progressive. */
+.modal-panel{padding-top:76px!important;overflow:hidden!important}
+.modal-close{position:absolute!important;z-index:130!important;top:18px!important;right:18px!important;float:none!important;margin:0!important;width:44px!important;height:44px!important;display:grid!important;place-items:center!important;border-radius:50%!important;padding:0!important;color:#dcf8ff!important;font-size:27px!important;line-height:1!important;background:linear-gradient(145deg,rgba(31,83,108,.8),rgba(6,25,38,.76))!important}
+#itemDetail{scrollbar-width:thin;scrollbar-color:rgba(91,188,220,.58) transparent;padding-right:5px}
+#itemDetail::-webkit-scrollbar{width:7px}
+#itemDetail::-webkit-scrollbar-track{background:transparent}
+#itemDetail::-webkit-scrollbar-thumb{background:linear-gradient(#65dfff,#267a9c);border-radius:999px;border:2px solid transparent;background-clip:padding-box}
+.detail-vehicle-image{position:relative;isolation:isolate;min-height:220px;height:clamp(220px,26vw,330px)!important;overflow:hidden}
+.detail-vehicle-image.is-loading::before{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(105deg,rgba(21,58,76,.55) 20%,rgba(83,186,220,.25) 38%,rgba(21,58,76,.55) 56%);background-size:220% 100%;animation:ax-image-loading 1.2s linear infinite}
+.detail-vehicle-image img,.detail-vehicle-image .ship-fallback{position:relative;z-index:1}
+.detail-vehicle-image img{opacity:0;transition:opacity .22s ease}
+.detail-vehicle-image.is-loaded img{opacity:1}
+@keyframes ax-image-loading{to{background-position:-220% 0}}
+@media(max-width:650px){.modal-panel{padding:66px 10px calc(20px + env(safe-area-inset-bottom))!important}.modal-close{position:absolute!important;top:max(10px,env(safe-area-inset-top))!important;right:12px!important;width:42px!important;height:42px!important}#itemDetail{padding-right:2px}.detail-vehicle-image{height:clamp(180px,48vw,220px)!important;min-height:180px}}
+

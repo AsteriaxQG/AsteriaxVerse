@@ -1,5 +1,20 @@
 {
   "versions": [{
+    "version": "1.4.1",
+    "date": "2026-09-06",
+    "title": {"fr": "Fiches vaisseaux fluides et statut LIVE fiable", "en": "Smoother ship details and reliable LIVE status"},
+    "new": [],
+    "ui": [
+      {"fr": "La fiche charge d’abord un aperçu léger avec un squelette discret, puis l’image haute qualité.", "en": "Ship details now load a lightweight preview with a subtle skeleton before the high-quality image."}
+    ],
+    "fixes": [
+      {"fr": "La croix reste ancrée en haut à droite de la fiche et la barre de défilement est fine et intégrée au thème.", "en": "The close button stays anchored at the top-right of the panel and the scrollbar is slim and theme-matched."},
+      {"fr": "Le build LIVE tient désormais compte des hotfixes récents lorsque la matrice officielle n’est pas encore actualisée.", "en": "The LIVE build now accounts for recent hotfixes when the official matrix has not updated yet."}
+    ],
+    "technical": [
+      {"fr": "La détection croise les sources RSI avec un miroir de suivi et conserve un cache serveur court.", "en": "Detection cross-checks RSI sources with a release tracker and keeps a short server cache."}
+    ]
+  }, {
     "version": "1.4.0",
     "date": "2026-09-06",
     "title": {"fr": "Identité Liquid Glass", "en": "Liquid Glass identity"},
@@ -70,3 +85,4 @@
     "technical": [{"fr": "Publication Discord sécurisée par version, avec protection contre les doubles envois.", "en": "Secure per-release Discord publishing with duplicate-send protection."}]
   }]
 }
+

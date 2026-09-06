@@ -60,15 +60,21 @@ function massLabel(v){const n=Number(v);return Number.isFinite(n)&&n>0?`${n.toLo
 function crewLabel(v){const min=human(v.crew_min),raw=human(v.crew),range=raw.match(/^\s*(\d+)\s*[,;\-/–]\s*(\d+)\s*$/);if(range)return range[1]===range[2]?range[1]:`${range[1]} à ${range[2]}`;if(min&&raw&&min!==raw)return`${min} à ${raw}`;return raw||min||'Non renseigné'}
 openVehicle=function(id){
  const detail=state.vehicles.find(v=>String(v.id)===String(id));if(!detail)return;
- const offers=offersFor(detail),ground=Number(detail.is_ground_vehicle)===1,u=imageOf(detail),rawStatus=effectiveStatus(detail),st=statusLabel(rawStatus),name=human(detail.name_full)||human(detail.name)||'Vaisseau';
- const image=u?`<div class="detail-vehicle-image"><img decoding="async" src="${esc(u)}" alt="${esc(name)}" referrerpolicy="no-referrer"></div>`:`<div class="detail-vehicle-image">${fallbackImage(name)}</div>`;
+ const offers=offersFor(detail),ground=Number(detail.is_ground_vehicle)===1,u=imageOf(detail),preview=cardImageOf(detail)||u,rawStatus=effectiveStatus(detail),st=statusLabel(rawStatus),name=human(detail.name_full)||human(detail.name)||'Vaisseau';
+ const image=u?`<div class="detail-vehicle-image is-loading"><img decoding="async" loading="eager" fetchpriority="high" src="${esc(preview)}" data-full="${esc(u)}" alt="${esc(name)}" referrerpolicy="no-referrer"></div>`:`<div class="detail-vehicle-image is-loaded">${fallbackImage(name)}</div>`;
  const fields=[['Statut RSI',st],['Disponibilité',availability(detail)],['Prix en jeu',Number(detail.price_min)>0?price(detail.price_min):'Indisponible'],[pledgePriceLabel(detail),pledgePrice(detail)],['Disponibilité Pledge',pledgePurchase(detail)],['Type',ground?'Véhicule terrestre':'Vaisseau'],['Constructeur',human(detail.manufacturer)],['Taille RSI',human(detail.catalog_size)||'Non renseignée'],['Rôle',human(detail.roles)||'Non renseigné'],['SCU',human(detail.scu)||'—'],['Équipage',crewLabel(detail)],['Longueur',meters(detail.catalog_length)],['Largeur',meters(detail.catalog_beam)],['Hauteur',meters(detail.catalog_height)],['Masse',massLabel(detail.catalog_mass)]].filter(x=>x[1]!==null&&x[1]!==undefined&&String(x[1])!=='');
  const purchaseText=offers.length?`<table class="shops"><thead><tr><th>Lieu d’achat en jeu</th><th>Prix en aUEC</th></tr></thead><tbody>${offers.map(o=>`<tr><td>${esc(o.location||'—')}</td><td>${price(o.price_buy)}</td></tr>`).join('')}</tbody></table>`:`<div class="empty compact-empty">Aucune offre d’achat en jeu n’est actuellement référencée.</div>`;
  const rsiLinks=`<p class="rsi-source">${human(detail.rsi_url)?`<a href="${esc(human(detail.rsi_url))}" target="_blank" rel="noopener">Voir la fiche RSI ↗</a>`:''}${human(detail.store_url)?`<a href="${esc(human(detail.store_url))}" target="_blank" rel="noopener">Acheter sur RSI ↗</a>`:''}</p>`;
  openDetail(`${image}<div class="detail-head"><p class="eyebrow">FICHE ${ground?'VÉHICULE':'VAISSEAU'}</p><div class="detail-title-row"><h2>${esc(name)}</h2></div><p class="detail-sub"><button class="text-link" data-manufacturer="${esc(human(detail.manufacturer))}">${esc(human(detail.manufacturer))}</button>${human(detail.roles)?' · '+esc(human(detail.roles)):''}</p><div class="hangar-actions"><button class="detail-fav ${owned.has(key(detail))?'active':''}" data-hangar-owned="${esc(detail.id)}">${owned.has(key(detail))?'✓ Dans mes vaisseaux':'＋ Ajouter à mes vaisseaux'}</button><button class="detail-fav ${wished.has(key(detail))?'active':''}" data-hangar-wish="${esc(detail.id)}">${wished.has(key(detail))?'★ Dans la Liste d’envie':'☆ Ajouter à la Liste d’envie'}</button></div></div><div class="detail-grid">${fields.map(([k,v])=>`<div class="detail-stat"><span>${esc(k)}</span><strong>${esc(v)}</strong></div>`).join('')}</div>${human(detail.catalog_description)?`<div class="ship-description">${esc(plainText(detail.catalog_description))}</div>`:''}${patchImpact(detail)}<h3>Où acheter en jeu</h3>${purchaseText}${rsiLinks}`);
  const description=plainText(detail.catalog_description);
  if(description){const descriptionId=descriptionHash(description);const target=document.querySelector('.ship-description');if(target){target.dataset.descriptionId=descriptionId;target.dataset.descriptionSource=description;target.textContent=document.documentElement.lang==='en'?description:'Traduction française en cours…';}translateDescription(description).then(translated=>{const current=document.querySelector('.ship-description[data-description-id="'+descriptionId+'"]');if(current){current.dataset.descriptionFr=translated||'';if(document.documentElement.lang!=='en')current.textContent=translated||'Description française indisponible pour le moment.'}})}
- document.querySelector('.detail-vehicle-image img')?.addEventListener('error',e=>{e.currentTarget.parentElement.innerHTML=fallbackImage(name)},{once:true});
+ const detailImage=document.querySelector('.detail-vehicle-image img');
+ if(detailImage){
+  const loaded=()=>detailImage.parentElement?.classList.replace('is-loading','is-loaded');
+  if(detailImage.complete)loaded();else detailImage.addEventListener('load',loaded,{once:true});
+  detailImage.addEventListener('error',e=>{e.currentTarget.parentElement.innerHTML=fallbackImage(name)},{once:true});
+  const full=detailImage.dataset.full;if(full&&full!==detailImage.src){const high=new Image();high.decoding='async';high.onload=()=>{detailImage.src=full;delete detailImage.dataset.full};high.src=full}
+ }
  document.querySelector('[data-hangar-owned]')?.addEventListener('click',e=>{setHangar(e.currentTarget.dataset.hangarOwned,'owned');openVehicle(id)});
  document.querySelector('[data-hangar-wish]')?.addEventListener('click',e=>{setHangar(e.currentTarget.dataset.hangarWish,'wish');openVehicle(id)});
 }
@@ -102,5 +108,6 @@ document.addEventListener('asteriax:catalog-ready',e=>{if(e.detail?.source==='da
 document.addEventListener('asteriax:language-change',renderCatalogUpdated);
 function wait(){if(state.db){bindHangarTabs();maybeLoadCatalog()}else setTimeout(wait,150)}wait();
 })();
+
 
 

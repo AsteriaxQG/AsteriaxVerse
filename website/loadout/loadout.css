@@ -48,7 +48,7 @@
 #loadoutRoot .lb-filter-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px}
 #loadoutRoot .lb-filter-bottom select{width:55%}
 #loadoutRoot .lb-count{font-size:11px;color:#9ebbd0;margin:12px 0}
-#loadoutRoot .lb-items{max-height:420px;overflow:auto;scrollbar-width:thin}
+#loadoutRoot .lb-items{max-height:300px;overflow:auto;scrollbar-width:thin}
 #loadoutRoot .lb-item{display:flex;gap:12px;align-items:start;padding:13px 0;border-bottom:1px solid #203a48}
 #loadoutRoot .lb-item-copy{min-width:0;flex:1}#loadoutRoot .lb-item-copy>strong{font-size:13px;overflow-wrap:anywhere}
 #loadoutRoot .lb-item-actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}

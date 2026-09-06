@@ -1,4 +1,4 @@
-import {families,compatible,createBuild,validateBuild,metrics,suggest,encodeBuild,decodeBuild} from './core.js';
+import {families,compatible,createBuild,validateBuild,metrics,suggest as makeSuggestion,encodeBuild,decodeBuild} from './core.js?v=2';
 import {readBuilds,saveBuild,deleteBuild,favorites,toggleFavorite} from './storage.js';
 const root=document.querySelector('#loadoutRoot'),legacy=document.querySelector('#legacyEquipment');
 const PAGE_SIZE=8;
@@ -6,7 +6,8 @@ const en=()=>window.AsteriaxI18n?.isEnglish?.()===true;
 const t=(fr,eng)=>en()?eng:fr;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=(n,unit='')=>Number.isFinite(n)?n.toLocaleString(en()?'en-GB':'fr-FR',{maximumFractionDigits:1})+unit:'—';
-let data,build,tab='builder',selected='',q='',category='',manufacturer='',size='',grade='',sort='name',onlyFav=false,page=0,compared=[],fav=favorites(),dirty=false,notice='',busy=false,ready=false,proposal=null,mobilePane='ship';
+let data,build,tab='builder',selected='',q='',category='',manufacturer='',size='',grade='',sort='name',onlyFav=false,page=0,compared=[],fav=favorites(),dirty=false,notice='',busy=false,ready=false,proposal=null,mobilePane='ship',budget=0;
+const suggest=(current,catalog,mode)=>makeSuggestion(current,catalog,mode,{budget});
 const item=id=>data.components.find(i=>i.id===id),ship=()=>data.ships.find(s=>s.id===build.shipId),slot=()=>ship().slots.find(s=>s.id===selected);
 const family=type=>families[type]?.[en()?1:0]||type;
 const btn=(action,label,cls='',attrs='')=>`<button type="button" class="lb-button ${cls}" data-lb-action="${action}" ${attrs}>${label}</button>`;
@@ -21,6 +22,8 @@ function render(){if(!data)return;root.dataset.pane=mobilePane;window.AsteriaxLo
  <p id="lbNotice" class="lb-notice" role="status">${esc(notice)}</p>
  ${tab==='builder'?`<nav class="lb-mobile-nav" aria-label="${t('Panneaux du builder','Builder panels')}">${[['ship','Vaisseau','Ship'],['slots','Slots','Slots'],['catalog','Catalogue','Catalogue'],['summary','Résumé','Summary']].map(([key,fr,eng])=>btn('pane',t(fr,eng),mobilePane===key?'is-active':'',`data-pane="${key}" aria-pressed="${mobilePane===key}"`)).join('')}</nav><div class="lb-workspace">${shipPanel()}${slotsPanel()}${catalogPanel(true)}</div>${summaryPanel()}`:tab==='catalog'?catalogPanel(false):tab==='compare'?comparePanel():tab==='saved'?savedPanel():tab==='guides'?guidesPanel():''}
  <p class="lb-source">${t('Données techniques','Technical data')} : <a href="${data.source}/tree/${data.revision}" target="_blank" rel="noopener">StarCitizenWiki / ScDataDumper</a> · ${esc(data.patch)}. ${t('Prix issus du catalogue Asteriax Verse ; ils peuvent provenir d’un autre patch.','Prices from the Asteriax Verse catalogue; they may belong to another patch.')}</p>`;
+ const control=root.querySelector('.lb-control-card .lb-label');control?.insertAdjacentHTML('afterend',`<label class="lb-label lb-budget">${t('Budget maximal (0 = sans limite)','Maximum budget (0 = unlimited)')}<input id="lbBudget" type="number" min="0" step="1000" value="${budget||0}"><small>${budget&&metrics(build,data).cost>budget?t('Build actuellement au-dessus du budget.','Current build is over budget.'):t('Les suggestions respecteront ce budget.','Suggestions will respect this budget.')}</small></label>`);
+ const statGrid=root.querySelector('.lb-stat-grid');const currentMetrics=metrics(build,data);if(statGrid&&currentMetrics.powerMargin!==null)statGrid.insertAdjacentHTML('beforeend',`<div class="${currentMetrics.powerMargin<0?'lb-warning':''}"><dt>${t('Marge énergétique','Power margin')}</dt><dd>${fmt(currentMetrics.powerMargin,' seg.')}</dd></div>`);
  root.querySelectorAll('img').forEach(img=>img.addEventListener('error',()=>{img.hidden=true},{once:true}));
  if(tab==='legacy')window.renderItems?.();
 }
@@ -38,6 +41,7 @@ function dialog(title,html){let d=document.querySelector('#lbDialog');d?.remove(
 function offerHtml(i){return `<h4>${esc(i.name)}</h4>${i.offers.length?`<ul class="lb-offers">${i.offers.map(o=>`<li><span>${esc(o.location)}<small>${esc(o.patch||t('Patch du prix inconnu','Price patch unknown'))}</small></span><strong>${fmt(o.price,' aUEC')}</strong></li>`).join('')}</ul>`:`<p>${t('Aucune offre référencée pour ce composant.','No listed offers for this component.')}</p>`}`}
 function download(blob,name){const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 root.addEventListener('input',e=>{if(e.target.id==='lbSearch'){q=e.target.value;page=0;root.querySelector('#lbResults').innerHTML=catalogueResults()}if(e.target.id==='lbBuildName'){build.name=e.target.value;dirty=true}});
+root.addEventListener('change',e=>{if(e.target.id==='lbBudget'){budget=Math.max(0,Number(e.target.value)||0);render()}});
 root.addEventListener('change',async e=>{try{
  const id=e.target.id;
  if(id==='lbShip'){if(dirty&&!confirm(t('Changer de vaisseau et abandonner les modifications non sauvegardées ?','Change ship and discard unsaved changes?'))){e.target.value=build.shipId;return}build=createBuild(data.ships.find(s=>s.id===e.target.value),data.patch);selected=ship().slots.find(s=>s.editable)?.id||ship().slots[0].id;dirty=false;q=category=manufacturer=size=grade='';page=0;render();return}

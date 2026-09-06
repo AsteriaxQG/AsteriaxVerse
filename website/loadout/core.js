@@ -20,12 +20,15 @@ export function metrics(build,data){
  const quantum=items.find(i=>i.type==='QuantumDrive');let cost=0,unknown=0;
  for(const i of items){if(i.offers.length)cost+=i.offers[0].price;else unknown++}
  const missingStock=data.ships.find(s=>s.id===build.shipId).slots.filter(s=>!s.stock&&s.stockName).length;
- return {dps:sum('WeaponGun','dps'),shield:sum('Shield','shield'),regen:sum('Shield','regen'),power:sum('PowerPlant','power'),cooling:sum('Cooler','cooling'),speed:quantum?.stats.speed??null,spool:quantum?.stats.spool??null,cost,unknown:unknown+missingStock,items};
+ const power=sum('PowerPlant','power'),draw=items.some(i=>!Number.isFinite(i.stats.draw))?null:items.reduce((n,i)=>n+(i.stats.draw||0),0);
+ return {dps:sum('WeaponGun','dps'),shield:sum('Shield','shield'),regen:sum('Shield','regen'),power,draw,powerMargin:Number.isFinite(power)&&Number.isFinite(draw)?power-draw:null,cooling:sum('Cooler','cooling'),speed:quantum?.stats.speed??null,spool:quantum?.stats.spool??null,cost,unknown:unknown+missingStock,items};
 }
-export function suggest(build,data,mode){
+export function suggest(build,data,mode,options={}){
  const ship=data.ships.find(s=>s.id===build.shipId),next=structuredClone(build);
+ const budget=Number.isFinite(options.budget)&&options.budget>0?options.budget:Infinity,byId=new Map(data.components.map(i=>[i.id,i]));
+ const price=i=>i?.offers?.[0]?.price??null;
  const score=i=>mode==='dps'?(i.type==='WeaponGun'?i.stats.dps:null):mode==='defense'?(i.type==='Shield'?i.stats.shield:null):mode==='quantum'?(i.type==='QuantumDrive'?i.stats.speed:null):mode==='pvp'?(i.type==='WeaponGun'?i.stats.dps:i.type==='Shield'?i.stats.shield:null):(i.type==='WeaponGun'?i.stats.dps:i.type==='Shield'?i.stats.shield:i.type==='QuantumDrive'&&i.stats.fuel>0?1/i.stats.fuel:null);
- for(const s of ship.slots){if(!s.editable)continue;const candidates=data.components.filter(i=>compatible(s,i)&&Number.isFinite(score(i))).sort((a,b)=>score(b)-score(a)||a.name.localeCompare(b.name));if(candidates.length)next.slots[s.id]=candidates[0].id}
+ for(const s of ship.slots){if(!s.editable)continue;const old=byId.get(next.slots[s.id]),baseCost=metrics(next,data).cost-(price(old)||0);const candidates=data.components.filter(i=>compatible(s,i)&&Number.isFinite(score(i))&&(budget===Infinity||price(i)!==null&&baseCost+price(i)<=budget)).sort((a,b)=>score(b)-score(a)||a.name.localeCompare(b.name));if(candidates.length)next.slots[s.id]=candidates[0].id}
  return next;
 }
 export function encodeBuild(build){return btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(build)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}

@@ -1,5 +1,21 @@
 {
   "versions": [{
+    "version": "1.3.0",
+    "date": "2026-09-06",
+    "title": {"fr": "Données automatiques et builder intelligent", "en": "Automatic data and smarter builder"},
+    "new": [
+      {"fr": "Un budget maximal peut maintenant encadrer les suggestions automatiques.", "en": "A maximum budget can now constrain automatic suggestions."},
+      {"fr": "Le résumé affiche la marge énergétique connue du build.", "en": "The summary now shows the build’s known power margin."}
+    ],
+    "ui": [
+      {"fr": "Le budget et les avertissements sont intégrés au bloc compact Actions et suggestions.", "en": "Budget and warnings are integrated into the compact Actions and suggestions panel."}
+    ],
+    "fixes": [],
+    "technical": [
+      {"fr": "Une tâche quotidienne vérifie la source LIVE et ne publie le catalogue qu’après validation et tests.", "en": "A daily job checks the LIVE source and only publishes the catalogue after validation and tests."},
+      {"fr": "Une source incomplète ou sans version reconnue est refusée afin de conserver le dernier catalogue valide.", "en": "An incomplete source or one without a recognized version is rejected to preserve the last valid catalogue."}
+    ]
+  }, {
     "version": "1.2.1",
     "date": "2026-09-06",
     "title": {"fr": "Connexion Twitch plus durable", "en": "More persistent Twitch sign-in"},

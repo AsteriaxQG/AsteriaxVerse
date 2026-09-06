@@ -23,6 +23,9 @@
 #loadoutRoot h4{font-size:19px;margin:18px 0 12px;line-height:1.3}
 #loadoutRoot .lb-label,#loadoutRoot .lb-filters label{display:flex;flex-direction:column;gap:6px;font-size:11px;color:var(--lb-muted)}
 #loadoutRoot select,#loadoutRoot input[type=search],#loadoutRoot input:not([type]){display:block;min-width:0;width:100%;height:40px;background:#0b1c29;color:#e8f4fc;border:1px solid #2c4a5e;border-radius:8px;padding:8px 10px;font:inherit;font-size:13px;box-shadow:none;filter:none}
+#loadoutRoot input[type=number]{display:block;width:100%;height:40px;background:#0b1c29;color:#e8f4fc;border:1px solid #2c4a5e;border-radius:8px;padding:8px 10px;font:inherit}
+#loadoutRoot .lb-budget{margin-top:10px}
+#loadoutRoot .lb-warning dt,#loadoutRoot .lb-warning dd{color:#ffb56b}
 #loadoutRoot .lb-tags{display:flex;flex-wrap:wrap;gap:6px;font-size:11px}
 #loadoutRoot .lb-tags span{border:1px solid #31536a;padding:4px 8px;border-radius:5px;background:#173346}
 #loadoutRoot .lb-ship-art{aspect-ratio:4/3;display:grid;place-items:center;background:radial-gradient(ellipse,#1d4960,#081722 70%);border-radius:10px;overflow:hidden;margin:18px 0}

@@ -11,4 +11,5 @@ const slot=ship.slots.find(s=>s.type==='Shield'),wrong=data.components.find(i=>i
 const restricted={...slot,required:['nonexistent-tag']};assert.equal(compatible(restricted,data.components.find(i=>i.type==='Shield'&&i.id!==slot.stock&&i.size===slot.max)),false);
 const fixed={...slot,editable:false};assert.equal(compatible(fixed,data.components.find(i=>i.type==='Shield'&&i.id!==slot.stock&&i.size===slot.max)),false);
 const proposed=suggest(build,data,'dps');assert.ok(metrics(proposed,data).dps>=stock.dps);assert.deepEqual(build.slots,createBuild(ship,data.patch).slots);
+const budgeted=suggest(build,data,'dps',{budget:stock.cost});assert.ok(metrics(budgeted,data).cost<=stock.cost);
 console.log(`PASS: ${data.ships.length} stock builds, suggestions, size/type/tag/fixed compatibility, prices, import and share validation`);

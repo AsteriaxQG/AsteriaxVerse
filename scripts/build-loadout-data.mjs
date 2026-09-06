@@ -28,6 +28,10 @@ const ships=rawShips.filter(s=>s.IsSpaceship&&s.Loadout&&!/ballista.*(dunestalke
  const match=dbShips.find(v=>v.uuid?.toLowerCase()===s.UUID?.toLowerCase())||dbShips.find(v=>norm(v.name_full)===norm(s.Name)||norm(v.name)===norm(s.Name));
  return {id:s.UUID,name:s.Name,manufacturer:s.Manufacturer?.Name||'',role:s.Role||'',length:s.Length,width:s.Width,height:s.Height,crew:s.Crew,scu:s.Cargo,photo:match?.url_photo||null,catalogId:match?.id||null,slots};
 }).filter(s=>s.slots.length).sort((a,b)=>a.name.localeCompare(b.name));
-const out={schema:1,patch:'4.10.0-LIVE.12519617',source:'https://github.com/StarCitizenWiki/scunpacked-data',revision:'f6a2b29e77aaa2c824aa4fd1c0478c8058c69fca',generatedAt:new Date().toISOString(),ships,components};
+const patch=process.env.AX_LOADOUT_PATCH||'4.10.0-LIVE.12519617';
+const revision=process.env.AX_LOADOUT_REVISION||'f6a2b29e77aaa2c824aa4fd1c0478c8058c69fca';
+if(!/^\d+\.\d+\.\d+-(?:LIVE|PTU|EPTU)\.\d+$/i.test(patch)||!/^[a-f0-9]{40}$/i.test(revision))throw Error('Invalid patch provenance');
+if(ships.length<150||components.length<300)throw Error('Source validation failed: refusing an incomplete catalogue');
+const out={schema:1,patch,source:'https://github.com/StarCitizenWiki/scunpacked-data',revision,generatedAt:new Date().toISOString(),ships,components};
 fs.mkdirSync('website/loadout/data',{recursive:true});fs.writeFileSync('website/loadout/data/catalog.json',JSON.stringify(out));
 console.log(JSON.stringify({ships:ships.length,components:components.length,priced:components.filter(i=>i.offers.length).length,bytes:fs.statSync('website/loadout/data/catalog.json').size}));

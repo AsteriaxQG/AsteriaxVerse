@@ -1,5 +1,19 @@
 {
   "versions": [{
+    "version": "1.4.4",
+    "date": "2026-09-07",
+    "title": {"fr": "Twitch simplifié, Hangar local", "en": "Simplified Twitch, local Hangar"},
+    "new": [],
+    "ui": [
+      {"fr": "La connexion Twitch est remplacée par un lien direct vers la chaîne, avec l’indicateur de live conservé.", "en": "Twitch sign-in is replaced by a direct channel link while keeping the live indicator."}
+    ],
+    "fixes": [
+      {"fr": "Les boutons de connexion, de déconnexion et les messages de session Twitch ont été supprimés.", "en": "Twitch sign-in, sign-out and session messages were removed."}
+    ],
+    "technical": [
+      {"fr": "Le Hangar et la Liste d’envie restent enregistrés localement sur l’appareil, sans compte requis.", "en": "The Hangar and wish list remain stored locally on the device with no account required."}
+    ]
+  }, {
     "version": "1.4.3",
     "date": "2026-09-07",
     "title": {"fr": "Alignement des sections d’accueil", "en": "Home section alignment"},

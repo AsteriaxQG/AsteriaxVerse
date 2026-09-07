@@ -1,5 +1,19 @@
 {
   "versions": [{
+    "version": "1.4.3",
+    "date": "2026-09-07",
+    "title": {"fr": "Alignement des sections d’accueil", "en": "Home section alignment"},
+    "new": [],
+    "ui": [
+      {"fr": "Le titre Actualités et les autres en-têtes restent correctement alignés dans leur panneau glass sur les écrans étroits.", "en": "News and other section headings now remain correctly aligned inside their glass panels on narrow screens."}
+    ],
+    "fixes": [
+      {"fr": "Suppression du débordement horizontal qui pouvait couper le début ou la fin des titres.", "en": "Removed horizontal overflow that could clip the beginning or end of headings."}
+    ],
+    "technical": [
+      {"fr": "Contraintes de largeur ajoutées sans modifier le contenu ni le chargement des actualités.", "en": "Width constraints were added without changing news content or loading behavior."}
+    ]
+  }, {
     "version": "1.4.2",
     "date": "2026-09-06",
     "title": {"fr": "Suivi automatique du canal HOTFIX", "en": "Automatic HOTFIX channel tracking"},

@@ -84,3 +84,9 @@ input,select,.searchbox,.global-search,#loadoutRoot input,#loadoutRoot select{
 @keyframes ax-image-loading{to{background-position:-220% 0}}
 @media(max-width:650px){.modal-panel{padding:66px 10px calc(20px + env(safe-area-inset-bottom))!important}.modal-close{position:absolute!important;top:max(10px,env(safe-area-inset-top))!important;right:12px!important;width:42px!important;height:42px!important}#itemDetail{padding-right:2px}.detail-vehicle-image{height:clamp(180px,48vw,220px)!important;min-height:180px}}
 
+/* Les titres d'accueil restent dans la largeur disponible, même sur les écrans étroits. */
+.home-section{width:100%;min-width:0}
+.home-section-head,.home-section-head>div{min-width:0;max-width:100%}
+.home-section-head h2{max-width:100%;overflow-wrap:anywhere}
+@media(max-width:650px){.home-section{overflow:visible!important}.home-section-head{width:100%!important;margin-inline:0!important;padding-inline:0!important}.home-section-head h2{font-size:clamp(24px,8vw,30px)!important;line-height:1.08!important}}
+

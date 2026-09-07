@@ -5,7 +5,8 @@
     "title": {"fr": "Alignement des sections d’accueil", "en": "Home section alignment"},
     "new": [],
     "ui": [
-      {"fr": "Le titre Actualités et les autres en-têtes restent correctement alignés dans leur panneau glass sur les écrans étroits.", "en": "News and other section headings now remain correctly aligned inside their glass panels on narrow screens."}
+      {"fr": "Le grand rectangle derrière les sections d’accueil a été retiré ; l’effet glass reste limité aux cartes.", "en": "The large rectangle behind home sections was removed; glass styling remains on the cards."},
+      {"fr": "Le titre Actualités et les autres en-têtes restent correctement alignés sur les écrans étroits.", "en": "News and other section headings remain correctly aligned on narrow screens."}
     ],
     "fixes": [
       {"fr": "Suppression du débordement horizontal qui pouvait couper le début ou la fin des titres.", "en": "Removed horizontal overflow that could clip the beginning or end of headings."}

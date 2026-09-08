@@ -36,6 +36,10 @@ export function hotfixFrom(releaseBody='',hotfixBody='',liveVersion='',liveBuild
   return{status:online?'En ligne':'Hors ligne',version:online?liveVersion:'',build:online&&liveVersion?`${liveVersion}-hotfix.${sequence}`:'',source:PATCH_FORUM};
 }
 function ptuStateFrom(body=''){return body.match(/PTU STATUS\s*:\s*([^|]{1,50})/i)?.[1]?.trim()||''}
+export function applyOfficialPtuState(raw='',fallback={status:'Non vérifié',version:'',build:''}){
+  if(/\b(?:offline|closed|shutdown)\b/i.test(String(raw)))return{status:'Hors ligne',version:'',build:'',source:PTU_INSTALL};
+  return fallback;
+}
 function environmentStatus(raw='',hasBuild=false){const s=String(raw).trim();if(hasBuild)return frStatus(s||'Online');if(!s||/unknown|not published|not available/i.test(s))return'Non publié';return frStatus(s)}
 function overallFromServices(noIssues,...services){if(noIssues)return'Operational';const joined=services.join(' ');if(/Major Outage/i.test(joined))return'Major Outage';if(/Partial Outage/i.test(joined))return'Partial Outage';if(/Degraded/i.test(joined))return'Degraded';if(/Maintenance/i.test(joined))return'Maintenance';if(services.every(x=>/Operational/i.test(x)))return'Operational';return'Unknown'}
 
@@ -63,7 +67,7 @@ export function testEnvironment(threads,label,liveVersion,now=Date.now()){
 
 export async function onRequestGet(context){
   const cache=caches.default;
-  const cacheKey=new Request(new URL('/api/status?cache=v14',context.request.url).toString());
+  const cacheKey=new Request(new URL('/api/status?cache=v15',context.request.url).toString());
   const cached=await cache.match(cacheKey);if(cached)return cached;
   const settled=await Promise.allSettled([fetchText(STATUS_URL),fetchText(PTU_FAQ),fetchText(PTU_INSTALL),fetchText(LOANER_MATRIX),fetchText(PATCH_FORUM),fetchPatchThreads(),fetchText(RELEASE_MIRROR),fetchText(HOTFIX_MIRROR)]);
   const statusBody=settled[0].status==='fulfilled'?text(settled[0].value):'';
@@ -80,6 +84,10 @@ export async function onRequestGet(context){
   const liveBuildCandidates=[...buildMatches(statusBody,'live'),...buildMatches(patchBody,'live'),...buildMatches(ptuFaqBody,'live'),...buildMatches(ptuInstallBody,'live'),...buildMatches(loanerBody,'live'),matrixBuild,mirrorLiveBuild(releaseMirrorBody)];
   const detectedLiveBuild=firstMatchingBuild(liveBuildCandidates,liveVersion);
   const liveBuild=detectedLiveBuild&&liveVersion?`${liveVersion}-live.${buildSequence(detectedLiveBuild)}`:detectedLiveBuild;
+  const testThreads=settled[5].status==='fulfilled'?settled[5].value:[];
+  const ptuSpectrum=testEnvironment(testThreads,'PTU',liveVersion);
+  const ptuOfficialState=`${ptuStateFrom(ptuInstallBody)} ${ptuStateFrom(ptuFaqBody)}`.trim();
+  const ptu=applyOfficialPtuState(ptuOfficialState,ptuSpectrum);
 
   const platform=serviceStatus(statusBody,'Platform');
   const pu=serviceStatus(statusBody,'Persistent Universe');
@@ -92,12 +100,11 @@ export async function onRequestGet(context){
     updatedAt:new Date().toISOString(),
     live:{version:liveVersion,build:liveBuild,status:frStatus(overall)},
     hotfix:hotfixFrom(releaseMirrorBody,hotfixMirrorBody,liveVersion,liveBuild),
-    ptu:testEnvironment(settled[5].status==='fulfilled'?settled[5].value:[],'PTU',liveVersion),
-    eptu:testEnvironment(settled[5].status==='fulfilled'?settled[5].value:[],'EPTU',liveVersion),
+    ptu,
+    eptu:testEnvironment(testThreads,'EPTU',liveVersion),
     services:{platform:frStatus(platform),persistentUniverse:frStatus(pu),arenaCommander:frStatus(arena)},
-    sources:{status:STATUS_URL,ptu:PATCH_FORUM,liveBuild:LOANER_MATRIX}
+    sources:{status:STATUS_URL,ptu:PTU_INSTALL,ptuPatches:PATCH_FORUM,liveBuild:LOANER_MATRIX}
   };
   const response=new Response(JSON.stringify(payload),{headers:{'content-type':'application/json; charset=utf-8','cache-control':'public, max-age=15, s-maxage=60, stale-while-revalidate=120','access-control-allow-origin':'*'}});
   context.waitUntil(cache.put(cacheKey,response.clone()));return response;
 }
-

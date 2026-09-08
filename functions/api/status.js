@@ -67,7 +67,7 @@ export function testEnvironment(threads,label,liveVersion,now=Date.now()){
 
 export async function onRequestGet(context){
   const cache=caches.default;
-  const cacheKey=new Request(new URL('/api/status?cache=v15',context.request.url).toString());
+  const cacheKey=new Request(new URL('/api/status?cache=v16',context.request.url).toString());
   const cached=await cache.match(cacheKey);if(cached)return cached;
   const settled=await Promise.allSettled([fetchText(STATUS_URL),fetchText(PTU_FAQ),fetchText(PTU_INSTALL),fetchText(LOANER_MATRIX),fetchText(PATCH_FORUM),fetchPatchThreads(),fetchText(RELEASE_MIRROR),fetchText(HOTFIX_MIRROR)]);
   const statusBody=settled[0].status==='fulfilled'?text(settled[0].value):'';

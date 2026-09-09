@@ -1,5 +1,17 @@
 {
   "versions": [{
+    "version": "1.5.2",
+    "date": "2026-09-09",
+    "title": {"fr": "Mascotte au premier plan", "en": "Mascot in the foreground"},
+    "new": [],
+    "ui": [],
+    "fixes": [
+      {"fr": "Les panneaux du hero ne peuvent plus recouvrir ni couper la mascotte pendant son animation 2.5D.", "en": "Hero panels can no longer cover or clip the mascot during its 2.5D animation."}
+    ],
+    "technical": [
+      {"fr": "La mascotte possède désormais son propre plan d’empilement et neutralise les fonds génériques appliqués aux boutons.", "en": "The mascot now has its own stacking layer and neutralizes generic button backgrounds."}
+    ]
+  }, {
     "version": "1.5.1",
     "date": "2026-09-09",
     "title": {"fr": "Mascotte entièrement visible", "en": "Mascot fully visible"},

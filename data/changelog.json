@@ -1,5 +1,19 @@
 {
   "versions": [{
+    "version": "1.5.0",
+    "date": "2026-09-09",
+    "title": {"fr": "La mascotte rejoint le Verse", "en": "The mascot joins the Verse"},
+    "new": [
+      {"fr": "La mascotte officielle d’AsteriaxTTV fait son arrivée sur Asteriax Verse.", "en": "AsteriaxTTV’s official mascot has arrived on Asteriax Verse."}
+    ],
+    "ui": [
+      {"fr": "La mascotte rejoint le hero d’accueil avec une présentation glass adaptée aux écrans ordinateur, tablette et mobile.", "en": "The mascot joins the home hero with a glass presentation adapted to desktop, tablet and mobile screens."}
+    ],
+    "fixes": [],
+    "technical": [
+      {"fr": "L’image transparente est chargée de façon différée afin de préserver la fluidité du catalogue.", "en": "The transparent image is lazy-loaded to preserve catalogue performance."}
+    ]
+  }, {
     "version": "1.4.4",
     "date": "2026-09-07",
     "title": {"fr": "Twitch simplifié, Hangar local", "en": "Simplified Twitch, local Hangar"},

@@ -4,7 +4,7 @@
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/><meta name="theme-color" content="#071018"/>
 <meta name="description" content="Asteriax Verse — catalogue Star Citizen : tous les vaisseaux, véhicules, équipements, prix, statuts, lieux, constructeurs et actualités."/>
 <meta property="og:title" content="Asteriax Verse — AsteriaxTTV"/><meta property="og:description" content="Tous les vaisseaux Star Citizen, équipements, prix, statuts, lieux et actualités."/><meta property="og:type" content="website"/><meta property="og:image" content="assets/asteriax_logo.png"/>
-<title>Asteriax Verse</title><link rel="icon" href="assets/asteriax_mark.png"/><link rel="preconnect" href="https://cdn.jsdelivr.net"/><link rel="stylesheet" href="styles.css"/><link rel="stylesheet" href="features.css?v=8"/><link rel="stylesheet" href="home.css?v=3"/><link rel="stylesheet" href="shipcatalog.css?v=2"/><link rel="stylesheet" href="catalog-fixes.css?v=3"/><link rel="stylesheet" href="searchfix.css?v=1"/>
+<title>Asteriax Verse</title><link rel="icon" href="assets/asteriax_mark.png"/><link rel="preconnect" href="https://cdn.jsdelivr.net"/><link rel="stylesheet" href="styles.css"/><link rel="stylesheet" href="features.css?v=8"/><link rel="stylesheet" href="home.css?v=4"/><link rel="stylesheet" href="shipcatalog.css?v=2"/><link rel="stylesheet" href="catalog-fixes.css?v=3"/><link rel="stylesheet" href="searchfix.css?v=1"/>
 <link rel="stylesheet" href="status-ui.css?v=2"/><link rel="stylesheet" href="hotfix-status.css?v=1"/><link rel="stylesheet" href="patch-refresh.css?v=2"/><link rel="stylesheet" href="footer-credit.css?v=1"/><link rel="stylesheet" href="desktop-polish.css?v=11"/><link rel="stylesheet" href="mobile.css?v=3"/><link rel="stylesheet" href="twitch-account.css?v=2"/><link rel="stylesheet" href="changelog.css?v=1"/><link rel="stylesheet" href="liquid-glass.css?v=4"/></head><body><div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
 <header class="topbar"><a class="brand" href="#home" aria-label="Asteriax Verse accueil"><img class="brand-logo" src="assets/asteriax_mark.png" alt="Logo Asteriax Verse"/><span><strong>Asteriax Verse</strong><small>AsteriaxTTV</small></span></a><label class="global-search"><span aria-hidden="true">⌕</span><input id="globalSearch" type="search" aria-label="Rechercher dans Asteriax Verse" placeholder="Rechercher…" autocomplete="off"/></label><nav class="nav" aria-label="Navigation principale"><button class="nav-btn active" data-view="home" data-mobile-icon="⌂">Accueil</button><span class="nav-secondary"><button class="nav-btn" data-view="vehicles" data-mobile-icon="✦">Vaisseaux</button><button class="nav-btn" data-view="equipment" data-mobile-icon="◇">Équipements</button><button class="nav-btn" data-view="hangar" data-mobile-icon="★">Hangar</button><button class="nav-btn" data-view="news" data-mobile-icon="▤">Actus</button></span></nav></header><div id="globalResults" class="global-results" hidden></div>
 <main class="shell">
@@ -12,9 +12,12 @@
 <a class="ax-changelog-link" href="/changelog.html" data-i18n-skip><span data-changelog-label>Nouveautés du site</span> <span data-changelog-badge hidden>NOUVEAU</span> →</a>
   <div class="hero home-hero">
     <div><p class="eyebrow">ASTERIAX VERSE</p><h1>Le Verse, plus clair.<br><span>Directement dans ton navigateur.</span></h1><p class="hero-copy">Retrouve tous les vaisseaux Star Citizen, leur statut, leurs caractéristiques et leur disponibilité en jeu.</p><div class="hero-actions"><button class="primary" data-go="vehicles">Explorer les vaisseaux</button><button class="secondary" data-go="equipment">Voir les équipements</button></div></div>
-    <div class="home-live-card">
-      <div class="home-live-row"><span class="status-dot"></span><div class="home-live-copy"><small>Base de données</small><strong id="dbStatus">Chargement…</strong></div></div>
-      <div class="home-live-row"><span class="home-live-icon">↻</span><div class="home-live-copy"><small>Dernier patch / publication</small><strong id="homePatchTitle">Connexion au flux officiel RSI…</strong><time id="homePatchPosted"></time></div></div>
+    <div class="home-hero-aside">
+      <figure class="home-mascot" data-i18n-skip><img src="assets/asteriax-mascot.png" width="1280" height="1280" loading="lazy" decoding="async" alt="Mascotte officielle d’AsteriaxTTV"/></figure>
+      <div class="home-live-card">
+        <div class="home-live-row"><span class="status-dot"></span><div class="home-live-copy"><small>Base de données</small><strong id="dbStatus">Chargement…</strong></div></div>
+        <div class="home-live-row"><span class="home-live-icon">↻</span><div class="home-live-copy"><small>Dernier patch / publication</small><strong id="homePatchTitle">Connexion au flux officiel RSI…</strong><time id="homePatchPosted"></time></div></div>
+      </div>
     </div>
   </div>
 

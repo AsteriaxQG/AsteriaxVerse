@@ -1,5 +1,17 @@
 {
   "versions": [{
+    "version": "1.5.3",
+    "date": "2026-09-09",
+    "title": {"fr": "Image de la mascotte réparée", "en": "Mascot image repaired"},
+    "new": [],
+    "ui": [],
+    "fixes": [
+      {"fr": "Le fichier publié qui n’affichait que la tête de la mascotte a été remplacé par une image complète.", "en": "The published file that only displayed the mascot’s head was replaced with a complete image."}
+    ],
+    "technical": [
+      {"fr": "L’asset est désormais optimisé à 640 px, trois fois plus léger et chargé en priorité dans le hero.", "en": "The asset is now optimized to 640 px, three times lighter and loaded with priority in the hero."}
+    ]
+  }, {
     "version": "1.5.2",
     "date": "2026-09-09",
     "title": {"fr": "Mascotte au premier plan", "en": "Mascot in the foreground"},

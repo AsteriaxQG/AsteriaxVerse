@@ -1,5 +1,21 @@
 {
   "versions": [{
+    "version": "1.5.1",
+    "date": "2026-09-09",
+    "title": {"fr": "Mascotte entièrement visible", "en": "Mascot fully visible"},
+    "new": [],
+    "ui": [
+      {"fr": "La mascotte et les informations de statut sont maintenant empilées proprement, sans se recouvrir.", "en": "The mascot and status information are now neatly stacked without overlapping."},
+      {"fr": "La mascotte réagit au mouvement de la souris avec un effet de profondeur 2.5D et se présente dans une bulle glass.", "en": "The mascot reacts to pointer movement with a 2.5D depth effect and introduces itself in a glass speech bubble."}
+    ],
+    "fixes": [
+      {"fr": "La partie basse de la mascotte n’est plus masquée par un panneau sur les largeurs intermédiaires.", "en": "The lower part of the mascot is no longer hidden by a panel at intermediate widths."}
+    ],
+    "technical": [
+      {"fr": "Le positionnement absolu a été remplacé par une mise en page responsive stable.", "en": "Absolute positioning was replaced with a stable responsive layout."},
+      {"fr": "L’interaction fonctionne au survol, au clavier et au toucher, avec respect du réglage de réduction des animations.", "en": "The interaction works with hover, keyboard and touch, while respecting reduced-motion settings."}
+    ]
+  }, {
     "version": "1.5.0",
     "date": "2026-09-09",
     "title": {"fr": "La mascotte rejoint le Verse", "en": "The mascot joins the Verse"},

@@ -3,7 +3,9 @@
     "version": "1.5.4",
     "date": "2026-09-17",
     "title": {"fr": "Statuts LIVE et PTU fiabilisés", "en": "Reliable LIVE and PTU statuses"},
-    "new": [],
+    "new": [
+      {"fr": "La section « Dernières sorties » affiche désormais uniquement le dernier lot annoncé officiellement : Aegis Sabre Raven EX et Argo ATLS IKTI Akuma pour Alpha 4.10.1.", "en": "The “Latest releases” section now shows only the latest officially announced group: Aegis Sabre Raven EX and Argo ATLS IKTI Akuma for Alpha 4.10.1."}
+    ],
     "ui": [
       {"fr": "La carte HOTFIX est désormais masquée lorsqu’aucun correctif n’est actif.", "en": "The HOTFIX card is now hidden when no fix is active."}
     ],

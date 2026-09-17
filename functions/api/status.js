@@ -18,7 +18,7 @@ async function fetchText(url){
 function escapeRe(s=''){return String(s).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
 function serviceStatus(body,name){const re=new RegExp(`${escapeRe(name)}\\s+(Operational|Degraded Performance|Partial Outage|Major Outage|Maintenance|Degraded|Offline)`,'i');const m=body.match(re);return m?m[1]:'Unknown'}
 function frStatus(v=''){const s=String(v).toLowerCase();if(s.includes('operational'))return'Opérationnel';if(s.includes('degraded'))return'Dégradé';if(s.includes('partial'))return'Incident partiel';if(s.includes('major'))return'Incident majeur';if(s.includes('maintenance'))return'Maintenance';if(s.includes('offline')||s.includes('closed'))return'Hors ligne';if(s.includes('online'))return'En ligne';if(s.includes('unknown'))return'Inconnu';return v||'Inconnu'}
-function buildMatches(body,label){const re=new RegExp(`\\b(\\d+(?:\\.\\d+){1,3}-${label}\\.\\d+)\\b`,'ig');return [...body.matchAll(re)].map(m=>m[1])}
+export function buildMatches(body,label){const re=new RegExp(`\\b(\\d+(?:\\s*\\.\\s*\\d+){1,3}\\s*-\\s*${label}\\s*\\.\\s*\\d+)\\b`,'ig');return [...body.matchAll(re)].map(m=>m[1].replace(/\s+/g,'').toLowerCase())}
 function versionOnly(build=''){return String(build).match(/^\d+(?:\.\d+){1,3}/)?.[0]||''}
 function versionTuple(v=''){return String(v).split('.').map(x=>Number(x)||0)}
 function compareVersions(a='',b=''){const aa=versionTuple(a),bb=versionTuple(b),n=Math.max(aa.length,bb.length);for(let i=0;i<n;i++){const d=(aa[i]||0)-(bb[i]||0);if(d)return d}return 0}
@@ -33,7 +33,7 @@ function mirrorLiveBuild(body=''){const m=body.match(/(\d+(?:\.\d+){1,3})-LIVE\s
 export function hotfixFrom(releaseBody='',hotfixBody='',liveVersion='',liveBuild=''){
   const channelOnline=/\\?"channel\\?":\\?"HOTFIX\\?"[\s\S]{0,500}?\\?"status\\?":\\?"ONLINE/i.test(releaseBody);
   const sequences=[...hotfixBody.matchAll(/LIVE Client CL:\s*\d{6,}\s*\((?:CL\s*)?(\d{6,})[^)]*HOTFIX/ig)].map(match=>Number(match[1])||0);
-  const sequence=Math.max(0,...sequences),online=channelOnline&&sequence>buildSequence(liveBuild);
+  const sequence=Math.max(0,...sequences),online=channelOnline&&Boolean(liveBuild)&&sequence>buildSequence(liveBuild);
   return{status:online?'En ligne':'Hors ligne',version:online?liveVersion:'',build:online&&liveVersion?`${liveVersion}-hotfix.${sequence}`:'',source:PATCH_FORUM};
 }
 function ptuStateFrom(body=''){return body.match(/PTU STATUS\s*:\s*([^|]{1,50})/i)?.[1]?.trim()||''}

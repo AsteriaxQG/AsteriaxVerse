@@ -14,7 +14,8 @@ const MATCH_ALIASES=new Map([
  ['c8rpiscesrescue','c8rpisces'],['c8rpisces','c8rpisces'],
  ['aresinfernostarfighter','aresinferno'],['aresinferno','aresinferno'],
  ['aresionstarfighter','aresion'],['aresion','aresion'],
- ['s65stingray','stingray'],['stingray','stingray']
+ ['s65stingray','stingray'],['stingray','stingray'],
+ ['argoatlsiktiakuma','atlsiktiakuma'],['atlsiktiakuma','atlsiktiakuma']
 ]);
 const normalizedName=v=>human(v?.name)||human(v?.name_full)||'';
 const catalogKey=v=>normName(normalizedName(v));
@@ -24,7 +25,7 @@ function effectiveStatus(v){const s=sourceStatus(v).toLowerCase().replace(/_/g,'
 const statusLabel=s=>({"flight-ready":"Flight Ready","active-production":"Production active","long-term-production":"Production à long terme","concept":"En concept","unknown":"Statut non renseigné"}[human(s)]||human(s)||'Statut non renseigné');
 const statusClass=s=>human(s).toLowerCase().replace(/[^a-z0-9]+/g,'-')||'unknown';
 const key=v=>String(v.id);
-const OFFICIAL_NEWEST_SHIPS=['stingray','basher','tyilui'];
+const OFFICIAL_NEWEST_SHIPS=['sabreravenex','atlsiktiakuma'];
 function refreshNewestVehicleIds(){newestVehicleIds.clear();for(const wanted of OFFICIAL_NEWEST_SHIPS){const ship=state.vehicles.find(v=>catalogMatchKey(normalizedName(v))===wanted);if(ship)newestVehicleIds.add(key(ship))}}
 function renderCatalogUpdated(){const target=document.querySelector('#vehicleDataUpdated');if(!target||!catalogUpdatedAt)return;const date=new Date(catalogUpdatedAt);if(!Number.isFinite(date.getTime()))return;const english=window.AsteriaxI18n?.isEnglish?.()===true;target.textContent=english?`Data updated ${date.toLocaleString('en-GB',{dateStyle:'long',timeStyle:'short'})}`:`Données mises à jour le ${date.toLocaleString('fr-FR',{dateStyle:'long',timeStyle:'short'})}`}
 const save=()=>{writeStored('ax_hangar_owned',[...owned]);writeStored('ax_hangar_wishlist',[...wished])};

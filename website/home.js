@@ -62,19 +62,21 @@
 
   function pickFeaturedShips(){
     if(typeof state==='undefined'||!Array.isArray(state.vehicles)||!state.vehicles.length)return[];
-    const officialNewest=['s65stingray','basher','tyilui'].map(wanted=>state.vehicles.find(v=>[v.name,v.name_full].some(name=>keyName(name)===wanted))).filter(Boolean);
-    if(officialNewest.length===3)return officialNewest;
+    const mentioned=shipFeed.map(feedShip=>({feedShip,v:findStateVehicle(feedShip),newsIndex:shipMentionIndex(feedShip)})).filter(x=>x.v&&Number.isFinite(x.newsIndex)&&x.newsIndex<Number.MAX_SAFE_INTEGER).sort((a,b)=>a.newsIndex-b.newsIndex||addedTime(b.v)-addedTime(a.v));
+    if(mentioned.length){const latestIndex=mentioned[0].newsIndex,used=new Set();return mentioned.filter(x=>x.newsIndex===latestIndex).map(x=>x.v).filter(v=>{const id=String(v.id);if(used.has(id))return false;used.add(id);return true}).slice(0,6)}
+    const currentRelease=['sabreravenex','atlsiktiakuma'].map(wanted=>state.vehicles.find(v=>[v.name,v.name_full].some(name=>{const key=keyName(name);return key===wanted||key.endsWith(wanted)}))).filter(Boolean);
+    if(currentRelease.length)return currentRelease;
     const picked=[],used=new Set();
     if(shipFeed.length){
       const sorted=shipFeed.filter(v=>String(v.status).toLowerCase()==='flight-ready'&&!isGroundFeed(v)).map(feedShip=>({feedShip,v:findStateVehicle(feedShip)})).filter(x=>x.v&&!Number(x.v.is_ground_vehicle)).sort((a,b)=>addedTime(b.v)-addedTime(a.v));
       for(const entry of sorted){
         const v=entry.v;if(used.has(String(v.id)))continue;
-        picked.push(v);used.add(String(v.id));if(picked.length===3)break;
+        picked.push(v);used.add(String(v.id));if(picked.length===1)break;
       }
     }
     const fallback=state.vehicles.filter(v=>!used.has(String(v.id))&&Number(v.is_ground_vehicle)!==1&&statusGroup(v)==='flight').sort((a,b)=>addedTime(b)-addedTime(a));
-    while(picked.length<3&&fallback.length){const v=fallback.shift();if(!used.has(String(v.id))){picked.push(v);used.add(String(v.id))}}
-    return picked.slice(0,3);
+    while(picked.length<1&&fallback.length){const v=fallback.shift();if(!used.has(String(v.id))){picked.push(v);used.add(String(v.id))}}
+    return picked.slice(0,1);
   }
 
   function renderFeaturedShips(){
@@ -119,4 +121,5 @@
   document.addEventListener('click',e=>{if(e.target.closest('[data-card-owned],[data-card-wish],[data-hangar-owned],[data-hangar-wish]'))setTimeout(renderHangarSummary,30)});
   window.addEventListener('storage',renderHangarSummary);
 })();
+
 

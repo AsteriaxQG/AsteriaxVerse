@@ -63,7 +63,7 @@
   function pickFeaturedShips(){
     if(typeof state==='undefined'||!Array.isArray(state.vehicles)||!state.vehicles.length)return[];
     const mentioned=shipFeed.map(feedShip=>({feedShip,v:findStateVehicle(feedShip),newsIndex:shipMentionIndex(feedShip)})).filter(x=>x.v&&Number.isFinite(x.newsIndex)&&x.newsIndex<Number.MAX_SAFE_INTEGER).sort((a,b)=>a.newsIndex-b.newsIndex||addedTime(b.v)-addedTime(a.v));
-    if(mentioned.length){const latestIndex=mentioned[0].newsIndex,used=new Set();return mentioned.filter(x=>x.newsIndex===latestIndex).map(x=>x.v).filter(v=>{const id=String(v.id);if(used.has(id))return false;used.add(id);return true}).slice(0,6)}
+    if(mentioned.length){const latestIndex=mentioned[0].newsIndex,used=new Set(),latest=mentioned.filter(x=>x.newsIndex===latestIndex).map(x=>x.v).filter(v=>{const id=String(v.id);if(used.has(id))return false;used.add(id);return true});const precise=latest.filter(v=>{const own=keyName(v.name);return !latest.some(other=>{const candidate=keyName(other.name);return candidate.length>own.length&&candidate.startsWith(own)})});return precise.slice(0,6)}
     const currentRelease=['sabreravenex','atlsiktiakuma'].map(wanted=>state.vehicles.find(v=>[v.name,v.name_full].some(name=>{const key=keyName(name);return key===wanted||key.endsWith(wanted)}))).filter(Boolean);
     if(currentRelease.length)return currentRelease;
     const picked=[],used=new Set();

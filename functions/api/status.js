@@ -6,6 +6,7 @@ const LOANER_MATRIX='https://support.robertsspaceindustries.com/hc/en-us/article
 const PATCH_FORUM='https://robertsspaceindustries.com/spectrum/community/SC/forum/190048?page=1&sort=newest';
 const RELEASE_MIRROR='https://scstarter.guide/';
 const HOTFIX_MIRROR='https://t.me/s/starcitizenru_news?q=%23patchnotes';
+const VERIFIED_LIVE_BUILDS={'4.10.1':'4.10.1-live.12660092'};
 
 function decode(s=''){return String(s).replace(/&nbsp;|&#160;/gi,' ').replace(/&amp;/gi,'&').replace(/&quot;/gi,'"').replace(/&#39;|&apos;/gi,"'").replace(/&lt;/gi,'<').replace(/&gt;/gi,'>')}
 function text(html=''){return decode(html.replace(/<script[\s\S]*?<\/script>/gi,' ').replace(/<style[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim())}
@@ -64,7 +65,7 @@ export function testEnvironment(threads,label,liveVersion,now=Date.now()){
 
 export async function onRequestGet(context){
   const cache=caches.default;
-  const cacheKey=new Request(new URL('/api/status?cache=v15',context.request.url).toString());
+  const cacheKey=new Request(new URL('/api/status?cache=v16',context.request.url).toString());
   const cached=await cache.match(cacheKey);if(cached)return cached;
   const settled=await Promise.allSettled([fetchText(STATUS_URL),fetchText(PTU_FAQ),fetchText(PTU_INSTALL),fetchText(LOANER_MATRIX),fetchText(PATCH_FORUM),fetchPatchThreads(),fetchText(RELEASE_MIRROR),fetchText(HOTFIX_MIRROR),fetchText(PU_STATUS_URL)]);
   const statusBody=settled[0].status==='fulfilled'?text(settled[0].value):'';
@@ -81,7 +82,7 @@ export async function onRequestGet(context){
   const matrixBuild=loanerBody.match(/(?:Last Updated:[^|]{0,120}\|\s*)?(\d+(?:\.\d+){1,3}-live\.\d+)/i)?.[1]||'';
   const liveBuildCandidates=[...buildMatches(statusBody,'live'),...buildMatches(puStatusBody,'live'),...buildMatches(patchBody,'live'),...buildMatches(ptuFaqBody,'live'),...buildMatches(ptuInstallBody,'live'),...buildMatches(loanerBody,'live'),matrixBuild,mirrorLiveBuild(releaseMirrorBody)];
   const detectedLiveBuild=firstMatchingBuild(liveBuildCandidates,liveVersion);
-  const liveBuild=detectedLiveBuild&&liveVersion?`${liveVersion}-live.${buildSequence(detectedLiveBuild)}`:detectedLiveBuild;
+  const liveBuild=detectedLiveBuild&&liveVersion?`${liveVersion}-live.${buildSequence(detectedLiveBuild)}`:(detectedLiveBuild||VERIFIED_LIVE_BUILDS[liveVersion]||'');
 
   const platform=serviceStatus(statusBody,'Platform');
   const pu=serviceStatus(statusBody,'Persistent Universe');

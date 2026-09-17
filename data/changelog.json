@@ -1,5 +1,20 @@
 {
   "versions": [{
+    "version": "1.5.4",
+    "date": "2026-09-17",
+    "title": {"fr": "Statuts LIVE et PTU fiabilisés", "en": "Reliable LIVE and PTU statuses"},
+    "new": [],
+    "ui": [
+      {"fr": "La carte HOTFIX est désormais masquée lorsqu’aucun correctif n’est actif.", "en": "The HOTFIX card is now hidden when no fix is active."}
+    ],
+    "fixes": [
+      {"fr": "La version LIVE affiche maintenant Alpha 4.10.1 et son build 4.10.1-live.12660092.", "en": "LIVE now displays Alpha 4.10.1 and build 4.10.1-live.12660092."},
+      {"fr": "PTU et EPTU affichent « Non disponible » au lieu de « Non vérifié » lorsqu’aucun environnement public n’est confirmé.", "en": "PTU and EPTU now display “Unavailable” instead of “Unverified” when no public environment is confirmed."}
+    ],
+    "technical": [
+      {"fr": "La détection LIVE consulte aussi l’historique officiel du Persistent Universe pour récupérer la dernière version et son numéro de build.", "en": "LIVE detection now also checks the official Persistent Universe history for the latest version and build number."}
+    ]
+  }, {
     "version": "1.5.3",
     "date": "2026-09-09",
     "title": {"fr": "Image de la mascotte réparée", "en": "Mascot image repaired"},

@@ -1,6 +1,33 @@
 {
   "versions": [
     {
+      "version": "1.5.8",
+      "date": "2026-10-12",
+      "title": {
+        "fr": "Catalogue des vaisseaux plus fluide sur mobile",
+        "en": "Smoother ship catalogue on mobile"
+      },
+      "new": [],
+      "ui": [
+        {
+          "fr": "Les résultats des vaisseaux sont paginés : 24 fiches sur mobile et 48 sur grand écran.",
+          "en": "Ship results are paginated: 24 cards on mobile and 48 on larger screens."
+        }
+      ],
+      "fixes": [
+        {
+          "fr": "La navigation vers les fiches de vaisseaux utilise maintenant des événements délégués au lieu d’ajouter des écouteurs à chaque carte.",
+          "en": "Ship detail navigation now uses delegated events instead of attaching listeners to every card."
+        }
+      ],
+      "technical": [
+        {
+          "fr": "Ajout de contrôles automatiques de syntaxe et d’un test des limites de pagination.",
+          "en": "Added automated syntax checks and pagination boundary tests."
+        }
+      ]
+    },
+    {
       "version": "1.5.7",
       "date": "2026-10-12",
       "title": {

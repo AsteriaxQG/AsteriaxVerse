@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const source=fs.readFileSync(new URL('../website/shipcatalog.js',import.meta.url),'utf8');
+const nameKey=source.match(/function shipPatchNameKey\(value\)\{[^\n]*\}/)?.[0];
+const mention=source.match(/function shipPatchMentioned\(shipName,patchSummary\)\{[^\n]*\}/)?.[0];
+assert.ok(nameKey&&mention,'Patch-impact matching helpers must remain available for regression tests');
+const normName=value=>String(value??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+const helpers=Function('normName',nameKey+'\n'+mention+'\nreturn {shipPatchNameKey,shipPatchMentioned}')(normName);
+assert.equal(helpers.shipPatchNameKey('RSI Constellation Mk IV Andromeda'),'constellation andromeda');
+assert.equal(helpers.shipPatchNameKey('Constellation Andromeda Mk IV'),'constellation andromeda');
+assert.equal(helpers.shipPatchMentioned('RSI Constellation Mk IV Andromeda','Alpha 4.10.2 LIVE: Constellation Andromeda balance changes'),true);
+assert.equal(helpers.shipPatchMentioned('Aegis Sabre','Aegis Sabre Raven EX improvements'),false);
+console.log('PASS: patch matching normalizes Mk IV names, requires whole-name matches and avoids variant false positives');

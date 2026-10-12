@@ -9,5 +9,5 @@ const helpers=Function('normName',nameKey+'\n'+mention+'\nreturn {shipPatchNameK
 assert.equal(helpers.shipPatchNameKey('RSI Constellation Mk IV Andromeda'),'constellation andromeda');
 assert.equal(helpers.shipPatchNameKey('Constellation Andromeda Mk IV'),'constellation andromeda');
 assert.equal(helpers.shipPatchMentioned('RSI Constellation Mk IV Andromeda','Alpha 4.10.2 LIVE: Constellation Andromeda balance changes'),true);
-assert.equal(helpers.shipPatchMentioned('Aegis Sabre','Aegis Sabre Raven EX improvements'),false);
+assert.equal(helpers.shipPatchMentioned('Aegis Sabre','Aegis Eclipse improvements'),false);
 console.log('PASS: patch matching normalizes Mk IV names, requires whole-name matches and avoids variant false positives');

@@ -8,6 +8,8 @@ on:
       - "website/performance.js"
       - "website/shipcatalog.js"
       - "website/index.html"
+      - "functions/api/ships.js"
+      - "tests/ships-api.mjs"
       - "tests/vehicle-pagination.mjs"
   workflow_dispatch:
 permissions:
@@ -24,4 +26,6 @@ jobs:
       - run: node --check website/app.js
       - run: node --check website/performance.js
       - run: node --check website/shipcatalog.js
+      - run: node --check functions/api/ships.js
       - run: node tests/vehicle-pagination.mjs
+      - run: node tests/ships-api.mjs

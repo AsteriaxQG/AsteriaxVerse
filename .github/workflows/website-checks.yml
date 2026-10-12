@@ -1,0 +1,27 @@
+name: Website checks
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/website-checks.yml"
+      - "website/app.js"
+      - "website/performance.js"
+      - "website/shipcatalog.js"
+      - "website/index.html"
+      - "tests/vehicle-pagination.mjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node --check website/app.js
+      - run: node --check website/performance.js
+      - run: node --check website/shipcatalog.js
+      - run: node tests/vehicle-pagination.mjs

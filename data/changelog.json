@@ -1,6 +1,32 @@
 {
   "versions": [
     {
+      "version": "1.5.7",
+      "date": "2026-10-12",
+      "title": {
+        "fr": "Données d’équipement et impact des patchs fiabilisés",
+        "en": "More reliable equipment data and patch impact"
+      },
+      "new": [],
+      "ui": [],
+      "fixes": [
+        {
+          "fr": "Le Builder reconnaît les variantes Constellation Mk IV du catalogue RSI afin que la validation ne bloque plus la mise à jour de la version LIVE affichée.",
+          "en": "The Builder recognizes RSI Constellation Mk IV variants so validation no longer blocks updates to the displayed LIVE version."
+        },
+        {
+          "fr": "L’impact des patchs compare les noms complets des vaisseaux avec une normalisation Mk IV corrigée. Le message précise désormais quand la recherche se limite au titre et au résumé.",
+          "en": "Patch impact compares full ship names with corrected Mk IV normalization. The message now clarifies when the search only covers the title and summary."
+        }
+      ],
+      "technical": [
+        {
+          "fr": "Ajout de tests de régression et déclenchement automatique du contrôle du catalogue après les changements concernés.",
+          "en": "Added regression tests and automatic catalogue validation after relevant changes."
+        }
+      ]
+    },
+    {
       "version": "1.5.6",
       "date": "2026-10-12",
       "title": {

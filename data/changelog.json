@@ -1,6 +1,33 @@
 {
   "versions": [
     {
+      "version": "1.5.6",
+      "date": "2026-10-12",
+      "title": {
+        "fr": "Mk IV dans l’équipement et impact des patchs",
+        "en": "Mk IV in equipment and patch impact"
+      },
+      "new": [
+        {
+          "fr": "Les quatre variantes Constellation apparaissent désormais sous leur nouveau nom Mk IV dans l’Équipement et le Builder.",
+          "en": "All four Constellation variants now appear under their new Mk IV names in Equipment and the Builder."
+        }
+      ],
+      "ui": [],
+      "fixes": [
+        {
+          "fr": "La rubrique « Impact du patch » des fiches vaisseaux affiche le résultat de la vérification des dernières notes LIVE RSI, avec un lien officiel et un message clair lorsqu’aucun changement propre au vaisseau n’est détecté.",
+          "en": "The ship details “Patch impact” section now shows the result of checking the latest LIVE RSI notes, with an official link and a clear message when no ship-specific change is detected."
+        }
+      ],
+      "technical": [
+        {
+          "fr": "Les libellés Mk IV sont normalisés à l’affichage du Builder et lors de la génération du catalogue afin de rester corrects après la prochaine mise à jour des données.",
+          "en": "Mk IV labels are normalized in the Builder and when generating the catalogue so they remain correct after the next data update."
+        }
+      ]
+    },
+    {
       "version": "1.5.5",
       "date": "2026-10-12",
       "title": {

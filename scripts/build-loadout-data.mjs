@@ -26,7 +26,7 @@ const ships=rawShips.filter(s=>s.IsSpaceship&&s.Loadout&&!/ballista.*(dunestalke
  if(types.has(type)||!p.Type&&accepted.length){slots.push({id:(p.Path||[p.HardpointName]).join('/'),label:p.HardpointName,type:types.has(type)?type:accepted[0].Type,types:accepted,min:p.MinSize,max:p.MaxSize,editable:p.Editable===true,required:p.RequiredTags||[],portTags:p.PortTags||[],stock:ids.has(p.UUID)?p.UUID:null,stockName:p.Name||null});}
  (p.Loadout||[]).forEach(visit)}s.Loadout.forEach(visit);
  const match=dbShips.find(v=>v.uuid?.toLowerCase()===s.UUID?.toLowerCase())||dbShips.find(v=>norm(v.name_full)===norm(s.Name)||norm(v.name)===norm(s.Name));
- return {id:s.UUID,name:s.Name,manufacturer:s.Manufacturer?.Name||'',role:s.Role||'',length:s.Length,width:s.Width,height:s.Height,crew:s.Crew,scu:s.Cargo,photo:match?.url_photo||null,catalogId:match?.id||null,slots};
+ return {id:s.UUID,name:s.Name.replace(/^(RSI\s+)?Constellation\s+(Andromeda|Aquila|Phoenix|Taurus)(.*)$/i,(match,brand='',variant,suffix='')=>(brand||'')+'Constellation Mk IV '+variant+suffix.replace(/\s+Mk\s*IV\b/i,'')),manufacturer:s.Manufacturer?.Name||'',role:s.Role||'',length:s.Length,width:s.Width,height:s.Height,crew:s.Crew,scu:s.Cargo,photo:match?.url_photo||null,catalogId:match?.id||null,slots};
 }).filter(s=>s.slots.length).sort((a,b)=>a.name.localeCompare(b.name));
 const patch=process.env.AX_LOADOUT_PATCH||'4.10.0-LIVE.12519617';
 const revision=process.env.AX_LOADOUT_REVISION||'f6a2b29e77aaa2c824aa4fd1c0478c8058c69fca';

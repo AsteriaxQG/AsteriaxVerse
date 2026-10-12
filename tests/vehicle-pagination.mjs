@@ -18,7 +18,7 @@ assert.equal(desktopLast.items.length,24);
 assert.equal(desktopLast.items[0],576);
 assert.equal(paginate([],1,24).totalPages,1);
 assert.equal(paginate(ships,0,48).current,1);
-assert.doesNotMatch(app,/querySelectorAll\('\\.ship-card'\\)/,'Ship cards should not receive per-card click listeners');
+assert.equal(app.includes("querySelectorAll('.ship-card')"),false,'Ship cards should not receive per-card click listeners');
 assert.match(app,/document\.addEventListener\('click',event=>/,'Ship card clicks should be delegated');
 assert.match(app,/document\.addEventListener\('keydown',event=>/,'Keyboard activation should also be delegated');
 console.log('PASS: ship pagination boundaries, responsive page sizes and delegated interactions');

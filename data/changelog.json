@@ -1,202 +1,456 @@
 {
-  "versions": [{
-    "version": "1.5.4",
-    "date": "2026-09-17",
-    "title": {"fr": "Statuts LIVE et PTU fiabilisés", "en": "Reliable LIVE and PTU statuses"},
-    "new": [
-      {"fr": "La section « Dernières sorties » affiche désormais uniquement le dernier lot annoncé officiellement : Aegis Sabre Raven EX et Argo ATLS IKTI Akuma pour Alpha 4.10.1.", "en": "The “Latest releases” section now shows only the latest officially announced group: Aegis Sabre Raven EX and Argo ATLS IKTI Akuma for Alpha 4.10.1."}
-    ],
-    "ui": [
-      {"fr": "La carte HOTFIX est désormais masquée lorsqu’aucun correctif n’est actif.", "en": "The HOTFIX card is now hidden when no fix is active."}
-    ],
-    "fixes": [
-      {"fr": "La version LIVE affiche maintenant Alpha 4.10.1 et son build 4.10.1-live.12660092.", "en": "LIVE now displays Alpha 4.10.1 and build 4.10.1-live.12660092."},
-      {"fr": "PTU et EPTU affichent « Non disponible » au lieu de « Non vérifié » lorsqu’aucun environnement public n’est confirmé.", "en": "PTU and EPTU now display “Unavailable” instead of “Unverified” when no public environment is confirmed."}
-    ],
-    "technical": [
-      {"fr": "La détection LIVE consulte aussi l’historique officiel du Persistent Universe pour récupérer la dernière version et son numéro de build.", "en": "LIVE detection now also checks the official Persistent Universe history for the latest version and build number."}
-    ]
-  }, {
-    "version": "1.5.3",
-    "date": "2026-09-09",
-    "title": {"fr": "Image de la mascotte réparée", "en": "Mascot image repaired"},
-    "new": [],
-    "ui": [],
-    "fixes": [
-      {"fr": "Le fichier publié qui n’affichait que la tête de la mascotte a été remplacé par une image complète.", "en": "The published file that only displayed the mascot’s head was replaced with a complete image."}
-    ],
-    "technical": [
-      {"fr": "L’asset est désormais optimisé à 640 px, trois fois plus léger et chargé en priorité dans le hero.", "en": "The asset is now optimized to 640 px, three times lighter and loaded with priority in the hero."}
-    ]
-  }, {
-    "version": "1.5.2",
-    "date": "2026-09-09",
-    "title": {"fr": "Mascotte au premier plan", "en": "Mascot in the foreground"},
-    "new": [],
-    "ui": [],
-    "fixes": [
-      {"fr": "Les panneaux du hero ne peuvent plus recouvrir ni couper la mascotte pendant son animation 2.5D.", "en": "Hero panels can no longer cover or clip the mascot during its 2.5D animation."}
-    ],
-    "technical": [
-      {"fr": "La mascotte possède désormais son propre plan d’empilement et neutralise les fonds génériques appliqués aux boutons.", "en": "The mascot now has its own stacking layer and neutralizes generic button backgrounds."}
-    ]
-  }, {
-    "version": "1.5.1",
-    "date": "2026-09-09",
-    "title": {"fr": "Mascotte entièrement visible", "en": "Mascot fully visible"},
-    "new": [],
-    "ui": [
-      {"fr": "La mascotte et les informations de statut sont maintenant empilées proprement, sans se recouvrir.", "en": "The mascot and status information are now neatly stacked without overlapping."},
-      {"fr": "La mascotte réagit au mouvement de la souris avec un effet de profondeur 2.5D et se présente dans une bulle glass.", "en": "The mascot reacts to pointer movement with a 2.5D depth effect and introduces itself in a glass speech bubble."}
-    ],
-    "fixes": [
-      {"fr": "La partie basse de la mascotte n’est plus masquée par un panneau sur les largeurs intermédiaires.", "en": "The lower part of the mascot is no longer hidden by a panel at intermediate widths."}
-    ],
-    "technical": [
-      {"fr": "Le positionnement absolu a été remplacé par une mise en page responsive stable.", "en": "Absolute positioning was replaced with a stable responsive layout."},
-      {"fr": "L’interaction fonctionne au survol, au clavier et au toucher, avec respect du réglage de réduction des animations.", "en": "The interaction works with hover, keyboard and touch, while respecting reduced-motion settings."}
-    ]
-  }, {
-    "version": "1.5.0",
-    "date": "2026-09-09",
-    "title": {"fr": "La mascotte rejoint le Verse", "en": "The mascot joins the Verse"},
-    "new": [
-      {"fr": "La mascotte officielle d’AsteriaxTTV fait son arrivée sur Asteriax Verse.", "en": "AsteriaxTTV’s official mascot has arrived on Asteriax Verse."}
-    ],
-    "ui": [
-      {"fr": "La mascotte rejoint le hero d’accueil avec une présentation glass adaptée aux écrans ordinateur, tablette et mobile.", "en": "The mascot joins the home hero with a glass presentation adapted to desktop, tablet and mobile screens."}
-    ],
-    "fixes": [],
-    "technical": [
-      {"fr": "L’image transparente est chargée de façon différée afin de préserver la fluidité du catalogue.", "en": "The transparent image is lazy-loaded to preserve catalogue performance."}
-    ]
-  }, {
-    "version": "1.4.4",
-    "date": "2026-09-07",
-    "title": {"fr": "Twitch simplifié, Hangar local", "en": "Simplified Twitch, local Hangar"},
-    "new": [],
-    "ui": [
-      {"fr": "La connexion Twitch est remplacée par un lien direct vers la chaîne, avec l’indicateur de live conservé.", "en": "Twitch sign-in is replaced by a direct channel link while keeping the live indicator."}
-    ],
-    "fixes": [
-      {"fr": "Les boutons de connexion, de déconnexion et les messages de session Twitch ont été supprimés.", "en": "Twitch sign-in, sign-out and session messages were removed."}
-    ],
-    "technical": [
-      {"fr": "Le Hangar et la Liste d’envie restent enregistrés localement sur l’appareil, sans compte requis.", "en": "The Hangar and wish list remain stored locally on the device with no account required."}
-    ]
-  }, {
-    "version": "1.4.3",
-    "date": "2026-09-07",
-    "title": {"fr": "Alignement des sections d’accueil", "en": "Home section alignment"},
-    "new": [],
-    "ui": [
-      {"fr": "Le grand rectangle derrière les sections d’accueil a été retiré ; l’effet glass reste limité aux cartes.", "en": "The large rectangle behind home sections was removed; glass styling remains on the cards."},
-      {"fr": "Le titre Actualités et les autres en-têtes restent correctement alignés sur les écrans étroits.", "en": "News and other section headings remain correctly aligned on narrow screens."}
-    ],
-    "fixes": [
-      {"fr": "Suppression du débordement horizontal qui pouvait couper le début ou la fin des titres.", "en": "Removed horizontal overflow that could clip the beginning or end of headings."}
-    ],
-    "technical": [
-      {"fr": "Contraintes de largeur ajoutées sans modifier le contenu ni le chargement des actualités.", "en": "Width constraints were added without changing news content or loading behavior."}
-    ]
-  }, {
-    "version": "1.4.2",
-    "date": "2026-09-06",
-    "title": {"fr": "Suivi automatique du canal HOTFIX", "en": "Automatic HOTFIX channel tracking"},
-    "new": [
-      {"fr": "Un bloc HOTFIX distinct affiche son ouverture et le correctif actuellement en test.", "en": "A separate HOTFIX block shows whether the channel is open and which fix is being tested."}
-    ],
-    "ui": [
-      {"fr": "LIVE, HOTFIX, PTU et EPTU restent lisibles sur ordinateur, tablette et mobile.", "en": "LIVE, HOTFIX, PTU and EPTU remain readable on desktop, tablet and mobile."}
-    ],
-    "fixes": [],
-    "technical": [
-      {"fr": "Le HOTFIX disparaît automatiquement lorsqu’il ferme ou que son build rejoint LIVE, puis le prochain build est détecté.", "en": "HOTFIX automatically clears when it closes or its build reaches LIVE, then the next build is detected."}
-    ]
-  }, {
-    "version": "1.4.1",
-    "date": "2026-09-06",
-    "title": {"fr": "Fiches vaisseaux fluides et statut LIVE fiable", "en": "Smoother ship details and reliable LIVE status"},
-    "new": [],
-    "ui": [
-      {"fr": "La fiche charge d’abord un aperçu léger avec un squelette discret, puis l’image haute qualité.", "en": "Ship details now load a lightweight preview with a subtle skeleton before the high-quality image."}
-    ],
-    "fixes": [
-      {"fr": "La croix reste ancrée en haut à droite de la fiche et la barre de défilement est fine et intégrée au thème.", "en": "The close button stays anchored at the top-right of the panel and the scrollbar is slim and theme-matched."},
-      {"fr": "Le build LIVE tient désormais compte des hotfixes récents lorsque la matrice officielle n’est pas encore actualisée.", "en": "The LIVE build now accounts for recent hotfixes when the official matrix has not updated yet."}
-    ],
-    "technical": [
-      {"fr": "La détection croise les sources RSI avec un miroir de suivi et conserve un cache serveur court.", "en": "Detection cross-checks RSI sources with a release tracker and keeps a short server cache."}
-    ]
-  }, {
-    "version": "1.4.0",
-    "date": "2026-09-06",
-    "title": {"fr": "Identité Liquid Glass", "en": "Liquid Glass identity"},
-    "new": [],
-    "ui": [
-      {"fr": "Le style liquid glass est maintenant appliqué à la navigation, aux cartes, filtres, fiches, modales, boutons et au pied de page.", "en": "Liquid glass styling now covers navigation, cards, filters, detail panels, modals, buttons and the footer."},
-      {"fr": "Les transparences, reflets cyan, flous et ombres ont été adaptés au mobile pour préserver la lisibilité.", "en": "Transparency, cyan highlights, blur and shadows are adapted for mobile readability."}
-    ],
-    "fixes": [
-      {"fr": "Contraste renforcé sur les actions principales.", "en": "Improved contrast for primary actions."}
-    ],
-    "technical": [
-      {"fr": "La couche visuelle reste séparée des fonctions Twitch, Hangar et du catalogue.", "en": "The visual layer remains isolated from Twitch, Hangar and catalogue logic."}
-    ]
-  }, {
-    "version": "1.3.0",
-    "date": "2026-09-06",
-    "title": {"fr": "Données automatiques et builder intelligent", "en": "Automatic data and smarter builder"},
-    "new": [
-      {"fr": "Un budget maximal peut maintenant encadrer les suggestions automatiques.", "en": "A maximum budget can now constrain automatic suggestions."},
-      {"fr": "Le résumé affiche la marge énergétique connue du build.", "en": "The summary now shows the build’s known power margin."}
-    ],
-    "ui": [
-      {"fr": "Le budget et les avertissements sont intégrés au bloc compact Actions et suggestions.", "en": "Budget and warnings are integrated into the compact Actions and suggestions panel."}
-    ],
-    "fixes": [],
-    "technical": [
-      {"fr": "Une tâche quotidienne vérifie la source LIVE et ne publie le catalogue qu’après validation et tests.", "en": "A daily job checks the LIVE source and only publishes the catalogue after validation and tests."},
-      {"fr": "Une source incomplète ou sans version reconnue est refusée afin de conserver le dernier catalogue valide.", "en": "An incomplete source or one without a recognized version is rejected to preserve the last valid catalogue."}
-    ]
-  }, {
-    "version": "1.2.1",
-    "date": "2026-09-06",
-    "title": {"fr": "Connexion Twitch plus durable", "en": "More persistent Twitch sign-in"},
-    "new": [],
-    "ui": [],
-    "fixes": [
-      {"fr": "La connexion Twitch se renouvelle maintenant automatiquement au lieu d’expirer avec le premier jeton temporaire.", "en": "Twitch sign-in now refreshes automatically instead of expiring with the first temporary token."}
-    ],
-    "technical": [
-      {"fr": "Session glissante de 30 jours avec rotation sécurisée du jeton Twitch côté serveur.", "en": "Rolling 30-day session with secure server-side Twitch token rotation."}
-    ]
-  }, {
-    "version": "1.2.0",
-    "date": "2026-09-06",
-    "title": {"fr": "Équipement devient un Loadout Builder", "en": "Equipment becomes a Loadout Builder"},
-    "new": [
-      {"fr": "Sélection du vaisseau, slots compatibles, catalogue filtrable et comparaison de composants.", "en": "Ship selection, compatible slots, filterable catalogue and component comparison."},
-      {"fr": "Statistiques théoriques, prix aUEC référencés, lieux d’achat et suggestions DPS, défense, quantum, PvE et PvP.", "en": "Theoretical statistics, listed aUEC prices, shop locations and DPS, defense, quantum, PvE and PvP suggestions."},
-      {"fr": "Sauvegardes multiples sur cet appareil, favoris de composants, liens de partage et exports JSON/image.", "en": "Multiple on-device saves, component favorites, share links and JSON/image exports."}
-    ],
-    "ui": [
-      {"fr": "Interface sombre bleu/cyan en français et anglais, organisée en trois colonnes sur grand écran.", "en": "Dark blue/cyan interface in French and English, with three columns on large screens."},
-      {"fr": "Navigation mobile par panneaux Vaisseau, Slots, Catalogue et Résumé.", "en": "Mobile navigation with Ship, Slots, Catalogue and Summary panels."}
-    ],
-    "fixes": [],
-    "technical": [
-      {"fr": "Catalogue technique chargé à l’ouverture du builder ; validation des tailles, types et restrictions des slots.", "en": "Technical catalogue loaded when opening the builder; validation of slot sizes, types and restrictions."},
-      {"fr": "Les prix manquants restent signalés. Les statistiques et suggestions ne simulent pas un combat ; la synchronisation Mon Verse viendra ultérieurement.", "en": "Missing prices remain identified. Statistics and suggestions do not simulate combat; Mon Verse synchronization is planned for later."}
-    ]
-  }, {
-    "version": "1.1.0",
-    "date": "2026-09-05",
-    "title": {"fr": "Les nouveautés Asteriax Verse réunies", "en": "Asteriax Verse updates in one place"},
-    "new": [{"fr": "Un historique des versions du site, disponible en français et en anglais.", "en": "A website release history, available in French and English."}],
-    "ui": [{"fr": "Une barre supérieure arrondie avec un effet verre sombre et cyan.", "en": "A rounded header with a dark cyan glass effect."}, {"fr": "Un badge NOUVEAU signale la dernière version non consultée sur cet appareil.", "en": "A NEW badge highlights the latest release not yet viewed on this device."}],
-    "fixes": [],
-    "technical": [{"fr": "Publication Discord sécurisée par version, avec protection contre les doubles envois.", "en": "Secure per-release Discord publishing with duplicate-send protection."}]
-  }]
+  "versions": [
+    {
+      "version": "1.5.5",
+      "date": "2026-10-12",
+      "title": {
+        "fr": "Constellation Mk IV et sorties fiabilisées",
+        "en": "Constellation Mk IV and verified releases"
+      },
+      "new": [
+        {
+          "fr": "Les quatre variantes Constellation sont identifiées comme Mk IV et Gold Standard, sans créer de doublons dans le catalogue.",
+          "en": "All four Constellation variants are identified as Mk IV and Gold Standard without creating catalogue duplicates."
+        }
+      ],
+      "ui": [
+        {
+          "fr": "Le point de la chaîne Twitch clignote maintenant en vert lorsque la chaîne est en direct.",
+          "en": "The Twitch channel indicator now blinks green while the channel is live."
+        }
+      ],
+      "fixes": [
+        {
+          "fr": "« Dernières sorties » ne retombe plus sur un vaisseau choisi uniquement parce qu’il est récent dans la base : les cartes et badges Nouveau suivent les annonces officielles confirmant une sortie.",
+          "en": "“Latest releases” no longer falls back to a ship merely because it is recent in the database: cards and New badges follow official release announcements."
+        }
+      ],
+      "technical": [
+        {
+          "fr": "La sélection de la Constellation Andromeda dans le Loadout Builder et son test restent compatibles avec les anciens et nouveaux libellés Mk IV.",
+          "en": "Constellation Andromeda selection in the Loadout Builder and its test remain compatible with both legacy and Mk IV names."
+        }
+      ]
+    },
+    {
+      "version": "1.5.4",
+      "date": "2026-09-17",
+      "title": {
+        "fr": "Statuts LIVE et PTU fiabilisés",
+        "en": "Reliable LIVE and PTU statuses"
+      },
+      "new": [
+        {
+          "fr": "La section « Dernières sorties » affiche désormais uniquement le dernier lot annoncé officiellement : Aegis Sabre Raven EX et Argo ATLS IKTI Akuma pour Alpha 4.10.1.",
+          "en": "The “Latest releases” section now shows only the latest officially announced group: Aegis Sabre Raven EX and Argo ATLS IKTI Akuma for Alpha 4.10.1."
+        }
+      ],
+      "ui": [
+        {
+          "fr": "La carte HOTFIX est désormais masquée lorsqu’aucun correctif n’est actif.",
+          "en": "The HOTFIX card is now hidden when no fix is active."
+        }
+      ],
+      "fixes": [
+        {
+          "fr": "La version LIVE affiche maintenant Alpha 4.10.1 et son build 4.10.1-live.12660092.",
+          "en": "LIVE now displays Alpha 4.10.1 and build 4.10.1-live.12660092."
+        },
+        {
+          "fr": "PTU et EPTU affichent « Non disponible » au lieu de « Non vérifié » lorsqu’aucun environnement public n’est confirmé.",
+          "en": "PTU and EPTU now display “Unavailable” instead of “Unverified” when no public environment is confirmed."
+        }
+      ],
+      "technical": [
+        {
+          "fr": "La détection LIVE consulte aussi l’historique officiel du Persistent Universe pour récupérer la dernière version et son numéro de build.",
+          "en": "LIVE detection now also checks the official Persistent Universe history for the latest version and build number."
+        }
+      ]
+    },
+    {
+      "version": "1.5.3",
+      "date": "2026-09-09",
+      "title": {
+        "fr": "Image de la mascotte réparée",
+        "en": "Mascot image repaired"
+      },
+      "new": [],
+      "ui": [],
+      "fixes": [
+        {
+          "fr": "Le fichier publié qui n’affichait que la tête de la mascotte a été remplacé par une image complète.",
+          "en": "The published file that only displayed the mascot’s head was replaced with a complete image."
+        }
+      ],
+      "technical": [
+        {
+          "fr": "L’asset est désormais optimisé à 640 px, trois fois plus léger et chargé en priorité dans le hero.",
+          "en": "The asset is now optimized to 640 px, three times lighter and loaded with priority in the hero."
+        }
+      ]
+    },
+    {
+      "version": "1.5.2",
+      "date": "2026-09-09",
+      "title": {
+        "fr": "Mascotte au premier plan",
+        "en": "Mascot in the foreground"
+      },
+      "new": [],
+      "ui": [],
+      "fixes": [
+        {
+          "fr": "Les panneaux du hero ne peuvent plus recouvrir ni couper la mascotte pendant son animation 2.5D.",
+          "en": "Hero panels can no longer cover or clip the mascot during its 2.5D animation."
+        }
+      ],
+      "technical": [
+        {
+          "fr": "La mascotte possède désormais son propre plan d’empilement et neutralise les fonds génériques appliqués aux boutons.",
+          "en": "The mascot now has its own stacking layer and neutralizes generic button backgrounds."
+        }
+      ]
+    },
+    {
+      "version": "1.5.1",
+      "date": "2026-09-09",
+      "title": {
+        "fr": "Mascotte entièrement visible",
+        "en": "Mascot fully visible"
+      },
+      "new": [],
+      "ui": [
+        {
+          "fr": "La mascotte et les informations de statut sont maintenant empilées proprement, sans se recouvrir.",
+          "en": "The mascot and status information are now neatly stacked without overlapping."
+        },
+        {
+          "fr": "La mascotte réagit au mouvement de la souris avec un effet de profondeur 2.5D et se présente dans une bulle glass.",
+          "en": "The mascot reacts to pointer movement with a 2.5D depth effect and introduces itself in a glass speech bubble."
+        }
+      ],
+      "fixes": [
+        {
+          "fr": "La partie basse de la mascotte n’est plus masquée par un panneau sur les largeurs intermédiaires.",
+          "en": "The lower part of the mascot is no longer hidden by a panel at intermediate widths."
+        }
+      ],
+      "technical": [
+        {
+          "fr": "Le positionnement absolu a été remplacé par une mise en page responsive stable.",
+          "en": "Absolute positioning was replaced with a stable responsive layout."
+        },
+        {
+          "fr": "L’interaction fonctionne au survol, au clavier et au toucher, avec respect du réglage de réduction des animations.",
+          "en": "The interaction works with hover, keyboard and touch, while respecting reduced-motion settings."
+        }
+      ]
+    },
+    {
+      "version": "1.5.0",
+      "date": "2026-09-09",
+      "title": {
+        "fr": "La mascotte rejoint le Verse",
+        "en": "The mascot joins the Verse"
+      },
+      "new": [
+        {
+          "fr": "La mascotte officielle d’AsteriaxTTV fait son arrivée sur Asteriax Verse.",
+          "en": "AsteriaxTTV’s official mascot has arrived on Asteriax Verse."
+        }
+      ],
+      "ui": [
+        {
+          "fr": "La mascotte rejoint le hero d’accueil avec une présentation glass adaptée aux écrans ordinateur, tablette et mobile.",
+          "en": "The mascot joins the home hero with a glass presentation adapted to desktop, tablet and mobile screens."
+        }
+      ],
+      "fixes": [],
+      "technical": [
+        {
+          "fr": "L’image transparente est chargée de façon différée afin de préserver la fluidité du catalogue.",
+          "en": "The transparent image is lazy-loaded to preserve catalogue performance."
+        }
+      ]
+    },
+    {
+      "version": "1.4.4",
+      "date": "2026-09-07",
+      "title": {
+        "fr": "Twitch simplifié, Hangar local",
+        "en": "Simplified Twitch, local Hangar"
+      },
+      "new": [],
+      "ui": [
+        {
+          "fr": "La connexion Twitch est remplacée par un lien direct vers la chaîne, avec l’indicateur de live conservé.",
+          "en": "Twitch sign-in is replaced by a direct channel link while keeping the live indicator."
+        }
+      ],
+      "fixes": [
+        {
+          "fr": "Les boutons de connexion, de déconnexion et les messages de session Twitch ont été supprimés.",
+          "en": "Twitch sign-in, sign-out and session messages were removed."
+        }
+      ],
+      "technical": [
+        {
+          "fr": "Le Hangar et la Liste d’envie restent enregistrés localement sur l’appareil, sans compte requis.",
+          "en": "The Hangar and wish list remain stored locally on the device with no account required."
+        }
+      ]
+    },
+    {
+      "version": "1.4.3",
+      "date": "2026-09-07",
+      "title": {
+        "fr": "Alignement des sections d’accueil",
+        "en": "Home section alignment"
+      },
+      "new": [],
+      "ui": [
+        {
+          "fr": "Le grand rectangle derrière les sections d’accueil a été retiré ; l’effet glass reste limité aux cartes.",
+          "en": "The large rectangle behind home sections was removed; glass styling remains on the cards."
+        },
+        {
+          "fr": "Le titre Actualités et les autres en-têtes restent correctement alignés sur les écrans étroits.",
+          "en": "News and other section headings remain correctly aligned on narrow screens."
+        }
+      ],
+      "fixes": [
+        {
+          "fr": "Suppression du débordement horizontal qui pouvait couper le début ou la fin des titres.",
+          "en": "Removed horizontal overflow that could clip the beginning or end of headings."
+        }
+      ],
+      "technical": [
+        {
+          "fr": "Contraintes de largeur ajoutées sans modifier le contenu ni le chargement des actualités.",
+          "en": "Width constraints were added without changing news content or loading behavior."
+        }
+      ]
+    },
+    {
+      "version": "1.4.2",
+      "date": "2026-09-06",
+      "title": {
+        "fr": "Suivi automatique du canal HOTFIX",
+        "en": "Automatic HOTFIX channel tracking"
+      },
+      "new": [
+        {
+          "fr": "Un bloc HOTFIX distinct affiche son ouverture et le correctif actuellement en test.",
+          "en": "A separate HOTFIX block shows whether the channel is open and which fix is being tested."
+        }
+      ],
+      "ui": [
+        {
+          "fr": "LIVE, HOTFIX, PTU et EPTU restent lisibles sur ordinateur, tablette et mobile.",
+          "en": "LIVE, HOTFIX, PTU and EPTU remain readable on desktop, tablet and mobile."
+        }
+      ],
+      "fixes": [],
+      "technical": [
+        {
+          "fr": "Le HOTFIX disparaît automatiquement lorsqu’il ferme ou que son build rejoint LIVE, puis le prochain build est détecté.",
+          "en": "HOTFIX automatically clears when it closes or its build reaches LIVE, then the next build is detected."
+        }
+      ]
+    },
+    {
+      "version": "1.4.1",
+      "date": "2026-09-06",
+      "title": {
+        "fr": "Fiches vaisseaux fluides et statut LIVE fiable",
+        "en": "Smoother ship details and reliable LIVE status"
+      },
+      "new": [],
+      "ui": [
+        {
+          "fr": "La fiche charge d’abord un aperçu léger avec un squelette discret, puis l’image haute qualité.",
+          "en": "Ship details now load a lightweight preview with a subtle skeleton before the high-quality image."
+        }
+      ],
+      "fixes": [
+        {
+          "fr": "La croix reste ancrée en haut à droite de la fiche et la barre de défilement est fine et intégrée au thème.",
+          "en": "The close button stays anchored at the top-right of the panel and the scrollbar is slim and theme-matched."
+        },
+        {
+          "fr": "Le build LIVE tient désormais compte des hotfixes récents lorsque la matrice officielle n’est pas encore actualisée.",
+          "en": "The LIVE build now accounts for recent hotfixes when the official matrix has not updated yet."
+        }
+      ],
+      "technical": [
+        {
+          "fr": "La détection croise les sources RSI avec un miroir de suivi et conserve un cache serveur court.",
+          "en": "Detection cross-checks RSI sources with a release tracker and keeps a short server cache."
+        }
+      ]
+    },
+    {
+      "version": "1.4.0",
+      "date": "2026-09-06",
+      "title": {
+        "fr": "Identité Liquid Glass",
+        "en": "Liquid Glass identity"
+      },
+      "new": [],
+      "ui": [
+        {
+          "fr": "Le style liquid glass est maintenant appliqué à la navigation, aux cartes, filtres, fiches, modales, boutons et au pied de page.",
+          "en": "Liquid glass styling now covers navigation, cards, filters, detail panels, modals, buttons and the footer."
+        },
+        {
+          "fr": "Les transparences, reflets cyan, flous et ombres ont été adaptés au mobile pour préserver la lisibilité.",
+          "en": "Transparency, cyan highlights, blur and shadows are adapted for mobile readability."
+        }
+      ],
+      "fixes": [
+        {
+          "fr": "Contraste renforcé sur les actions principales.",
+          "en": "Improved contrast for primary actions."
+        }
+      ],
+      "technical": [
+        {
+          "fr": "La couche visuelle reste séparée des fonctions Twitch, Hangar et du catalogue.",
+          "en": "The visual layer remains isolated from Twitch, Hangar and catalogue logic."
+        }
+      ]
+    },
+    {
+      "version": "1.3.0",
+      "date": "2026-09-06",
+      "title": {
+        "fr": "Données automatiques et builder intelligent",
+        "en": "Automatic data and smarter builder"
+      },
+      "new": [
+        {
+          "fr": "Un budget maximal peut maintenant encadrer les suggestions automatiques.",
+          "en": "A maximum budget can now constrain automatic suggestions."
+        },
+        {
+          "fr": "Le résumé affiche la marge énergétique connue du build.",
+          "en": "The summary now shows the build’s known power margin."
+        }
+      ],
+      "ui": [
+        {
+          "fr": "Le budget et les avertissements sont intégrés au bloc compact Actions et suggestions.",
+          "en": "Budget and warnings are integrated into the compact Actions and suggestions panel."
+        }
+      ],
+      "fixes": [],
+      "technical": [
+        {
+          "fr": "Une tâche quotidienne vérifie la source LIVE et ne publie le catalogue qu’après validation et tests.",
+          "en": "A daily job checks the LIVE source and only publishes the catalogue after validation and tests."
+        },
+        {
+          "fr": "Une source incomplète ou sans version reconnue est refusée afin de conserver le dernier catalogue valide.",
+          "en": "An incomplete source or one without a recognized version is rejected to preserve the last valid catalogue."
+        }
+      ]
+    },
+    {
+      "version": "1.2.1",
+      "date": "2026-09-06",
+      "title": {
+        "fr": "Connexion Twitch plus durable",
+        "en": "More persistent Twitch sign-in"
+      },
+      "new": [],
+      "ui": [],
+      "fixes": [
+        {
+          "fr": "La connexion Twitch se renouvelle maintenant automatiquement au lieu d’expirer avec le premier jeton temporaire.",
+          "en": "Twitch sign-in now refreshes automatically instead of expiring with the first temporary token."
+        }
+      ],
+      "technical": [
+        {
+          "fr": "Session glissante de 30 jours avec rotation sécurisée du jeton Twitch côté serveur.",
+          "en": "Rolling 30-day session with secure server-side Twitch token rotation."
+        }
+      ]
+    },
+    {
+      "version": "1.2.0",
+      "date": "2026-09-06",
+      "title": {
+        "fr": "Équipement devient un Loadout Builder",
+        "en": "Equipment becomes a Loadout Builder"
+      },
+      "new": [
+        {
+          "fr": "Sélection du vaisseau, slots compatibles, catalogue filtrable et comparaison de composants.",
+          "en": "Ship selection, compatible slots, filterable catalogue and component comparison."
+        },
+        {
+          "fr": "Statistiques théoriques, prix aUEC référencés, lieux d’achat et suggestions DPS, défense, quantum, PvE et PvP.",
+          "en": "Theoretical statistics, listed aUEC prices, shop locations and DPS, defense, quantum, PvE and PvP suggestions."
+        },
+        {
+          "fr": "Sauvegardes multiples sur cet appareil, favoris de composants, liens de partage et exports JSON/image.",
+          "en": "Multiple on-device saves, component favorites, share links and JSON/image exports."
+        }
+      ],
+      "ui": [
+        {
+          "fr": "Interface sombre bleu/cyan en français et anglais, organisée en trois colonnes sur grand écran.",
+          "en": "Dark blue/cyan interface in French and English, with three columns on large screens."
+        },
+        {
+          "fr": "Navigation mobile par panneaux Vaisseau, Slots, Catalogue et Résumé.",
+          "en": "Mobile navigation with Ship, Slots, Catalogue and Summary panels."
+        }
+      ],
+      "fixes": [],
+      "technical": [
+        {
+          "fr": "Catalogue technique chargé à l’ouverture du builder ; validation des tailles, types et restrictions des slots.",
+          "en": "Technical catalogue loaded when opening the builder; validation of slot sizes, types and restrictions."
+        },
+        {
+          "fr": "Les prix manquants restent signalés. Les statistiques et suggestions ne simulent pas un combat ; la synchronisation Mon Verse viendra ultérieurement.",
+          "en": "Missing prices remain identified. Statistics and suggestions do not simulate combat; Mon Verse synchronization is planned for later."
+        }
+      ]
+    },
+    {
+      "version": "1.1.0",
+      "date": "2026-09-05",
+      "title": {
+        "fr": "Les nouveautés Asteriax Verse réunies",
+        "en": "Asteriax Verse updates in one place"
+      },
+      "new": [
+        {
+          "fr": "Un historique des versions du site, disponible en français et en anglais.",
+          "en": "A website release history, available in French and English."
+        }
+      ],
+      "ui": [
+        {
+          "fr": "Une barre supérieure arrondie avec un effet verre sombre et cyan.",
+          "en": "A rounded header with a dark cyan glass effect."
+        },
+        {
+          "fr": "Un badge NOUVEAU signale la dernière version non consultée sur cet appareil.",
+          "en": "A NEW badge highlights the latest release not yet viewed on this device."
+        }
+      ],
+      "fixes": [],
+      "technical": [
+        {
+          "fr": "Publication Discord sécurisée par version, avec protection contre les doubles envois.",
+          "en": "Secure per-release Discord publishing with duplicate-send protection."
+        }
+      ]
+    }
+  ]
 }
-

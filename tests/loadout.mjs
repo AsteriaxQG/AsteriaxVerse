@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import {compatible,createBuild,validateBuild,metrics,suggest,encodeBuild,decodeBuild} from '../website/loadout/core.js';
 const data=JSON.parse(fs.readFileSync(new URL('../website/loadout/data/catalog.json',import.meta.url)));
 for(const ship of data.ships){const b=createBuild(ship,data.patch);assert.deepEqual(validateBuild(b,data).slots,b.slots);assert.equal(new Set(ship.slots.map(s=>s.id)).size,ship.slots.length);for(const mode of ['dps','defense','quantum','pve','pvp'])assert.doesNotThrow(()=>validateBuild(suggest(b,data,mode),data))}
-const ship=data.ships.find(s=>s.name==='RSI Constellation Andromeda'),build=createBuild(ship,data.patch),stock=metrics(build,data);
+const ship=data.ships.find(s=>/^(?:RSI )?Constellation (?:Mk IV )?Andromeda$/i.test(s.name)),build=createBuild(ship,data.patch),stock=metrics(build,data);
 assert.ok(stock.dps>0);assert.ok(stock.shield>0);assert.ok(stock.cost>0);assert.ok(stock.unknown>0);
 assert.deepEqual(decodeBuild(encodeBuild({...build,name:'Évasion ✧'}),data).slots,build.slots);
 assert.throws(()=>validateBuild({...build,patch:'0.0'},data));assert.throws(()=>validateBuild({...build,slots:{...build.slots,unknown:'test'}},data));assert.throws(()=>decodeBuild('a'.repeat(80001),data));

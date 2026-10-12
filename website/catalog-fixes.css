@@ -1,3 +1,5 @@
+/* Repère officiel des variantes Constellation Mk IV Gold Standard */
+.gold-standard-badge{display:inline-flex;align-items:center;min-height:28px;padding:6px 10px;border:1px solid rgba(246,190,96,.55);border-radius:999px;background:linear-gradient(135deg,rgba(105,65,24,.4),rgba(15,27,35,.88));color:#ffd991;font-size:10px;font-weight:850;letter-spacing:.035em;white-space:nowrap}
 /* Fiche vaisseau */
 .modal-panel{padding-top:70px}
 .modal-close{position:sticky;z-index:6;top:10px;right:auto;float:right;margin:-56px 0 12px;width:44px;height:44px;display:grid;place-items:center;padding:0;border:1px solid #315264;border-radius:50%;background:#0d202b;color:#e7faff;font-size:30px;line-height:1;box-shadow:0 8px 24px rgba(0,0,0,.35)}

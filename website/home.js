@@ -29,13 +29,14 @@
   }
 
   function isGroundFeed(v){const s=norm(`${v?.type||''} ${v?.size||''}`);return /(^| )(ground|ground vehicle|vehicle)( |$)/.test(s)}
-  function shipMentionIndex(ship){
-    const name=norm(ship?.name);if(name.length<5)return Number.MAX_SAFE_INTEGER;
+  function shipReleaseIndex(ship){
+    const name=norm(ship?.name);if(name.length<5||statusGroup(ship)!=='flight')return Number.MAX_SAFE_INTEGER;
     const key=keyName(name);
     for(let i=0;i<homeNewsItems.length;i++){
-      const hay=norm(`${homeNewsItems[i].title||''} ${homeNewsItems[i].excerpt||''}`);
-      const compact=keyName(hay);
-      if(hay.includes(name)||compact.includes(key))return i;
+      const item=homeNewsItems[i],title=norm(item.title||''),body=norm(item.excerpt||''),compactTitle=keyName(title);
+      const namedInTitle=title.includes(name)||compactTitle.includes(key);
+      const releaseConfirmed=/\b(?:released|releasing with|release(?:s)? with|available now|now available|now flyable|arrives? (?:in|with)|launch(?:ed|es)? with)\b/i.test(`${title} ${body}`);
+      if(namedInTitle&&releaseConfirmed)return i;
     }
     return Number.MAX_SAFE_INTEGER;
   }
@@ -62,26 +63,17 @@
 
   function pickFeaturedShips(){
     if(typeof state==='undefined'||!Array.isArray(state.vehicles)||!state.vehicles.length)return[];
-    const mentioned=shipFeed.map(feedShip=>({feedShip,v:findStateVehicle(feedShip),newsIndex:shipMentionIndex(feedShip)})).filter(x=>x.v&&Number.isFinite(x.newsIndex)&&x.newsIndex<Number.MAX_SAFE_INTEGER).sort((a,b)=>a.newsIndex-b.newsIndex||addedTime(b.v)-addedTime(a.v));
-    if(mentioned.length){const latestIndex=mentioned[0].newsIndex,used=new Set(),latest=mentioned.filter(x=>x.newsIndex===latestIndex).map(x=>x.v).filter(v=>{const id=String(v.id);if(used.has(id))return false;used.add(id);return true});const precise=latest.filter(v=>{const own=keyName(v.name);return !latest.some(other=>{const candidate=keyName(other.name);return candidate.length>own.length&&candidate.startsWith(own)})});return precise.slice(0,6)}
-    const currentRelease=['sabreravenex','atlsiktiakuma'].map(wanted=>state.vehicles.find(v=>[v.name,v.name_full].some(name=>{const key=keyName(name);return key===wanted||key.endsWith(wanted)}))).filter(Boolean);
-    if(currentRelease.length)return currentRelease;
-    const picked=[],used=new Set();
-    if(shipFeed.length){
-      const sorted=shipFeed.filter(v=>String(v.status).toLowerCase()==='flight-ready'&&!isGroundFeed(v)).map(feedShip=>({feedShip,v:findStateVehicle(feedShip)})).filter(x=>x.v&&!Number(x.v.is_ground_vehicle)).sort((a,b)=>addedTime(b.v)-addedTime(a.v));
-      for(const entry of sorted){
-        const v=entry.v;if(used.has(String(v.id)))continue;
-        picked.push(v);used.add(String(v.id));if(picked.length===1)break;
-      }
-    }
-    const fallback=state.vehicles.filter(v=>!used.has(String(v.id))&&Number(v.is_ground_vehicle)!==1&&statusGroup(v)==='flight').sort((a,b)=>addedTime(b)-addedTime(a));
-    while(picked.length<1&&fallback.length){const v=fallback.shift();if(!used.has(String(v.id))){picked.push(v);used.add(String(v.id))}}
-    return picked.slice(0,1);
+    const confirmed=shipFeed.filter(v=>!isGroundFeed(v)).map(feedShip=>({feedShip,v:findStateVehicle(feedShip),newsIndex:shipReleaseIndex(feedShip)})).filter(x=>x.v&&Number.isFinite(x.newsIndex)&&x.newsIndex<Number.MAX_SAFE_INTEGER).sort((a,b)=>a.newsIndex-b.newsIndex||addedTime(b.v)-addedTime(a.v));
+    if(!confirmed.length)return[];
+    const latestIndex=confirmed[0].newsIndex,latest=confirmed.filter(x=>x.newsIndex===latestIndex).map(x=>x.v),used=new Set();
+    return latest.filter(v=>{const id=String(v.id);if(used.has(id))return false;used.add(id);return true}).filter(v=>{const own=keyName(v.name);return !latest.some(other=>{const candidate=keyName(other.name);return candidate.length>own.length&&candidate.startsWith(own)})}).slice(0,6);
   }
 
   function renderFeaturedShips(){
     const grid=q('#homeShipGrid');if(!grid||typeof vehicleCard!=='function')return false;
-    const list=pickFeaturedShips();if(!list.length)return false;
+    const list=pickFeaturedShips();
+    document.dispatchEvent(new CustomEvent('asteriax:verified-new-releases',{detail:{ids:list.map(v=>String(v.id))}}));
+    if(!list.length){grid.innerHTML='<p class="home-loading">Aucune nouvelle sortie confirmée dans les annonces officielles récentes.</p>';return true}
     grid.innerHTML=list.map(vehicleCard).join('');if(typeof bindCards==='function')bindCards(grid);return true;
   }
 
@@ -120,6 +112,7 @@
   renderHangarSummary();loadHomeNews();loadShipFeed();waitForShips();
   document.addEventListener('click',e=>{if(e.target.closest('[data-card-owned],[data-card-wish],[data-hangar-owned],[data-hangar-wish]'))setTimeout(renderHangarSummary,30)});
   window.addEventListener('storage',renderHangarSummary);
+  document.addEventListener('asteriax:catalog-updated',renderFeaturedShips);
 })();
 
 

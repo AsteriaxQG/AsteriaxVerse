@@ -29,7 +29,25 @@ function storeKey(v){const key=slugName(v).replace(/^(?:roberts space industries
 // avec leur dernier prix connu, mais ne sont plus proposées comme pledges courants.
 function isRetiredPledgeKey(key){const value=String(key||'');return /^auroramki(?!i)/.test(value)||/^f7[a-z0-9]*mki$/.test(value)}
 function pipelineStatus(v,rawStatus){if(rawStatus==='flight-ready'||rawStatus==='hangar-ready')return rawStatus;const verified=VERIFIED_PIPELINE_STATUS.get(storeKey(v.name));if(verified)return verified;const note=textValue(v.production_note).toLowerCase();if(/active production|currently being built|being built and tested/.test(note))return'active-production';if(/long term production|waiting for resources to start/.test(note))return'long-term-production';return rawStatus}
-async function fetchAll(base){const first=await fetch(`${base}?page%5Bsize%5D=200&sort=name`,{headers:{Accept:'application/json','User-Agent':'AsteriaxVerse/1.2'}});if(!first.ok)throw new Error(`${base} ${first.status}`);const json=await first.json();let data=Array.isArray(json.data)?json.data:[];const pages=Number(json.meta?.last_page||json.meta?.lastPage||1);if(pages>1){const rest=await Promise.all(Array.from({length:pages-1},(_,i)=>fetch(`${base}?page%5Bsize%5D=200&page%5Bnumber%5D=${i+2}&sort=name`,{headers:{Accept:'application/json','User-Agent':'AsteriaxVerse/1.2'}}).then(x=>x.ok?x.json():{data:[]})));rest.forEach(x=>{if(Array.isArray(x.data))data.push(...x.data)})}return data}
+async function fetchAll(base){
+  const headers={Accept:'application/json','User-Agent':'AsteriaxVerse/1.2'};
+  const loadPage=async page=>{
+    const url=page===1?`${base}?page%5Bsize%5D=200&sort=name`:`${base}?page%5Bsize%5D=200&page%5Bnumber%5D=${page}&sort=name`;
+    const response=await fetch(url,{headers});
+    if(!response.ok)throw new Error(`${base} page ${page} ${response.status}`);
+    const payload=await response.json();
+    if(!Array.isArray(payload?.data))throw new Error(`${base} page ${page} returned invalid data`);
+    return payload;
+  };
+  const first=await loadPage(1);
+  const rawPages=first.meta?.last_page??first.meta?.lastPage??1;
+  const pages=Number(rawPages);
+  if(!Number.isInteger(pages)||pages<1||pages>100)throw new Error(`${base} returned invalid page count`);
+  const data=[...first.data];
+  const remaining=await Promise.all(Array.from({length:pages-1},(_,index)=>loadPage(index+2)));
+  for(const page of remaining)data.push(...page.data);
+  return data;
+}
 async function fetchOfficialMatrix(){const response=await fetch(OFFICIAL_SHIP_MATRIX,{headers:{Accept:'application/json','Accept-Language':'en','X-Requested-With':'XMLHttpRequest','User-Agent':'AsteriaxVerse/1.3'}});if(!response.ok)throw new Error(`RSI Ship Matrix ${response.status}`);const json=await response.json();if(json.success===false||!Array.isArray(json.data))throw new Error('Réponse RSI Ship Matrix invalide');return json.data}
 async function fetchOfficialStore(){const query='query AsteriaxPledgeStore($query: SearchQuery) { store(name: "pledge", browse: true) { listing: search(query: $query) { resources { id title url nativePrice { amount discounted discountDescription } stock { unlimited qty level } ... on TySku { isWarbond } } } } }';const limit=200;const response=await fetch(OFFICIAL_PLEDGE_STORE,{method:'POST',headers:{Accept:'application/json','Content-Type':'application/json','Accept-Language':'en','User-Agent':'AsteriaxVerse/1.4'},body:JSON.stringify({operationName:'AsteriaxPledgeStore',variables:{query:{skus:{products:['72']},limit,page:1,sort:{field:'weight',direction:'desc'}}},query})});if(!response.ok)throw new Error(`Boutique RSI ${response.status}`);const json=await response.json();if(Array.isArray(json.errors)&&json.errors.length)throw new Error('Réponse boutique RSI invalide');const products=json.data?.store?.listing?.resources;if(!Array.isArray(products)||products.length>=limit)throw new Error('Réponse boutique RSI incomplète');const index=new Map();for(const product of products){const key=storeKey(product.title);if(!key)continue;const path=textValue(product.url);const url=path?(path.startsWith('http')?path:`${RSI}${path.startsWith('/')?path:'/'+path}`):'';const amount=Number(product.nativePrice?.discounted??product.nativePrice?.amount);const available=product.stock?.unlimited===true||Number(product.stock?.qty)>0;const offer={url,title:textValue(product.title),available,price:Number.isFinite(amount)&&amount>0?amount/100:null,currency:'USD',is_warbond:product.isWarbond===true,discounted:Number(product.nativePrice?.discounted)>0,price_kind:'current'};const current=index.get(key);if(!current||(offer.available&&!current.available)||(offer.available===current.available&&offer.price!==null&&(current.price===null||offer.price<current.price)))index.set(key,offer)}return index}
 class VerifiedStoreMap extends Map{set(key,offer){const collector=isRetiredPledgeKey(key);return super.set(key,collector?{...offer,available:false,price_kind:'historical',collector:true}:offer)}}

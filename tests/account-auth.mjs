@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {cleanIds,codeHash,constantTimeEqual,normalizeEmail,sessionCookie,sameOrigin,validEmail} from '../server/account-auth.js';
+import {cleanIds,constantTimeEqual,normalizeEmail,normalizeName,passwordHash,sessionCookie,sameOrigin,validEmail,validName,validPassword} from '../server/account-auth.js';
 
 assert.equal(normalizeEmail('  Pilot@Example.COM  '),'pilot@example.com');
 assert.equal(validEmail('pilot@example.com'),true);
@@ -14,7 +14,14 @@ assert.equal(sameOrigin({...req,headers:new Headers()}),false);
 assert.match(sessionCookie('a'.repeat(64)),/Secure; HttpOnly; SameSite=Lax/);
 assert.equal(constantTimeEqual('abcd','abcd'),true);
 assert.equal(constantTimeEqual('abcd','abce'),false);
-assert.notEqual(await codeHash('pilot@example.com','123456','secret-a'),await codeHash('pilot@example.com','123456','secret-b'));
-assert.notEqual(await codeHash('pilot@example.com','123456','secret-a'),await codeHash('other@example.com','123456','secret-a'));
+assert.equal(normalizeName('  Jean   Pilote '),'Jean Pilote');
+assert.equal(validName('Jean Pilote'),true);
+assert.equal(validName('x'),false);
+assert.equal(validPassword('a-secure-password'),true);
+assert.equal(validPassword('short'),false);
+const stored=await passwordHash('correct horse battery staple','00112233445566778899aabbccddeeff');
+assert.equal(stored.salt,'00112233445566778899aabbccddeeff');
+assert.equal(constantTimeEqual(stored.hash,(await passwordHash('correct horse battery staple',stored.salt)).hash),true);
+assert.equal(constantTimeEqual(stored.hash,(await passwordHash('wrong password 123',stored.salt)).hash),false);
 console.log('Email account helpers passed');
 

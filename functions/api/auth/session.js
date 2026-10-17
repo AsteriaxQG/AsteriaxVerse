@@ -1,7 +1,7 @@
 import {expiredSessionCookie,json,sameOrigin,sessionFor,sha256} from '../../../server/account-auth.js';
 
 export async function onRequestGet({request,env}){
-  if(!env.AX_DB)return json({error:'Connexion e-mail non configurée'},503);
+  if(!env.AX_DB)return json({error:'Service de compte temporairement indisponible'},503);
   try{const user=await sessionFor(request,env);return json(user?{authenticated:true,email:user.email,name:user.display_name}:{authenticated:false})}catch{return json({error:'Connexion temporairement indisponible'},503)}
 }
 export async function onRequestDelete({request,env}){

@@ -84,3 +84,74 @@ a:hover,.result-count{color:#ffd09a}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
 }
+
+/* Détails Halloween : envolée discrète, nouveauté saisonnière et AXI en édition citrouille. */
+.home-halloween-note::before,.home-halloween-note::after{
+  display:inline-block;
+  color:#ffb36a;
+  font-size:12px;
+  line-height:1;
+  filter:drop-shadow(0 0 6px rgba(255,145,72,.45));
+  animation:ax-halloween-bat 4.8s ease-in-out infinite;
+}
+.home-halloween-note::before{content:"🦇";animation-delay:-1.4s}
+.home-halloween-note::after{content:"🦇";font-size:10px;opacity:.72;animation-delay:-3.1s}
+@keyframes ax-halloween-bat{
+  0%,100%{transform:translateY(0) rotate(-5deg)}
+  50%{transform:translateY(-3px) rotate(5deg)}
+}
+.home-title-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.halloween-release-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:6px 10px;
+  border:1px solid rgba(255,177,101,.42);
+  border-radius:999px;
+  background:linear-gradient(120deg,rgba(115,57,52,.48),rgba(60,37,78,.52));
+  color:#ffd1a2;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:1.1px;
+  line-height:1;
+  box-shadow:0 0 18px rgba(213,104,63,.12),inset 0 1px 0 rgba(255,238,216,.12);
+  white-space:nowrap;
+}
+.home-mascot{filter:drop-shadow(0 22px 28px rgba(0,0,0,.46)) drop-shadow(0 0 26px rgba(217,117,66,.24)) drop-shadow(0 0 18px rgba(143,91,190,.15))}
+.home-mascot:hover,.home-mascot:focus-visible,.home-mascot.is-speaking{filter:drop-shadow(0 28px 34px rgba(0,0,0,.5)) drop-shadow(0 0 32px rgba(241,145,72,.35)) drop-shadow(0 0 22px rgba(164,105,213,.2))}
+.home-mascot-glow{background:radial-gradient(circle at var(--gx) 45%,rgba(255,153,76,.34),rgba(117,70,151,.15) 44%,transparent 72%)!important}
+.home-mascot-halloween{
+  position:absolute;
+  z-index:4;
+  top:4%;
+  right:2%;
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(255,190,128,.48);
+  border-radius:50%;
+  background:linear-gradient(145deg,rgba(75,43,61,.92),rgba(28,19,38,.9));
+  box-shadow:0 8px 22px rgba(0,0,0,.3),0 0 18px rgba(255,131,62,.2),inset 0 1px 0 rgba(255,239,218,.22);
+  font-size:19px;
+  line-height:1;
+  transform:translateZ(55px);
+  animation:ax-pumpkin-float 4.2s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes ax-pumpkin-float{
+  0%,100%{translate:0 0;rotate:-5deg}
+  50%{translate:0 -4px;rotate:5deg}
+}
+@media(max-width:900px){
+  .home-title-row{gap:8px}
+  .halloween-release-badge{padding:6px 9px;font-size:9px}
+  .home-mascot-halloween{right:6%;top:3%;width:34px;height:34px;font-size:17px}
+}
+@media(max-width:650px){
+  .home-mascot-halloween{right:9%;top:2%;width:32px;height:32px;font-size:16px}
+  .home-halloween-note{max-width:100%;white-space:normal}
+}
+@media(prefers-reduced-motion:reduce){
+  .home-halloween-note::before,.home-halloween-note::after,.home-mascot-halloween{animation:none!important}
+}

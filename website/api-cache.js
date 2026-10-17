@@ -3,7 +3,7 @@
   const pending=new Map();
   const defaultTtl={'/api/news':120000,'/api/ships':120000,'/api/status':15000,'/api/launcher':300000};
   const clone=value=>typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value));
-  const canonical=input=>{const url=new URL(input,location.href);return url.origin===location.origin&&defaultTtl[url.pathname]?url.pathname:url.href};
+  const canonical=input=>{const url=new URL(input,location.href);if(url.origin!==location.origin||!defaultTtl[url.pathname])return url.href;const revision=url.pathname==='/api/ships'?url.searchParams.get('catalog'):null;return url.pathname+(revision?'?catalog='+encodeURIComponent(revision):'')};
   const storageKey=key=>`ax_api_v3:${key}`;
   function readSession(key,ttl,now){try{const hit=JSON.parse(sessionStorage.getItem(storageKey(key))||'null');return hit&&now-hit.savedAt<ttl?hit:null}catch{return null}}
   function writeSession(key,entry){try{sessionStorage.setItem(storageKey(key),JSON.stringify(entry))}catch{}}

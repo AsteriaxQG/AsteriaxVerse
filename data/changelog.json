@@ -1,6 +1,15 @@
 {
   "versions": [
     {
+      "version": "1.5.20",
+      "date": "2026-10-18",
+      "title": {"fr": "Actualisation du filtre Gold Standard", "en": "Gold Standard filter cache refresh"},
+      "new": [],
+      "ui": [],
+      "fixes": [{"fr": "Le cache navigateur distingue désormais les versions du catalogue pour ne plus conserver les anciens marquages Gold Standard après une mise à jour.", "en": "Browser cache now distinguishes catalogue revisions so old Gold Standard metadata does not survive a catalogue update."}],
+      "technical": [{"fr": "Test de régression avec une ancienne réponse stockée en session. Filtre contrôlé dans le navigateur en production.", "en": "Regression test with an older session-cached response. Filter checked in the production browser."}]
+    },
+    {
       "version": "1.5.19",
       "date": "2026-10-18",
       "title": {"fr": "Catalogue Gold Standard complété", "en": "Gold Standard catalogue updated"},

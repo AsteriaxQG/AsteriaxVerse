@@ -4,6 +4,14 @@ import vm from 'node:vm';
 import {readBuilds,saveBuild,favorites} from '../website/loadout/storage.js';
 
 const source=path=>fs.readFileSync(new URL('../'+path,import.meta.url),'utf8');
+const apiStored=new Map([['ax_api_v3:/api/ships',JSON.stringify({savedAt:Date.now(),data:{items:[{name:'Old cached ship',gold_standard:false}]}})]]);
+let apiFetches=0;
+const apiContext={window:{},URL,location:{href:'https://asteriaxverse.pages.dev/',origin:'https://asteriaxverse.pages.dev'},sessionStorage:{getItem:k=>apiStored.get(k)||null,setItem:(k,v)=>apiStored.set(k,v)},fetch:async()=>{apiFetches++;return{ok:true,json:async()=>({items:[{name:'Polaris',gold_standard:true}]})}}};
+vm.createContext(apiContext);vm.runInContext(source('website/api-cache.js'),apiContext);
+const revised=await apiContext.window.AsteriaxApi.getJson('/api/ships?catalog=v22',{ttlMs:120000});
+assert.equal(revised.items[0].gold_standard,true,'A new catalogue revision must bypass an older session cache');
+await apiContext.window.AsteriaxApi.getJson('/api/ships?catalog=v22',{ttlMs:120000});assert.equal(apiFetches,1);
+await apiContext.window.AsteriaxApi.getJson('/api/ships?catalog=v23',{ttlMs:120000});assert.equal(apiFetches,2);
 const nodes=new Map(),created=[];
 class Element {
   constructor(){this.listeners={};this.dataset={};this.value='';this.hidden=false;this.isConnected=false;this.innerHTML='';this.classList={remove(){},toggle(){}};this.attributes={};}

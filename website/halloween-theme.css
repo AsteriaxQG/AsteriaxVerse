@@ -182,3 +182,23 @@ body{
     vertical-align:middle;
   }
 }
+/* Toile d’araignée fine dans le coin du hero, en arrière-plan d’AXI et du texte. */
+.home-hero>div:first-child,.home-hero-aside{position:relative;z-index:1}
+.home-hero-spiderweb{
+  position:absolute;
+  z-index:0;
+  top:0;
+  right:0;
+  width:clamp(190px,24vw,310px);
+  aspect-ratio:1;
+  opacity:.28;
+  pointer-events:none;
+  filter:drop-shadow(0 0 8px rgba(196,151,218,.18));
+}
+.home-hero-spiderweb svg{display:block;width:100%;height:100%}
+@media(max-width:900px){
+  .home-hero-spiderweb{width:220px;opacity:.23}
+}
+@media(max-width:650px){
+  .home-hero-spiderweb{width:136px;opacity:.18}
+}

@@ -2,6 +2,11 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const source=fs.readFileSync(new URL('../functions/api/ships.js',import.meta.url),'utf8');
+const goldHelper=source.match(/function namedGoldStandard\(value\)\{[^\n]+\}/)?.[0];
+assert.ok(goldHelper);
+const isGold=Function('slugName',goldHelper+';return namedGoldStandard')(v=>String(v).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim());
+for(const name of ['Aurora Mk I ES','Aurora Mk I LX','Aurora Mk I MR','Aurora Mk I CL','Aurora Mk I LN','Aurora Mk I SE','Aegis Hammerhead','Gladius','Gladius Valiant','Gladius Pirate Edition','RSI Polaris'])assert.equal(isGold(name),true,name);
+for(const name of ['Aurora Mk II','Aurora Mk II ES','Polaris Paint','Hammerhead Paint','Gladius Concept','Unknown'])assert.equal(isGold(name),false,name);
 const declaration=source.match(/async function fetchAll\(base\)\{[\s\S]*?\n\}/)?.[0];
 assert.ok(declaration,'Ship API pagination helper must exist');
 

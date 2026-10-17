@@ -1,6 +1,15 @@
 {
   "versions": [
     {
+      "version": "1.5.19",
+      "date": "2026-10-18",
+      "title": {"fr": "Catalogue Gold Standard complété", "en": "Gold Standard catalogue updated"},
+      "new": [],
+      "ui": [],
+      "fixes": [{"fr": "Ajout du marquage Gold Standard aux six Aurora Mk I, au Hammerhead, au Gladius et ses variantes, ainsi qu’au Polaris. Le badge n’ajoute plus la mention Mk IV aux autres gammes.", "en": "Added Gold Standard metadata to the six Aurora Mk I variants, Hammerhead, Gladius and its variants, and Polaris. The badge no longer labels other ship families as Mk IV."}],
+      "technical": [{"fr": "Tests de correspondance exacte des modèles et renouvellement des caches du catalogue.", "en": "Exact model matching tests and refreshed catalogue caches."}]
+    },
+    {
       "version": "1.5.18",
       "date": "2026-10-18",
       "title": {"fr": "Filtre Gold Standard", "en": "Gold Standard filter"},

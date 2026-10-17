@@ -1,10 +1,6 @@
 (()=>{
   'use strict';
-  const adapter=window.AsteriaxHangar;
-  if(!adapter)return;
-
-  // Account creation and sign-in live on the home page; Hangar remains local-first.
-  window.AsteriaxAccount={canEdit:()=>true};
+  // Twitch live status and the language toggle are independent from account features.
   const headerActions=document.createElement('div');
   headerActions.className='ax-header-actions';
   headerActions.dataset.i18nSkip='';

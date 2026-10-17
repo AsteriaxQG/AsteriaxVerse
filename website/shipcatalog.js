@@ -29,7 +29,7 @@ function refreshNewestVehicleIds(ids=[]){newestVehicleIds.clear();for(const id o
 document.addEventListener('asteriax:verified-new-releases',event=>{refreshNewestVehicleIds(event.detail?.ids||[]);if(viewFromHash()==='vehicles'&&ready)renderVehicles()});
 function renderCatalogUpdated(){const target=document.querySelector('#vehicleDataUpdated');if(!target||!catalogUpdatedAt)return;const date=new Date(catalogUpdatedAt);if(!Number.isFinite(date.getTime()))return;const english=window.AsteriaxI18n?.isEnglish?.()===true;target.textContent=english?`Data updated ${date.toLocaleString('en-GB',{dateStyle:'long',timeStyle:'short'})}`:`Données mises à jour le ${date.toLocaleString('fr-FR',{dateStyle:'long',timeStyle:'short'})}`}
 const save=()=>{writeStored('ax_hangar_owned',[...owned]);writeStored('ax_hangar_wishlist',[...wished])};
-function setHangar(id,mode){if(window.AsteriaxAccount?.canEdit()===false){toast('Synchronisation en cours ou connexion requise');return}id=String(id);if(mode==='owned'){owned.has(id)?owned.delete(id):owned.add(id);wished.delete(id)}else{wished.has(id)?wished.delete(id):wished.add(id);owned.delete(id)}save();document.dispatchEvent(new CustomEvent('asteriax:hangar-edit',{detail:{shipId:id,status:owned.has(id)?'owned':wished.has(id)?'wishlist':'none'}}));const view=viewFromHash();if(view==='vehicles')renderVehicles();else if(view==='hangar')renderHangar();toast(mode==='owned'?(owned.has(id)?'Ajouté à mes vaisseaux':'Retiré de mes vaisseaux'):(wished.has(id)?'Ajouté à la Liste d’envie':'Retiré de la Liste d’envie'))}
+function setHangar(id,mode){id=String(id);if(mode==='owned'){owned.has(id)?owned.delete(id):owned.add(id);wished.delete(id)}else{wished.has(id)?wished.delete(id):wished.add(id);owned.delete(id)}save();const view=viewFromHash();if(view==='vehicles')renderVehicles();else if(view==='hangar')renderHangar();toast(mode==='owned'?(owned.has(id)?'Ajouté à mes vaisseaux':'Retiré de mes vaisseaux'):(wished.has(id)?'Ajouté à la Liste d’envie':'Retiré de la Liste d’envie'))}
 window.AsteriaxHangar={read:()=>({owned:[...owned],wishlist:[...wished]}),replace:snapshot=>{owned.clear();wished.clear();snapshot.owned.forEach(id=>owned.add(String(id)));snapshot.wishlist.forEach(id=>{if(!owned.has(String(id)))wished.add(String(id))});save();if(state.db)renderActiveCatalog()}};
 function imageOf(v){return imgUrl(human(v.catalog_image)||human(v.url_photo))}
 function cardImageOf(v){
@@ -109,3 +109,4 @@ document.addEventListener('asteriax:catalog-ready',e=>{if(e.detail?.source==='da
 document.addEventListener('asteriax:language-change',renderCatalogUpdated);
 function wait(){if(state.db){bindHangarTabs();maybeLoadCatalog()}else setTimeout(wait,150)}wait();
 })();
+

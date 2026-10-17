@@ -14,3 +14,16 @@
   #loadoutRoot .lb-tabs .lb-button:last-child:nth-child(odd){grid-column:1/-1}
   .nav-btn,.nav-btn.active{font-size:9.5px!important}
 }
+@media (max-width:370px){
+  #home>.stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #home>.stats article:last-child{grid-column:1/-1;border-top:1px solid var(--ax-glass-line)!important}
+  #home>.stats span{font-size:10px!important;letter-spacing:0!important}
+}
+@media (min-width:700px) and (max-width:900px){
+  #vehicles .card-grid,#hangar .card-grid,#news .news-grid,
+  #home .home-news-grid,#home .home-featured-grid,#home .home-now-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  #home .verse-env-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;overflow:visible!important}
+  #home .verse-env{min-width:0!important;flex:auto!important}
+}

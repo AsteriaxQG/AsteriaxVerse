@@ -21,6 +21,7 @@ on:
       - "functions/api/hangar.js"
       - "server/account-auth.js"
       - "migrations/0002_email_accounts.sql"
+      - "migrations/0003_email_password_accounts.sql"
       - "tests/account-auth.mjs"
   workflow_dispatch:
 permissions:
@@ -39,8 +40,8 @@ jobs:
       - run: node --check website/shipcatalog.js
       - run: node --check website/home.js
       - run: node --check functions/api/ships.js
-      - run: node --check functions/api/auth/request.js
-      - run: node --check functions/api/auth/verify.js
+      - run: node --check functions/api/auth/register.js
+      - run: node --check functions/api/auth/login.js
       - run: node --check functions/api/auth/session.js
       - run: node --check functions/api/hangar.js
       - run: node --check website/account-login.js
@@ -50,3 +51,4 @@ jobs:
       - run: node tests/ship-pledge-availability.mjs
       - run: node tests/latest-releases.mjs
       - run: node tests/ship-patch-impact.mjs
+

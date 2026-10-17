@@ -17,8 +17,8 @@
       ],
       "technical": [
         {
-          "fr": "Ajout d’une régression vérifiant l’affichage « Disponible » et du prix Warbond pour le Centaurus.",
-          "en": "Added a regression check for the Centaurus “Available” status and Warbond price."
+          "fr": "Le cache du script de la page d’accueil est renouvelé pour que la correction soit chargée sans délai.",
+          "en": "The homepage script cache is refreshed so the fix loads without delay."
         }
       ]
     },

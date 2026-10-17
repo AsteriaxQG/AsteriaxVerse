@@ -32,7 +32,11 @@ const save=()=>{writeStored('ax_hangar_owned',[...owned]);writeStored('ax_hangar
 function setHangar(id,mode){id=String(id);if(mode==='owned'){owned.has(id)?owned.delete(id):owned.add(id);wished.delete(id)}else{wished.has(id)?wished.delete(id):wished.add(id);owned.delete(id)}save();const view=viewFromHash();if(view==='vehicles')renderVehicles();else if(view==='hangar')renderHangar();toast(mode==='owned'?(owned.has(id)?'Ajouté à mes vaisseaux':'Retiré de mes vaisseaux'):(wished.has(id)?'Ajouté à la Liste d’envie':'Retiré de la Liste d’envie'))}
 window.AsteriaxHangar={read:()=>({owned:[...owned],wishlist:[...wished]}),replace:snapshot=>{owned.clear();wished.clear();snapshot.owned.forEach(id=>owned.add(String(id)));snapshot.wishlist.forEach(id=>{if(!owned.has(String(id)))wished.add(String(id))});save();if(state.db)renderActiveCatalog()}};
 function imageSource(value,depth=0){if(value===null||value===undefined||depth>6)return'';if(typeof value==='string')return imgUrl(value);if(Array.isArray(value)){for(const entry of value){const url=imageSource(entry,depth+1);if(url)return url}return''}if(typeof value==='object'){for(const key of ['source_url','slideshow_wide','hub_large','store_slideshow_large','store_hub_large','large','medium','small','thumbnail','image','url','src','images','media']){const url=imageSource(value[key],depth+1);if(url)return url}for(const entry of Object.values(value)){const url=imageSource(entry,depth+1);if(url)return url}}return''}
-function imageSourcesOf(v){return[v?.catalog_image,v?.url_photo,v?.image,v?.media,v?.images].map(value=>imageSource(value)).filter((url,index,all)=>url&&all.indexOf(url)===index)}
+const CURATED_SHIP_IMAGES=new Map([
+ ['constellation mk v centaurus','https://media.starcitizen.tools/thumb/6/6e/RSI_Constellation_Mk_V_Centaurus_Landed.webp/1280px-RSI_Constellation_Mk_V_Centaurus_Landed.webp?jtuqg=']
+]);
+function curatedImageOf(v){return CURATED_SHIP_IMAGES.get(normName(normalizedName(v)))||''}
+function imageSourcesOf(v){return[v?.catalog_image,v?.url_photo,v?.image,v?.media,v?.images,curatedImageOf(v)].map(value=>imageSource(value)).filter((url,index,all)=>url&&all.indexOf(url)===index)}
 function imageOf(v){return imageSourcesOf(v)[0]||''}
 function cardImageOf(v){
  const full=imageOf(v);if(!full)return'';

@@ -15,6 +15,13 @@ on:
       - "tests/ships-api.mjs"
       - "tests/ship-pledge-availability.mjs"
       - "tests/vehicle-pagination.mjs"
+      - "website/account-login.js"
+      - "website/account-login.css"
+      - "functions/api/auth/**"
+      - "functions/api/hangar.js"
+      - "server/account-auth.js"
+      - "migrations/0002_email_accounts.sql"
+      - "tests/account-auth.mjs"
   workflow_dispatch:
 permissions:
   contents: read
@@ -32,6 +39,12 @@ jobs:
       - run: node --check website/shipcatalog.js
       - run: node --check website/home.js
       - run: node --check functions/api/ships.js
+      - run: node --check functions/api/auth/request.js
+      - run: node --check functions/api/auth/verify.js
+      - run: node --check functions/api/auth/session.js
+      - run: node --check functions/api/hangar.js
+      - run: node --check website/account-login.js
+      - run: node tests/account-auth.mjs
       - run: node tests/vehicle-pagination.mjs
       - run: node tests/ships-api.mjs
       - run: node tests/ship-pledge-availability.mjs

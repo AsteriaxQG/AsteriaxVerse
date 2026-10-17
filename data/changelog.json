@@ -1,6 +1,37 @@
 {
   "versions": [
     {
+      "version": "1.5.10",
+      "date": "2026-10-17",
+      "title": {
+        "fr": "Dernières sorties corrigées et fiches simplifiées",
+        "en": "Latest releases fixed and simplified ship details"
+      },
+      "new": [],
+      "ui": [
+        {
+          "fr": "Suppression de la rubrique « Impact du patch » des fiches vaisseaux.",
+          "en": "Removed the “Patch impact” section from ship details."
+        }
+      ],
+      "fixes": [
+        {
+          "fr": "Le Constellation Mk V Centaurus est reconnu dans « Dernières sorties » à partir de son annonce RSI officielle, même sans la formule « disponible maintenant ».",
+          "en": "The Constellation Mk V Centaurus is recognized in “Latest releases” from its official RSI announcement even without an “available now” phrase."
+        },
+        {
+          "fr": "La détection accepte le statut flight-ready de l’API et les nouveaux véhicules, tout en excluant les concepts, Q&A et vidéos de présentation.",
+          "en": "Detection accepts the API’s flight-ready status and newly released vehicles while excluding concepts, Q&As and presentation videos."
+        }
+      ],
+      "technical": [
+        {
+          "fr": "La requête de notes de patch à l’ouverture d’une fiche vaisseau a été supprimée. Ajout de tests basés sur l’annonce réelle du Centaurus.",
+          "en": "Removed the patch-notes request when opening ship details. Added tests based on the actual Centaurus announcement."
+        }
+      ]
+    },
+    {
       "version": "1.5.9",
       "date": "2026-10-12",
       "title": {

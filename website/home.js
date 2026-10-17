@@ -21,22 +21,30 @@
   function renderHangarSummary(){const owned=readSet('ax_hangar_owned'),wish=readSet('ax_hangar_wishlist');if(q('#homeOwnedCount'))q('#homeOwnedCount').textContent=owned.size.toLocaleString('fr-FR');if(q('#homeWishCount'))q('#homeWishCount').textContent=wish.size.toLocaleString('fr-FR')}
 
   function statusGroup(v){
-    const raw=norm(v?.production_status).replace(/\s+/g,'-');
+    const raw=norm(v?.status||v?.production_status).replace(/\s+/g,'-');
     if(raw.includes('flight-ready')||raw.includes('hangar-ready')||Number(v?.price_min)>0||v?.in_game===true||v?.in_game===1)return'flight';
     if(raw.includes('concept'))return'concept';
     if(raw.includes('active-production')||raw.includes('long-term-production')||raw==='production'||raw.includes('in-production'))return'production';
     return'other';
   }
 
-  function isGroundFeed(v){const s=norm(`${v?.type||''} ${v?.size||''}`);return /(^| )(ground|ground vehicle|vehicle)( |$)/.test(s)}
+  function releaseName(value){return norm(value).replace(/^(?:roberts space industries|rsi|aegis dynamics|aegis|anvil aerospace|anvil|argo astronautics|argo|origin jumpworks|origin|crusader industries|crusader|drake interplanetary|drake|tumbril land systems|tumbril|misc|mirai|gatac manufacture|gatac|esperia|banu|kruger intergalactic|kruger)\s+/,'').replace(/\bmk\s*5\b/g,'mk v')}
+  function isLaunchArticle(ship,item){
+    const name=releaseName(ship?.name),title=releaseName(item?.title),body=norm(item?.excerpt);
+    if(name.length<5||!(' '+title+' ').includes(' '+name+' '))return false;
+    let url;try{url=new URL(item.url)}catch{return false}
+    if(url.hostname!=='robertsspaceindustries.com'||!/^\/(?:en\/)?comm-link\/(?:transmission|engineering)\//i.test(url.pathname))return false;
+    if(/\b(?:q a|behind the ships|sneak peek|preview|in concept|concept sale|coming soon)\b/.test(title+' '+body))return false;
+    const releaseConfirmed=/\b(?:released|releasing with|release(?:s)? with|available now|now available|now flyable|arrives? (?:in|with)|launch(?:ed|es)? with)\b/i.test(`${title} ${body}`);
+    const slug=(url.pathname.split('/').filter(Boolean).pop()||'').replace(/^\d+-/,'');
+    // A flight-ready ship's own RSI product announcement often uses only a marketing slogan.
+    const productAnnouncement=/\/(?:en\/)?comm-link\/transmission\//i.test(url.pathname)&&releaseName(slug)===name&&(title===name||title.startsWith(name+' '));
+    return releaseConfirmed||productAnnouncement;
+  }
   function shipReleaseIndex(ship){
     const name=norm(ship?.name);if(name.length<5||statusGroup(ship)!=='flight')return Number.MAX_SAFE_INTEGER;
-    const key=keyName(name);
     for(let i=0;i<homeNewsItems.length;i++){
-      const item=homeNewsItems[i],title=norm(item.title||''),body=norm(item.excerpt||''),compactTitle=keyName(title);
-      const namedInTitle=title.includes(name)||compactTitle.includes(key);
-      const releaseConfirmed=/\b(?:released|releasing with|release(?:s)? with|available now|now available|now flyable|arrives? (?:in|with)|launch(?:ed|es)? with)\b/i.test(`${title} ${body}`);
-      if(namedInTitle&&releaseConfirmed)return i;
+      if(isLaunchArticle(ship,homeNewsItems[i]))return i;
     }
     return Number.MAX_SAFE_INTEGER;
   }
@@ -63,7 +71,7 @@
 
   function pickFeaturedShips(){
     if(typeof state==='undefined'||!Array.isArray(state.vehicles)||!state.vehicles.length)return[];
-    const confirmed=shipFeed.filter(v=>!isGroundFeed(v)).map(feedShip=>({feedShip,v:findStateVehicle(feedShip),newsIndex:shipReleaseIndex(feedShip)})).filter(x=>x.v&&Number.isFinite(x.newsIndex)&&x.newsIndex<Number.MAX_SAFE_INTEGER).sort((a,b)=>a.newsIndex-b.newsIndex||addedTime(b.v)-addedTime(a.v));
+    const confirmed=shipFeed.map(feedShip=>({feedShip,v:findStateVehicle(feedShip),newsIndex:shipReleaseIndex(feedShip)})).filter(x=>x.v&&Number.isFinite(x.newsIndex)&&x.newsIndex<Number.MAX_SAFE_INTEGER).sort((a,b)=>a.newsIndex-b.newsIndex||addedTime(b.v)-addedTime(a.v));
     if(!confirmed.length)return[];
     const latestIndex=confirmed[0].newsIndex,latest=confirmed.filter(x=>x.newsIndex===latestIndex).map(x=>x.v),used=new Set();
     return latest.filter(v=>{const id=String(v.id);if(used.has(id))return false;used.add(id);return true}).filter(v=>{const own=keyName(v.name);return !latest.some(other=>{const candidate=keyName(other.name);return candidate.length>own.length&&candidate.startsWith(own)})}).slice(0,6);
@@ -114,5 +122,3 @@
   window.addEventListener('storage',renderHangarSummary);
   document.addEventListener('asteriax:catalog-updated',renderFeaturedShips);
 })();
-
-

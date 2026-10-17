@@ -7,6 +7,9 @@ on:
       - "website/app.js"
       - "website/performance.js"
       - "website/shipcatalog.js"
+      - "website/home.js"
+      - "tests/latest-releases.mjs"
+      - "tests/ship-patch-impact.mjs"
       - "website/index.html"
       - "functions/api/ships.js"
       - "tests/ships-api.mjs"
@@ -26,6 +29,9 @@ jobs:
       - run: node --check website/app.js
       - run: node --check website/performance.js
       - run: node --check website/shipcatalog.js
+      - run: node --check website/home.js
       - run: node --check functions/api/ships.js
       - run: node tests/vehicle-pagination.mjs
       - run: node tests/ships-api.mjs
+      - run: node tests/latest-releases.mjs
+      - run: node tests/ship-patch-impact.mjs

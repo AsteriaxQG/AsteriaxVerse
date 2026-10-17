@@ -22,6 +22,7 @@ on:
       - "server/account-auth.js"
       - "migrations/0002_email_accounts.sql"
       - "migrations/0003_email_password_accounts.sql"
+      - "migrations/0004_email_verification_password_reset.sql"
       - "tests/account-auth.mjs"
   workflow_dispatch:
 permissions:
@@ -43,6 +44,10 @@ jobs:
       - run: node --check functions/api/auth/register.js
       - run: node --check functions/api/auth/login.js
       - run: node --check functions/api/auth/session.js
+      - run: node --check functions/api/auth/verify-email.js
+      - run: node --check functions/api/auth/verification-resend.js
+      - run: node --check functions/api/auth/password-reset/request.js
+      - run: node --check functions/api/auth/password-reset/confirm.js
       - run: node --check functions/api/hangar.js
       - run: node --check website/account-login.js
       - run: node tests/account-auth.mjs

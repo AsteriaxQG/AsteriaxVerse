@@ -12,9 +12,10 @@ export async function onRequestPost({request,env}){
     const ip=request.headers.get('CF-Connecting-IP')||'unknown';
     const allowed=await Promise.all([rateLimit(env,`login:email:${await sha256(email)}`,10),rateLimit(env,`login:ip:${await sha256(ip)}`,30)]);
     if(allowed.some(value=>!value))return json({error:'Trop de tentatives. Réessaie dans une heure.'},429);
-    const row=await env.AX_DB.prepare('SELECT id,email,display_name,password_salt,password_hash FROM ax_account_users WHERE email=?').bind(email).first();
+    const row=await env.AX_DB.prepare('SELECT id,email,display_name,password_salt,password_hash,email_verified_at FROM ax_account_users WHERE email=?').bind(email).first();
     const credential=await passwordHash(password,row?.password_salt||fakeSalt);
     if(!row||!row.password_hash||!constantTimeEqual(credential.hash,row.password_hash))return json({error:'Adresse ou mot de passe incorrect.'},401);
+    if(!row.email_verified_at)return json({error:'Adresse e-mail à vérifier.'},403);
     const now=Date.now();
     await env.AX_DB.prepare('UPDATE ax_account_users SET last_login_at=? WHERE id=?').bind(now,row.id).run();
     const session=await issueSession(env,row.id);

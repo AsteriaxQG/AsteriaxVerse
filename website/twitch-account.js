@@ -3,14 +3,8 @@
   const adapter=window.AsteriaxHangar;
   if(!adapter)return;
 
+  // Account creation and sign-in live on the home page; Hangar remains local-first.
   window.AsteriaxAccount={canEdit:()=>true};
-
-  const panel=document.createElement('section');
-  panel.className='ax-account ax-local-hangar';
-  panel.dataset.i18nSkip='';
-  panel.innerHTML='<div class="ax-account-copy"><strong id="axAccountTitle"></strong><p id="axAccountStatus"></p></div>';
-  document.querySelector('#hangar .hangar-tabs')?.before(panel);
-
   const headerActions=document.createElement('div');
   headerActions.className='ax-header-actions';
   headerActions.dataset.i18nSkip='';
@@ -23,8 +17,6 @@
   headerActions.append(stream);
   document.querySelector('.nav')?.insertAdjacentElement('afterend',headerActions);
 
-  const title=panel.querySelector('#axAccountTitle');
-  const status=panel.querySelector('#axAccountStatus');
   const streamLabel=stream.querySelector('.ax-stream-label');
   let streamIsLive=false,streamTitle='';
   const english=()=>window.AsteriaxI18n?.isEnglish?.()===true;
@@ -36,8 +28,6 @@
 
   function paint(){
     const en=english();
-    title.textContent=en?'My local hangar':'Mon hangar local';
-    status.textContent=en?'Ships and wish list are saved on this device. No account is required.':'Tes vaisseaux et ta liste d’envie sont enregistrés sur cet appareil. Aucun compte n’est nécessaire.';
     stream.classList.toggle('live',streamIsLive);
     stream.classList.toggle('offline',!streamIsLive);
     streamLabel.textContent=streamIsLive?(en?'LIVE ON TWITCH':'EN LIVE SUR TWITCH'):(en?'TWITCH CHANNEL':'CHAÎNE TWITCH');

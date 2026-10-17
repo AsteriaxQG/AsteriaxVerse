@@ -1,6 +1,28 @@
 {
   "versions": [
     {
+      "version": "1.5.12",
+      "date": "2026-10-17",
+      "title": {
+        "fr": "Disponibilité affichée dans les dernières sorties",
+        "en": "Availability shown in latest releases"
+      },
+      "new": [],
+      "ui": [],
+      "fixes": [
+        {
+          "fr": "Les cartes « Dernières sorties » reprennent maintenant le prix et le statut Pledge vérifiés du flux officiel au lieu de perdre ces données lors de la correspondance avec le catalogue local.",
+          "en": "“Latest releases” cards now retain verified Pledge prices and availability from the official feed instead of dropping them when matched to the local catalogue."
+        }
+      ],
+      "technical": [
+        {
+          "fr": "Ajout d’une régression vérifiant l’affichage « Disponible » et du prix Warbond pour le Centaurus.",
+          "en": "Added a regression check for the Centaurus “Available” status and Warbond price."
+        }
+      ]
+    },
+    {
       "version": "1.5.11",
       "date": "2026-10-17",
       "title": {
@@ -613,3 +635,4 @@
     }
   ]
 }
+

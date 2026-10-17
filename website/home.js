@@ -57,6 +57,28 @@
     return state.vehicles.find(v=>[v.name,v.name_full].some(n=>{const k=keyName(n);return k.length>=6&&(k.endsWith(target)||target.endsWith(k))}))||null;
   }
 
+  function mergeFeedVehicle(vehicle,feedShip){
+    if(!vehicle||!feedShip)return vehicle;
+    return Object.assign({},vehicle,{
+      name:feedShip.name||vehicle.name,
+      name_full:feedShip.name||vehicle.name_full,
+      manufacturer:feedShip.manufacturer||vehicle.manufacturer,
+      production_status:feedShip.status||vehicle.production_status,
+      in_game:feedShip.in_game===true,
+      catalog_image:feedShip.image||vehicle.catalog_image||vehicle.url_photo,
+      catalog_description:feedShip.description||vehicle.catalog_description||'',
+      rsi_url:feedShip.rsi_url||vehicle.rsi_url||'',
+      store_url:feedShip.store_url||'',
+      pledge_available:feedShip.pledge_available,
+      pledge_collector:feedShip.pledge_collector===true,
+      pledge_price:feedShip.pledge_price,
+      pledge_currency:feedShip.pledge_currency||'',
+      pledge_is_warbond:feedShip.pledge_is_warbond===true,
+      pledge_discounted:feedShip.pledge_discounted===true,
+      pledge_price_kind:feedShip.pledge_price_kind||''
+    });
+  }
+
   function latestDatabaseShips(){
     if(typeof query!=='function'||typeof state==='undefined'||!state.db)return[];
     try{
@@ -73,7 +95,7 @@
     if(typeof state==='undefined'||!Array.isArray(state.vehicles)||!state.vehicles.length)return[];
     const confirmed=shipFeed.map(feedShip=>({feedShip,v:findStateVehicle(feedShip),newsIndex:shipReleaseIndex(feedShip)})).filter(x=>x.v&&Number.isFinite(x.newsIndex)&&x.newsIndex<Number.MAX_SAFE_INTEGER).sort((a,b)=>a.newsIndex-b.newsIndex||addedTime(b.v)-addedTime(a.v));
     if(!confirmed.length)return[];
-    const latestIndex=confirmed[0].newsIndex,latest=confirmed.filter(x=>x.newsIndex===latestIndex).map(x=>x.v),used=new Set();
+    const latestIndex=confirmed[0].newsIndex,latest=confirmed.filter(x=>x.newsIndex===latestIndex).map(x=>mergeFeedVehicle(x.v,x.feedShip)),used=new Set();
     return latest.filter(v=>{const id=String(v.id);if(used.has(id))return false;used.add(id);return true}).filter(v=>{const own=keyName(v.name);return !latest.some(other=>{const candidate=keyName(other.name);return candidate.length>own.length&&candidate.startsWith(own)})}).slice(0,6);
   }
 
@@ -122,3 +144,4 @@
   window.addEventListener('storage',renderHangarSummary);
   document.addEventListener('asteriax:catalog-updated',renderFeaturedShips);
 })();
+

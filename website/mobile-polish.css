@@ -1,0 +1,16 @@
+/* Mobile layout corrections applied after the shared glass and seasonal styles. */
+@media (max-width:900px){
+  html,body{overflow-x:clip!important}
+  .topbar{position:sticky!important;top:0!important}
+  .home-hero>div:first-child{padding-top:48px}
+  .home-catalog-status{z-index:3}
+  .home-hero .eyebrow{position:relative;z-index:1}
+  #home .home-news-card,#home .home-now-card,.news-card,.ship-card,.item-card{min-width:0;max-width:100%}
+  .news-card-content,.card-body,.home-news-content{min-width:0;overflow-wrap:anywhere}
+}
+@media (max-width:650px){
+  #loadoutRoot .lb-tabs{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;overflow:visible!important;padding:4px 0 12px!important}
+  #loadoutRoot .lb-tabs .lb-button{width:100%!important;min-width:0!important;white-space:normal!important;line-height:1.2!important}
+  #loadoutRoot .lb-tabs .lb-button:last-child:nth-child(odd){grid-column:1/-1}
+  .nav-btn,.nav-btn.active{font-size:9.5px!important}
+}

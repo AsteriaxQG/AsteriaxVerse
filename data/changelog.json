@@ -1,6 +1,15 @@
 {
   "versions": [
     {
+      "version": "1.5.21",
+      "date": "2026-10-18",
+      "title": {"fr": "Corrections de l’affichage mobile", "en": "Mobile layout fixes"},
+      "new": [],
+      "ui": [{"fr": "L’indicateur du catalogue ne chevauche plus le titre de l’accueil. Les onglets du Builder sont tous visibles sur petit écran et la navigation inférieure est plus lisible.", "en": "The catalogue indicator no longer overlaps the homepage heading. All Builder tabs are visible on small screens and bottom navigation is easier to read."}],
+      "fixes": [{"fr": "La barre supérieure reste visible pendant le défilement mobile. Les cartes et textes longs gardent leur largeur dans l’écran.", "en": "The top bar stays visible while scrolling on mobile. Cards and long text stay within the screen width."}],
+      "technical": [{"fr": "Styles mobiles appliqués après les thèmes généraux et contrôles visuels aux largeurs téléphone et tablette.", "en": "Mobile styles applied after general themes and visually checked at phone and tablet widths."}]
+    },
+    {
       "version": "1.5.20",
       "date": "2026-10-18",
       "title": {"fr": "Actualisation du filtre Gold Standard", "en": "Gold Standard filter cache refresh"},

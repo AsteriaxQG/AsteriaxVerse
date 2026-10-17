@@ -13,6 +13,7 @@ on:
       - "website/index.html"
       - "functions/api/ships.js"
       - "tests/ships-api.mjs"
+      - "tests/ship-pledge-availability.mjs"
       - "tests/vehicle-pagination.mjs"
   workflow_dispatch:
 permissions:
@@ -33,5 +34,6 @@ jobs:
       - run: node --check functions/api/ships.js
       - run: node tests/vehicle-pagination.mjs
       - run: node tests/ships-api.mjs
+      - run: node tests/ship-pledge-availability.mjs
       - run: node tests/latest-releases.mjs
       - run: node tests/ship-patch-impact.mjs

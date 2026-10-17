@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const api=fs.readFileSync(new URL('../functions/api/ships.js',import.meta.url),'utf8');
+const catalog=fs.readFileSync(new URL('../website/shipcatalog.js',import.meta.url),'utf8');
+const helper=api.match(/function pledgeAvailability\(offer,storeLive,now=Date\.now\(\)\)\{[^\n]*\}/)?.[0];
+assert.ok(helper,'Pledge availability must distinguish live data from verified fallback data');
+const pledgeAvailability=Function(helper+'\nreturn pledgeAvailability')();
+const validUntil=Date.parse('2026-10-24T00:00:00Z');
+assert.equal(pledgeAvailability({available:true},true,validUntil),true,'Live RSI confirms an available offer');
+assert.equal(pledgeAvailability({available:false},true,validUntil),false,'Live RSI confirms an unavailable offer');
+assert.equal(pledgeAvailability({available:true,verified_until:'2026-10-24T00:00:00Z'},false,Date.parse('2026-10-17T12:00:00Z')),true,'Recent verified fallback may be shown as available');
+assert.equal(pledgeAvailability({available:true,verified_until:'2026-10-24T00:00:00Z'},false,validUntil),null,'Expired fallback must become unverified');
+assert.equal(pledgeAvailability({available:false,price_kind:'historical'},false,Date.parse('2026-10-17T12:00:00Z')),null,'Old snapshot data must not claim unavailable while RSI is unreachable');
+assert.match(api,/constellationmkvcentaurus:\{url:'https:\/\/robertsspaceindustries\.com\/en\/pledge\/Standalone-Ships\/Constellation-Mk-V-Centaurus-Warbond',title:'Constellation Mk V Centaurus',available:true,price:275,currency:'USD',is_warbond:true/);
+assert.match(api,/pledge_available:pledgeAvailable/);
+assert.match(catalog,/Dernier prix Pledge/,'Historical price cards must be labeled as last known price');
+console.log('PASS: live sale status, time-limited fallback, unknown stale status, and Centaurus price');

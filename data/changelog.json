@@ -1,6 +1,32 @@
 {
   "versions": [
     {
+      "version": "1.5.11",
+      "date": "2026-10-17",
+      "title": {
+        "fr": "Prix Pledge et disponibilités vérifiés",
+        "en": "Verified Pledge prices and availability"
+      },
+      "new": [],
+      "ui": [],
+      "fixes": [
+        {
+          "fr": "Le Constellation Mk V Centaurus affiche son offre RSI Warbond vérifiée à 275 $ US pendant que la boutique officielle répond en erreur.",
+          "en": "The Constellation Mk V Centaurus now shows its verified RSI Warbond offer at $275 USD while the official store API is unavailable."
+        },
+        {
+          "fr": "Les anciennes données Pledge ne sont plus présentées comme preuve qu’un vaisseau est en vente ou retiré ; après expiration d’une vérification de secours, sa disponibilité redevient « Non vérifiée ».",
+          "en": "Old Pledge data is no longer presented as proof that a ship is on sale or unavailable; after a fallback verification expires, availability returns to “Unverified”."
+        }
+      ],
+      "technical": [
+        {
+          "fr": "La confirmation manuelle de disponibilité expire après sept jours en attendant le rétablissement des sources RSI en direct.",
+          "en": "Manual availability confirmation expires after seven days while live RSI sources are unavailable."
+        }
+      ]
+    },
+    {
       "version": "1.5.10",
       "date": "2026-10-17",
       "title": {

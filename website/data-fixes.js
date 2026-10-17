@@ -54,7 +54,9 @@
       const name=card?.querySelector('h3,[data-ship-name],.ship-name,.vehicle-name')?.textContent?.trim();
       if(name&&box.dataset.axNamed!=='1'){
         box.dataset.axNamed='1';
-        box.innerHTML=`<strong>${name}</strong><small>Image indisponible</small>`;
+        const title=document.createElement('strong'),caption=document.createElement('small');
+        title.textContent=name;caption.textContent='Image indisponible';
+        box.replaceChildren(title,caption);
       }
     });
   }

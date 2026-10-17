@@ -47,6 +47,7 @@ function paginateList(list,page,pageSize){const totalPages=Math.max(1,Math.ceil(
     pager.innerHTML=`<button type="button" data-item-page="${currentPage-1}" ${currentPage===1?'disabled':''} aria-label="Page précédente">← Précédent</button>${numbered}<button type="button" data-item-page="${currentPage+1}" ${currentPage===totalPages?'disabled':''} aria-label="Page suivante">Suivant →</button>`;
   }
   renderItems=function(){
+    if(window.AsteriaxLoadout?.active)return;
     const q=document.querySelector('#itemSearch')?.value.trim().toLowerCase()||'';
     const section=document.querySelector('#itemSection')?.value||'';
     const size=document.querySelector('#itemSize')?.value||'';
@@ -104,6 +105,7 @@ function paginateList(list,page,pageSize){const totalPages=Math.max(1,Math.ceil(
       const english=window.AsteriaxI18n?.isEnglish?.()===true;
       vehicleCount.textContent=list.length?(english?list.length+' results · page '+vehiclePage+' of '+page.totalPages:list.length+' résultat'+(list.length>1?'s':'')+' · page '+vehiclePage+' sur '+page.totalPages):(english?'0 results':'0 résultat');
       vehicleGrid.innerHTML=page.total?page.items.map((vehicle,index)=>vehicleCard(vehicle,index)).join(''):'<div class="empty">'+(english?'No ships match these filters.':'Aucun vaisseau ne correspond à ces filtres.')+'</div>';
+      vehicleGrid.classList.remove('catalog-loading');vehicleGrid.setAttribute('aria-busy','false');
       bindCards(vehicleGrid);
       renderVehiclePager(list.length?page.totalPages:0,english);
     };

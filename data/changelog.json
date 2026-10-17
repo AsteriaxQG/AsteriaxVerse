@@ -1,6 +1,26 @@
 {
   "versions": [
     {
+      "version": "1.5.14",
+      "date": "2026-10-18",
+      "title": {
+        "fr": "Corrections des conflits du catalogue et des sauvegardes",
+        "en": "Catalogue conflicts and saved builds fixed"
+      },
+      "new": [],
+      "ui": [],
+      "fixes": [
+        {"fr": "Les filtres de statut et les tris restent appliqués avec la pagination mobile et PC.", "en": "Status filters and sorting remain applied with mobile and desktop pagination."},
+        {"fr": "Les badges Nouveau restent visibles après un changement d’onglet et le Hangar se rafraîchit après le chargement du catalogue complet.", "en": "New badges survive tab changes and the Hangar refreshes after the full catalogue loads."},
+        {"fr": "Les mentions Gold Standard sont conservées et les sélections de filtre valides restent sélectionnées lors du chargement du catalogue.", "en": "Gold Standard labels and valid filter selections are preserved when the catalogue loads."},
+        {"fr": "Le catalogue classique ne se recalcule plus pendant l’utilisation du Builder. Les sauvegardes locales mal formées ne bloquent plus Mes builds, et une duplication échouée ne modifie plus le build courant.", "en": "The classic catalogue no longer re-renders while using the Builder. Malformed local saves no longer break My builds, and a failed duplication no longer changes the current build."},
+        {"fr": "Les métadonnées d’image invalides sont ignorées et les noms des vaisseaux restent du texte dans les images de remplacement.", "en": "Invalid image metadata is ignored and ship names remain plain text in image placeholders."}
+      ],
+      "technical": [
+        {"fr": "Ajout de vérifications de non-régression pour les interactions entre scripts et les sauvegardes, avec renouvellement des versions des fichiers corrigés.", "en": "Added regression checks for script interactions and local saves, and refreshed the corrected asset versions."}
+      ]
+    },
+    {
       "version": "1.5.13",
       "date": "2026-10-17",
       "title": {
@@ -661,4 +681,3 @@
     }
   ]
 }
-

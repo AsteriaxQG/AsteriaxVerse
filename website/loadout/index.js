@@ -1,5 +1,5 @@
 import {families,compatible,createBuild,validateBuild,metrics,suggest as makeSuggestion,encodeBuild,decodeBuild} from './core.js?v=2';
-import {readBuilds,saveBuild,deleteBuild,favorites,toggleFavorite} from './storage.js';
+import {readBuilds,saveBuild,deleteBuild,favorites,toggleFavorite} from './storage.js?v=2';
 const root=document.querySelector('#loadoutRoot'),legacy=document.querySelector('#legacyEquipment');
 const PAGE_SIZE=8;
 const en=()=>window.AsteriaxI18n?.isEnglish?.()===true;
@@ -59,7 +59,7 @@ root.addEventListener('click',async e=>{const b=e.target.closest('[data-lb-actio
  if(action==='prev'||action==='next'){page+=action==='next'?1:-1;root.querySelector('#lbResults').innerHTML=catalogueResults()}
  if(action==='offers')dialog(t('Où acheter','Where to buy'),offerHtml(item(id)));
  if(action==='shopping'){const counts=new Map();Object.values(build.slots).filter(Boolean).forEach(id=>counts.set(id,(counts.get(id)||0)+1));dialog(t('Liste d’achat','Shopping list'),[...counts].map(([id,n])=>`<p>×${n}</p>${offerHtml(item(id))}`).join(''))}
- if(action==='save'||action==='copySave'){if(action==='copySave')build.id=crypto.randomUUID();saveBuild(validateBuild(build,data));dirty=false;render();say(t('Build sauvegardé sur cet appareil.','Build saved on this device.'))}
+ if(action==='save'||action==='copySave'){const next=validateBuild(action==='copySave'?{...build,id:crypto.randomUUID()}:build,data);saveBuild(next);build=next;dirty=false;render();say(t('Build sauvegardé sur cet appareil.','Build saved on this device.'))}
  if(action==='load'){const next=validateBuild(readBuilds().find(x=>x.id===id),data);if(dirty&&!confirm(t('Abandonner les modifications non sauvegardées ?','Discard unsaved changes?')))return;build=next;selected=ship().slots[0].id;dirty=false;tab='builder';render()}
  if(action==='delete'&&confirm(t('Supprimer ce build sauvegardé ?','Delete this saved build?'))){deleteBuild(id);render()}
  if(action==='export')download(new Blob([JSON.stringify(build,null,2)],{type:'application/json'}),'asteriax-build.json');

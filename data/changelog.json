@@ -1,6 +1,32 @@
 {
   "versions": [
     {
+      "version": "1.5.13",
+      "date": "2026-10-17",
+      "title": {
+        "fr": "Dernières sorties : prix et images corrigés",
+        "en": "Latest releases: prices and images fixed"
+      },
+      "new": [],
+      "ui": [],
+      "fixes": [
+        {
+          "fr": "Le prix Warbond vérifié du Constellation Mk V Centaurus (275 $ US) reste prioritaire sur l’offre 10 ans à 300 $ lorsqu’une recherche RSI renvoie une variante au lieu de l’offre active.",
+          "en": "The verified Constellation Mk V Centaurus Warbond price ($275 USD) now takes precedence over the $300 10-year offer when RSI search returns a variant instead of the active offer."
+        },
+        {
+          "fr": "La carte de dernière sortie récupère aussi l’image de l’annonce officielle si le catalogue du vaisseau n’en fournit pas.",
+          "en": "The latest-release card now also uses the official announcement image when the ship catalogue has none."
+        }
+      ],
+      "technical": [
+        {
+          "fr": "Le cache de l’API du catalogue et celui du script d’accueil sont renouvelés pour publier ces corrections.",
+          "en": "The catalogue API cache and homepage script cache are refreshed to publish these fixes."
+        }
+      ]
+    },
+    {
       "version": "1.5.12",
       "date": "2026-10-17",
       "title": {

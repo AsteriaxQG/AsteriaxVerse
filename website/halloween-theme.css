@@ -1,0 +1,86 @@
+/* Thème saisonnier Halloween — à retirer après l’événement. */
+:root{
+  --bg:#0d0913;
+  --panel:#15101c;
+  --panel2:#1d1424;
+  --line:#443047;
+  --cyan:#ffad5c;
+  --cyan2:#dc7040;
+  --ax-glass-bg:linear-gradient(145deg,rgba(44,27,43,.78),rgba(13,10,21,.68));
+  --ax-glass-soft:linear-gradient(145deg,rgba(58,34,54,.68),rgba(18,13,26,.66));
+  --ax-glass-line:rgba(255,174,104,.24);
+  --ax-glass-shine:rgba(255,230,200,.14);
+  --ax-glass-shadow:0 18px 55px rgba(5,2,10,.45),inset 0 1px 0 var(--ax-glass-shine);
+}
+html{color-scheme:dark}
+body{
+  background:
+    radial-gradient(ellipse at 78% 7%,rgba(107,47,94,.24),transparent 36%),
+    radial-gradient(ellipse at 12% 38%,rgba(170,76,34,.14),transparent 34%),
+    linear-gradient(145deg,#0d0913 0%,#090a12 52%,#100a16 100%)!important;
+}
+.ambient-a{background:#ff803d!important;opacity:.10!important}
+.ambient-b{background:#9b58d0!important;opacity:.11!important}
+.topbar,.filters,.news-toolbar,.hangar-tabs,.ax-account,.home-live-card,
+.verse-status-banner,.home-section,.home-hangar-panel,.stats article,
+.ship-card,.equipment-card,.news-card,.home-news-card,.home-now-card,
+.modal-panel,.global-results,.site-footer,#loadoutRoot .lb-panel,
+.ax-release-card,.ax-changelog-link{
+  background:var(--ax-glass-bg)!important;
+  border-color:var(--ax-glass-line)!important;
+}
+.topbar{box-shadow:0 16px 55px rgba(5,2,10,.48),inset 0 1px 0 rgba(255,230,200,.17)!important}
+.topbar::before,.modal-panel::before,#loadoutRoot .lb-panel::before,
+.verse-status-banner::before,.ship-card::before,.news-card::before{
+  background:linear-gradient(115deg,rgba(255,235,210,.10),transparent 26%,transparent 70%,rgba(255,133,65,.07))!important;
+}
+.nav-btn,.primary,.secondary,.home-section-link,.verse-news-btn,.news-refresh,
+.news-toolbar button,.hangar-tabs button,.social-links a,.ax-top-login,
+.language-toggle,#loadoutRoot .lb-button,.modal-close{
+  border-color:rgba(255,183,119,.25)!important;
+}
+.nav-btn:hover,.secondary:hover,.home-section-link:hover,.news-toolbar button:hover,
+#loadoutRoot .lb-button:hover{
+  border-color:rgba(255,183,119,.68)!important;
+  background:linear-gradient(145deg,rgba(115,63,91,.75),rgba(35,23,43,.78))!important;
+}
+.primary,.nav-btn.active,.news-toolbar button.active,.hangar-tabs button.active,
+#loadoutRoot .lb-tabs .is-active,#loadoutRoot .lb-primary{
+  background:linear-gradient(135deg,rgba(255,159,73,.96),rgba(215,83,48,.9))!important;
+  border-color:rgba(255,208,148,.78)!important;
+  box-shadow:inset 0 1px 0 rgba(255,244,225,.34),0 10px 28px rgba(211,79,35,.23)!important;
+  color:#24130d!important;
+}
+input,select,.searchbox,.global-search,#loadoutRoot input,#loadoutRoot select{
+  border-color:rgba(255,183,119,.22)!important;
+}
+.ship-image,.news-image,#loadoutRoot .lb-ship-art{
+  border-color:rgba(255,183,119,.16)!important;
+}
+.eyebrow,.price,.news-card span{color:#ffb361!important}
+a:hover,.result-count{color:#ffd09a}
+:focus-visible{outline-color:#ffc279!important}
+.home-halloween-note{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  margin:20px 0 0;
+  padding:9px 13px;
+  border:1px solid rgba(255,174,104,.24);
+  border-radius:999px;
+  background:linear-gradient(110deg,rgba(115,57,62,.28),rgba(48,29,64,.28));
+  color:#f4d7bf;
+  font-size:13px;
+  line-height:1.45;
+  box-shadow:inset 0 1px 0 rgba(255,240,220,.08);
+}
+.home-halloween-note::before{content:"✦";color:#ffad5c;text-shadow:0 0 12px rgba(255,138,62,.7)}
+@media(max-width:720px){
+  .topbar,.modal-panel,#loadoutRoot .lb-panel,.verse-status-banner,.ship-card,.news-card{
+    --ax-glass-bg:linear-gradient(145deg,rgba(38,25,39,.94),rgba(14,11,21,.93));
+  }
+  .home-halloween-note{font-size:12px;padding:8px 11px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
+}

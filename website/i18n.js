@@ -11,6 +11,7 @@
     "Actus":"News",
     "Le Verse, plus clair.":"The Verse, clearer.",
     "Directement dans ton navigateur.":"Directly in your browser.",
+    "Le Verse prend des airs hantés… explore la flotte avant que le brouillard ne l’engloutisse.":"The Verse is getting haunted… explore the fleet before the mist swallows it whole.",
     "Retrouve tous les vaisseaux Star Citizen, leur statut, leurs caractéristiques et leur disponibilité en jeu.":"Browse every Star Citizen ship, its status, specs and in-game availability.",
     "Explorer les vaisseaux":"Explore ships",
     "Voir les équipements":"View equipment",

@@ -73,31 +73,37 @@ function paginateList(list,page,pageSize){const totalPages=Math.max(1,Math.ceil(
 
   const vehicleGrid=document.querySelector('#vehicleGrid'),vehicleCount=document.querySelector('#vehicleCount');
   if(vehicleGrid&&vehicleCount){
-    const vehiclePager=document.createElement('nav');
+    const vehiclePager=document.querySelector('#vehiclePagination')||document.createElement('nav');
     vehiclePager.id='vehiclePagination';
     vehiclePager.className='catalog-pagination';
+    vehiclePager.setAttribute('aria-label','Pages du catalogue des vaisseaux');
     const isMobile=()=>window.matchMedia('(max-width: 720px)').matches;
     let vehiclePage=1,lastVehicleFilterKey='';
     function renderVehiclePager(totalPages,english){
       if(totalPages<=1){vehiclePager.replaceChildren();vehiclePager.hidden=true;return}
       vehiclePager.hidden=false;
-      const numbered=pages(totalPages,vehiclePage).map(value=>typeof value==='number'?'<button type="button" data-ship-page="'+value+'" '+(value===vehiclePage?'class="active" aria-current="page"':'')+' aria-label="'+(english?'Page ':'Page ')+value+'">'+value+'</button>':'<span aria-hidden="true">…</span>').join('');
-      vehiclePager.innerHTML='<button type="button" data-ship-page="'+(vehiclePage-1)+'" '+(vehiclePage===1?'disabled':'')+' aria-label="'+(english?'Previous page':'Page précédente')+'">'+(english?'← Previous':'← Précédent')+'</button>'+numbered+'<button type="button" data-ship-page="'+(vehiclePage+1)+'" '+(vehiclePage===totalPages?'disabled':'')+' aria-label="'+(english?'Next page':'Page suivante')+'">'+(english?'Next →':'Suivant →')+'</button>';
+      const numbered=pages(totalPages,vehiclePage).map(value=>typeof value==='number'?'<button type="button" data-ship-page="'+value+'" '+(value===vehiclePage?'class="active" aria-current="page"':'')+' aria-label="Page '+value+'">'+value+'</button>':'<span aria-hidden="true">…</span>').join('');
+      vehiclePager.innerHTML='<button type="button" data-ship-page="'+(vehiclePage-1)+'" '+(vehiclePage===1?'disabled':'')+' aria-label="'+(english?'Previous page':'Page précédente')+'">'+(english?'← Previous':'← Précédent')+'</button>'+numbered+'<button type="button" data-ship-page="'+(vehiclePage+1)+'" '+(vehiclePage===totalPages?'disabled':'')+' aria-label="'+(english?'Next page':'Suivant →')+'">'+(english?'Next →':'Suivant →')+'</button>';
     }
-    vehicleGrid.insertAdjacentElement('afterend',vehiclePager);
+    if(!vehiclePager.isConnected)vehicleGrid.insertAdjacentElement('afterend',vehiclePager);
     renderVehicles=function(){
       const search=document.querySelector('#vehicleSearch')?.value.trim().toLowerCase()||'';
       const type=document.querySelector('#vehicleType')?.value||'';
       const manufacturer=document.querySelector('#vehicleManufacturer')?.value||'';
+      const sortMode=document.querySelector('#vehicleSort')?.value||'name';
+      const statusApi=window.AsteriaxVehicleFilters;
+      const activeStatus=statusApi?.getStatusFilter?.()||'all';
       const pageSize=isMobile()?24:48;
-      const filterKey=[search,type,manufacturer,pageSize].join('|');
+      const filterKey=[search,type,manufacturer,sortMode,activeStatus,pageSize].join('|');
       if(filterKey!==lastVehicleFilterKey){vehiclePage=1;lastVehicleFilterKey=filterKey}
-      const list=state.vehicles.filter(v=>(!search||[v.name,v.name_full,v.manufacturer,v.roles].some(value=>String(value||'').toLowerCase().includes(search)))&&(!manufacturer||v.manufacturer===manufacturer)&&(!type||(type==='ground'?Number(v.is_ground_vehicle)===1:Number(v.is_ground_vehicle)!==1)));
+      const scope=state.vehicles.filter(v=>(!search||[v.name,v.name_full,v.manufacturer,v.roles].some(value=>String(value||'').toLowerCase().includes(search)))&&(!manufacturer||v.manufacturer===manufacturer)&&(!type||(type==='ground'?Number(v.is_ground_vehicle)===1:Number(v.is_ground_vehicle)!==1)));
+      statusApi?.updateCounts(scope);
+      const list=statusApi?.displayList?.(scope)||scope;
       const page=paginateList(list,vehiclePage,pageSize);
       vehiclePage=page.current;
       const english=window.AsteriaxI18n?.isEnglish?.()===true;
       vehicleCount.textContent=list.length?(english?list.length+' results · page '+vehiclePage+' of '+page.totalPages:list.length+' résultat'+(list.length>1?'s':'')+' · page '+vehiclePage+' sur '+page.totalPages):(english?'0 results':'0 résultat');
-      vehicleGrid.innerHTML=page.total? page.items.map(vehicleCard).join(''):'<div class="empty">'+(english?'No ships match these filters.':'Aucun vaisseau ne correspond à ces filtres.')+'</div>';
+      vehicleGrid.innerHTML=page.total?page.items.map((vehicle,index)=>vehicleCard(vehicle,index)).join(''):'<div class="empty">'+(english?'No ships match these filters.':'Aucun vaisseau ne correspond à ces filtres.')+'</div>';
       bindCards(vehicleGrid);
       renderVehiclePager(list.length?page.totalPages:0,english);
     };

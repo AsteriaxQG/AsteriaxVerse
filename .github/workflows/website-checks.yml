@@ -38,3 +38,9 @@ jobs:
       - run: node tests/ship-pledge-availability.mjs
       - run: node tests/latest-releases.mjs
       - run: node tests/ship-patch-impact.mjs
+
+      - run: node --check functions/api/launcher.js
+      - run: node --check functions/api/news.js
+      - run: node --check website/launcher.js
+      - run: node tests/launcher.mjs
+      - run: node tests/news-api.mjs

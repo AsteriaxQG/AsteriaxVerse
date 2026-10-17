@@ -1,6 +1,22 @@
 {
   "versions": [
     {
+      "version": "1.5.15",
+      "date": "2026-10-18",
+      "title": {"fr": "Version du launcher et retour des actualités", "en": "Launcher version and news feed recovery"},
+      "new": [
+        {"fr": "L’accueil affiche la version stable du RSI Launcher sous le dernier patch. Elle est vérifiée automatiquement à partir du manifeste officiel RSI.", "en": "The homepage shows the stable RSI Launcher version below the latest patch, automatically checked against RSI’s official manifest."}
+      ],
+      "ui": [{"fr": "Les compteurs de l’accueil gardent un seul fond arrondi aux couleurs d’Halloween, sans rectangle derrière. Les informations du launcher reprennent les cartes arrondies du bloc principal.", "en": "Homepage counters keep a single rounded Halloween-coloured background without a rectangle behind it. Launcher information uses the main panel’s rounded cards."}],
+      "fixes": [
+        {"fr": "Les actualités utilisent aussi l’archive Star Citizen Wiki des publications RSI lorsque le flux direct échoue. Les vraies annonces et leurs images restent disponibles pour les dernières sorties.", "en": "News also uses Star Citizen Wiki’s archive of RSI publications when the direct feed fails, keeping real announcements and images available for latest releases."},
+        {"fr": "Les derniers résultats valides sont conservés en cas de panne des sources. Les cartes sans image n’affichent plus un grand cadre vide.", "en": "Last successful results are retained during source outages. Cards without images no longer show a large empty frame."}
+      ],
+      "technical": [
+        {"fr": "Ajout de contrôles pour les flux de secours, les images et le manifeste du launcher, avec renouvellement des caches concernés.", "en": "Added checks for backup feeds, images and the launcher manifest, with refreshed caches."}
+      ]
+    },
+    {
       "version": "1.5.14",
       "date": "2026-10-18",
       "title": {

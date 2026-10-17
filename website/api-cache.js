@@ -1,10 +1,10 @@
 (()=>{
   const cached=new Map();
   const pending=new Map();
-  const defaultTtl={'/api/news':120000,'/api/ships':120000,'/api/status':15000};
+  const defaultTtl={'/api/news':120000,'/api/ships':120000,'/api/status':15000,'/api/launcher':300000};
   const clone=value=>typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value));
   const canonical=input=>{const url=new URL(input,location.href);return url.origin===location.origin&&defaultTtl[url.pathname]?url.pathname:url.href};
-  const storageKey=key=>`ax_api_v2:${key}`;
+  const storageKey=key=>`ax_api_v3:${key}`;
   function readSession(key,ttl,now){try{const hit=JSON.parse(sessionStorage.getItem(storageKey(key))||'null');return hit&&now-hit.savedAt<ttl?hit:null}catch{return null}}
   function writeSession(key,entry){try{sessionStorage.setItem(storageKey(key),JSON.stringify(entry))}catch{}}
 

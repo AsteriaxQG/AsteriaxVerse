@@ -53,4 +53,6 @@ api.set([{name:'Aegis Sabre',status:'flight-ready'},{name:'Aegis Sabre Raven',st
   {title:'Aegis Sabre Raven EX and Argo ATLS IKTI Akuma - Available now',url:'https://robertsspaceindustries.com/comm-link/transmission/99998-New-Releases',excerpt:''}
 ]);
 assert.deepEqual(names().sort(),[raven.name,ground.name].sort(),'A release batch includes vehicles and excludes base variants');
-console.log('PASS: actual RSI Centaurus launch, latest-only batches, vehicles, new badges and false-positive exclusions');
+api.set([centaurus],[{...announcement,title:'RSI Constellation Mk V Centaurus | Star Citizen',url:'https://robertsspaceindustries.com/en/comm-link/transmission/21335-RSI-Constellation-Mk-V-Centaurus'}]);
+assert.deepEqual(names(),[centaurus.name],'Archived RSI product announcements must still identify the latest release');
+console.log('PASS: actual RSI Centaurus launch, archive feed, latest-only batches, vehicles, new badges and false-positive exclusions');

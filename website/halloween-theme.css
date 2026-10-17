@@ -1,4 +1,11 @@
 /* Thème saisonnier Halloween — à retirer après l’événement. */
+/* Un seul fond arrondi pour les compteurs ; aucun panneau carré imbriqué. */
+#home>.stats{overflow:hidden;isolation:isolate;background:var(--ax-glass-bg)!important;border-color:var(--ax-glass-line)!important;box-shadow:var(--ax-glass-shadow)!important}
+#home>.stats article,#home>.stats article+article{background:transparent!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+#home>.stats strong{color:#ffd09a}
+#home>.stats span{color:#baa5be}
+#home .home-live-card{background:transparent!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+#home .home-live-row{background:var(--ax-glass-bg)!important;border-color:var(--ax-glass-line)!important}
 :root{
   --bg:#0d0913;
   --panel:#15101c;

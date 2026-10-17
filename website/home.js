@@ -114,7 +114,7 @@
 
   function newsCard(x){
     const image=x.image?`<div class="home-news-image"><img loading="lazy" src="${escHome(x.image)}" alt="" referrerpolicy="no-referrer"></div>`:'<div class="home-news-image"><span>ASTERIAXVERSE</span></div>';
-    return `<a class="home-news-card" href="${escHome(x.url||'https://robertsspaceindustries.com/en/comm-link')}" target="_blank" rel="noopener">${image}<div class="home-news-body"><div class="home-news-meta"><span>${escHome(labels[x.category]||x.category||'ACTU')}</span><time>${escHome(postedLabel(x.posted||''))}</time></div><h3>${escHome(x.title||'Publication Star Citizen')}</h3><p>${escHome(x.excerpt||'Publication officielle Roberts Space Industries.')}</p></div></a>`;
+    return `<a class="home-news-card${x.image?'':' is-text-only'}" href="${escHome(x.url||'https://robertsspaceindustries.com/en/comm-link')}" target="_blank" rel="noopener">${image}<div class="home-news-body"><div class="home-news-meta"><span>${escHome(labels[x.category]||x.category||'ACTU')}</span><time>${escHome(postedLabel(x.posted||''))}</time></div><h3>${escHome(x.title||'Publication Star Citizen')}</h3><p>${escHome(x.excerpt||'Publication officielle Roberts Space Industries.')}</p></div></a>`;
   }
 
   function renderNow(items){
@@ -149,4 +149,3 @@
   window.addEventListener('storage',renderHangarSummary);
   document.addEventListener('asteriax:catalog-updated',renderFeaturedShips);
 })();
-

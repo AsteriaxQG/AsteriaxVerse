@@ -1,6 +1,15 @@
 {
   "versions": [
     {
+      "version": "1.5.16",
+      "date": "2026-10-18",
+      "title": {"fr": "Accueil plus compact", "en": "More compact homepage"},
+      "new": [],
+      "ui": [{"fr": "L’état du catalogue devient un petit indicateur en haut à gauche du bloc d’accueil. Le texte principal est aligné en haut pour réduire l’espace vide, sur ordinateur et mobile.", "en": "Catalogue status is now a compact indicator at the top left of the homepage panel. Main text is top-aligned to reduce empty space on desktop and mobile."}],
+      "fixes": [],
+      "technical": [{"fr": "Conservation de l’identifiant de statut du catalogue et renouvellement du cache des styles d’accueil.", "en": "Preserved the catalogue status identifier and refreshed the homepage stylesheet cache."}]
+    },
+    {
       "version": "1.5.15",
       "date": "2026-10-18",
       "title": {"fr": "Version du launcher et retour des actualités", "en": "Launcher version and news feed recovery"},
@@ -697,3 +706,4 @@
     }
   ]
 }
+

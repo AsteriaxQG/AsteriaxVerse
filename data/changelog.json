@@ -1,6 +1,15 @@
 {
   "versions": [
     {
+      "version": "1.5.17",
+      "date": "2026-10-18",
+      "title": {"fr": "Identité plus lisible dans la navigation", "en": "Clearer navigation branding"},
+      "new": [],
+      "ui": [{"fr": "Le nom Asteriax Verse utilise une graisse plus légère et une typographie système stable. La signature AsteriaxTTV gagne en contraste, sans changer le fond glass.", "en": "Asteriax Verse uses a lighter weight and a stable system font. The AsteriaxTTV signature has improved contrast while preserving the glass background."}],
+      "fixes": [{"fr": "Le texte de marque passe au-dessus du reflet décoratif de la barre pour éviter qu’il ne le voile.", "en": "Brand text now sits above the bar’s decorative highlight to prevent it from washing out the lettering."}],
+      "technical": [{"fr": "Styles limités à la marque de navigation, sans filtre ni transformation sur son texte.", "en": "Styles are scoped to navigation branding with no text filters or transforms."}]
+    },
+    {
       "version": "1.5.16",
       "date": "2026-10-18",
       "title": {"fr": "Accueil plus compact", "en": "More compact homepage"},

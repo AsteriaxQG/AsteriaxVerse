@@ -126,8 +126,10 @@ button,input,select{font-family:var(--font-ui)}
 
 /* Signature plus nette : aucune ombre ni micro-texte flou dans l'identité. */
 .brand>span{display:grid;gap:3px;line-height:1}
-.brand strong{font-size:18px;font-weight:800;letter-spacing:-.25px;line-height:1.05;color:#effcff;text-shadow:none}
-.brand small{display:flex;align-items:center;gap:7px;margin:0;color:#a8c4cf;font-size:11px;font-weight:700;line-height:1.15;letter-spacing:.75px;text-transform:none;text-shadow:none}
+.topbar .brand{position:relative;z-index:1;filter:none;transform:none;text-shadow:none;font-family:"Segoe UI",Arial,sans-serif;font-synthesis:none}
+.brand strong{font-size:18px;font-weight:600;letter-spacing:0;line-height:1.25;color:#f4faff;text-shadow:none}
+.brand small{display:flex;align-items:center;gap:7px;margin:0;color:#c1d3dc;font-size:11px;font-weight:400;line-height:1.4;letter-spacing:.3px;text-transform:none;text-shadow:none}
+.topbar .brand strong,.topbar .brand small{filter:none;transform:none;-webkit-text-stroke:0}
 .brand small::before{content:"";width:13px;height:1px;flex:0 0 13px;background:#43c9ee}
 .global-search input,.filters input,.filters select{font-synthesis:none;text-shadow:none}
 

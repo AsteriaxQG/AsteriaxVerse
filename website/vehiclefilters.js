@@ -30,7 +30,7 @@
     const s=norm(statusValue).replace(/-/g,'');
     if(['flightready','hangarready','ready','available','disponible'].includes(s))return'disponible';
     if(['activeproduction','longtermproduction','inproduction','production','underconstruction','productionactive','productionplanned','plannedproduction'].includes(s))return'production';
-    if(['inconcept','concept','conceptship','conceptvehicle'].includes(s))return'concept';
+    if(['inconcept','concept','conceptship','conceptvehicle'].includes(s)||Number(v?.is_concept)===1||v?.is_concept===true)return'concept';
     if(Number(v?.price_min)>0||v?.in_game===true||v?.in_game===1||String(v?.in_game)==='true')return'disponible';
     return'autre';
   }
@@ -69,6 +69,7 @@
     scope.forEach(v=>{const s=statusOf(v);if(counts[s]!==undefined)counts[s]++});
     Object.entries(counts).forEach(([k,n])=>{const el=bar.querySelector(`[data-count="${k}"]`);if(el)el.textContent=n});
   }
+  window.AsteriaxVehicleFilters={getStatusFilter:()=>statusFilter,statusOf,updateCounts,displayList:scope=>sortList(statusFilter==='all'?scope:scope.filter(v=>statusOf(v)===statusFilter))};
   function pageNumbers(total,current){
     if(total<=7)return Array.from({length:total},(_,i)=>i+1);
     const pages=[1];
@@ -111,5 +112,5 @@
     });
     renderVehicles();
   });
-  document.querySelector('#vehicleSort')?.addEventListener('change',renderVehicles);
+  document.querySelector('#vehicleSort')?.addEventListener('change',()=>renderVehicles());
 })();

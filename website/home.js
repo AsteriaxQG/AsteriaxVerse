@@ -57,6 +57,11 @@
     return state.vehicles.find(v=>[v.name,v.name_full].some(n=>{const k=keyName(n);return k.length>=6&&(k.endsWith(target)||target.endsWith(k))}))||null;
   }
 
+  function releaseArticleImage(feedShip){
+    const article=homeNewsItems.find(item=>isLaunchArticle(feedShip,item));
+    return article?.image||'';
+  }
+
   function mergeFeedVehicle(vehicle,feedShip){
     if(!vehicle||!feedShip)return vehicle;
     return Object.assign({},vehicle,{
@@ -65,7 +70,7 @@
       manufacturer:feedShip.manufacturer||vehicle.manufacturer,
       production_status:feedShip.status||vehicle.production_status,
       in_game:feedShip.in_game===true,
-      catalog_image:feedShip.image||vehicle.catalog_image||vehicle.url_photo,
+      catalog_image:feedShip.image||vehicle.catalog_image||vehicle.url_photo||releaseArticleImage(feedShip),
       catalog_description:feedShip.description||vehicle.catalog_description||'',
       rsi_url:feedShip.rsi_url||vehicle.rsi_url||'',
       store_url:feedShip.store_url||'',

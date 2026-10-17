@@ -1,6 +1,15 @@
 {
   "versions": [
     {
+      "version": "1.5.18",
+      "date": "2026-10-18",
+      "title": {"fr": "Filtre Gold Standard", "en": "Gold Standard filter"},
+      "new": [{"fr": "Le catalogue des vaisseaux propose un filtre Gold Standard avec compteur, compatible avec la recherche, le constructeur et le type de véhicule.", "en": "The ship catalogue includes a Gold Standard filter with a counter, compatible with search, manufacturer and vehicle type."}],
+      "ui": [],
+      "fixes": [],
+      "technical": [{"fr": "Filtrage fondé sur le marquage explicite du catalogue, testé avec les rendus mobile et ordinateur.", "en": "Filtering uses explicit catalogue metadata and is tested with mobile and desktop renderers."}]
+    },
+    {
       "version": "1.5.17",
       "date": "2026-10-18",
       "title": {"fr": "Identité plus lisible dans la navigation", "en": "Clearer navigation branding"},

@@ -10,6 +10,7 @@
   const bar=document.createElement('div');
   bar.className='ship-status-filter';
   bar.innerHTML='<span class="ship-status-label">Statut</span><button type="button" class="active" aria-pressed="true" data-ship-status="all">Tous <b data-count="all"></b></button><button type="button" aria-pressed="false" data-ship-status="disponible">Disponible <b data-count="disponible"></b></button><button type="button" aria-pressed="false" data-ship-status="production">En production <b data-count="production"></b></button><button type="button" aria-pressed="false" data-ship-status="concept">En concept <b data-count="concept"></b></button>';
+  bar.innerHTML+='<button type="button" aria-pressed="false" data-ship-status="gold-standard">Gold Standard <b data-count="gold-standard"></b></button>';
   filters.appendChild(bar);
 
   const grid=document.querySelector('#vehicleGrid');
@@ -65,11 +66,12 @@
     });
   }
   function updateCounts(scope){
-    const counts={all:scope.length,disponible:0,production:0,concept:0};
+    const counts={all:scope.length,disponible:0,production:0,concept:0,'gold-standard':scope.filter(v=>v.catalog_gold_standard===true).length};
     scope.forEach(v=>{const s=statusOf(v);if(counts[s]!==undefined)counts[s]++});
     Object.entries(counts).forEach(([k,n])=>{const el=bar.querySelector(`[data-count="${k}"]`);if(el)el.textContent=n});
   }
-  window.AsteriaxVehicleFilters={getStatusFilter:()=>statusFilter,statusOf,updateCounts,displayList:scope=>sortList(statusFilter==='all'?scope:scope.filter(v=>statusOf(v)===statusFilter))};
+  const matchesStatus=v=>statusFilter==='all'||(statusFilter==='gold-standard'?v.catalog_gold_standard===true:statusOf(v)===statusFilter);
+  window.AsteriaxVehicleFilters={getStatusFilter:()=>statusFilter,statusOf,updateCounts,displayList:scope=>sortList(scope.filter(matchesStatus))};
   function pageNumbers(total,current){
     if(total<=7)return Array.from({length:total},(_,i)=>i+1);
     const pages=[1];
@@ -89,7 +91,7 @@
   renderVehicles=function(){
     const scope=scopeList();
     updateCounts(scope);
-    const list=sortList(statusFilter==='all'?scope:scope.filter(v=>statusOf(v)===statusFilter));
+    const list=sortList(scope.filter(matchesStatus));
     const filterKey=[document.querySelector('#vehicleSearch')?.value||'',typeEl.value,document.querySelector('#vehicleManufacturer')?.value||'',document.querySelector('#vehicleSort')?.value||'',statusFilter].join('|');
     if(filterKey!==lastFilterKey){currentPage=1;lastFilterKey=filterKey}
     const totalPages=Math.max(1,Math.ceil(list.length/PAGE_SIZE));

@@ -18,7 +18,7 @@ class Element {
 }
 for(const id of ['vehicleType','vehicleSearch','vehicleManufacturer','vehicleSort','vehicleGrid','vehicleCount','itemGrid','itemCount','itemSort'])nodes.set('#'+id,new Element());
 const filters=new Element();nodes.set('#vehicles .filters',filters);
-filters.appendChild=bar=>{filters.bar=bar;bar.children={};bar.buttons=['all','disponible','production','concept'].map(status=>{const btn=new Element();btn.dataset.shipStatus=status;btn.closest=()=>btn;bar.children['[data-count="'+status+'"]']=new Element();return btn})};
+filters.appendChild=bar=>{filters.bar=bar;bar.children={};bar.buttons=['all','disponible','production','concept','gold-standard'].map(status=>{const btn=new Element();btn.dataset.shipStatus=status;btn.closest=()=>btn;bar.children['[data-count="'+status+'"]']=new Element();return btn})};
 let mobile=true;
 const breakpoint={get matches(){return mobile},addEventListener(_,fn){this.change=fn}};
 const context={state:{vehicles:[],items:[]},window:{AsteriaxI18n:{isEnglish:()=>false},matchMedia:()=>breakpoint},document:{querySelector:s=>nodes.get(s)||null,createElement:()=>{const el=new Element();created.push(el);return el},head:{append(){},appendChild(){}}},renderVehicles(){},renderItems(){},bindCards(){},vehicleCard:v=>v.name+'|',itemCard:v=>v.name+'|'};
@@ -33,6 +33,15 @@ assert.equal(nodes.get('#vehicleGrid').innerHTML.split('|').length-1,24);
 const choose=status=>{const btn=filters.bar.buttons.find(b=>b.dataset.shipStatus===status);filters.bar.listeners.click[0]({target:btn})};
 choose('concept');assert.match(nodes.get('#vehicleCount').textContent,/1 résultat/);assert.equal(nodes.get('#vehicleGrid').innerHTML,'Concept|');
 choose('production');assert.equal(nodes.get('#vehicleGrid').innerHTML,'Production|');
+context.state.vehicles[0].catalog_gold_standard=true;
+context.state.vehicles[1].catalog_gold_standard=false;
+context.state.vehicles[2].catalog_gold_standard='true';
+choose('gold-standard');assert.equal(nodes.get('#vehicleGrid').innerHTML,'Ship 00|');
+assert.equal(filters.bar.children['[data-count="gold-standard"]'].textContent,1);
+nodes.get('#vehicleSearch').value='Ship 01';context.renderVehicles();assert.match(nodes.get('#vehicleCount').textContent,/0 résultat/);
+nodes.get('#vehicleSearch').value='';context.renderVehicles();
+mobile=false;breakpoint.change();assert.equal(nodes.get('#vehicleGrid').innerHTML,'Ship 00|');
+mobile=true;breakpoint.change();
 choose('disponible');assert.match(nodes.get('#vehicleCount').textContent,/55 résultats/);
 nodes.get('#vehicleSort').value='pledge-desc';nodes.get('#vehicleSort').listeners.change[0]();
 assert.ok(nodes.get('#vehicleGrid').innerHTML.startsWith('Ship 54|'));

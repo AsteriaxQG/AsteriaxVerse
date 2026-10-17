@@ -9,7 +9,7 @@
 
   const bar=document.createElement('div');
   bar.className='ship-status-filter';
-  bar.innerHTML='<span class="ship-status-label">Statut</span><button class="active" data-ship-status="all">Tous <b data-count="all"></b></button><button data-ship-status="disponible">Disponible <b data-count="disponible"></b></button><button data-ship-status="production">En production <b data-count="production"></b></button><button data-ship-status="concept">En concept <b data-count="concept"></b></button>';
+  bar.innerHTML='<span class="ship-status-label">Statut</span><button type="button" class="active" aria-pressed="true" data-ship-status="all">Tous <b data-count="all"></b></button><button type="button" aria-pressed="false" data-ship-status="disponible">Disponible <b data-count="disponible"></b></button><button type="button" aria-pressed="false" data-ship-status="production">En production <b data-count="production"></b></button><button type="button" aria-pressed="false" data-ship-status="concept">En concept <b data-count="concept"></b></button>';
   filters.appendChild(bar);
 
   const grid=document.querySelector('#vehicleGrid');
@@ -23,12 +23,14 @@
   style.textContent='.ship-status-filter{grid-column:1/-1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 2px 0}.ship-status-label{margin-right:4px;color:#6d8c9b;font-size:10px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase}.ship-status-filter button{appearance:none;border:1px solid #234454;border-radius:999px;background:#0b1922;color:#91aab6;padding:8px 12px;font:inherit;font-size:11px;font-weight:800;cursor:pointer;transition:.16s}.ship-status-filter button:hover{border-color:#39768d;color:#e4f9ff;background:#10232e}.ship-status-filter button.active{border-color:#49a6c5;background:#123242;color:#eafcff;box-shadow:inset 0 0 0 1px rgba(82,217,255,.08)}.ship-status-filter b{display:inline-block;margin-left:5px;color:#638795;font-size:9px}.ship-status-filter button.active b{color:#83dff9}@media(max-width:650px){.ship-status-filter{flex-wrap:nowrap;overflow-x:auto;padding-bottom:3px}.ship-status-label{display:none}.ship-status-filter button{flex:0 0 auto}}';
   document.head.appendChild(style);
 
-  const norm=v=>String(v??'').toLowerCase().replace(/_/g,'-').replace(/\s+/g,'-');
+  const norm=v=>String(v??'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/_/g,'-').replace(/[\s]+/g,'-');
   function statusOf(v){
-    const s=norm(v?.production_status);
-    if(['flight-ready','flightready','hangar-ready','hangarready'].includes(s))return'disponible';
-    if(['active-production','activeproduction','long-term-production','longtermproduction'].includes(s))return'production';
-    if(['in-concept','inconcept','concept'].includes(s))return'concept';
+    const raw=v?.production_status??v?.status;
+    const statusValue=raw&&typeof raw==='object'?(raw.name??raw.label??raw.value??raw.status??''):raw;
+    const s=norm(statusValue).replace(/-/g,'');
+    if(['flightready','hangarready','ready','available','disponible'].includes(s))return'disponible';
+    if(['activeproduction','longtermproduction','inproduction','production','underconstruction','productionactive','productionplanned','plannedproduction'].includes(s))return'production';
+    if(['inconcept','concept','conceptship','conceptvehicle'].includes(s))return'concept';
     if(Number(v?.price_min)>0||v?.in_game===true||v?.in_game===1||String(v?.in_game)==='true')return'disponible';
     return'autre';
   }
@@ -98,10 +100,16 @@
     bindCards(grid);
     renderPager(list.length?totalPages:0);
   };
-  bar.querySelectorAll('[data-ship-status]').forEach(btn=>btn.addEventListener('click',()=>{
+  bar.addEventListener('click',event=>{
+    const btn=event.target.closest('[data-ship-status]');
+    if(!btn||!bar.contains(btn))return;
     statusFilter=btn.dataset.shipStatus;
-    bar.querySelectorAll('[data-ship-status]').forEach(x=>x.classList.toggle('active',x===btn));
+    bar.querySelectorAll('[data-ship-status]').forEach(x=>{
+      const active=x===btn;
+      x.classList.toggle('active',active);
+      x.setAttribute('aria-pressed',String(active));
+    });
     renderVehicles();
-  }));
+  });
   document.querySelector('#vehicleSort')?.addEventListener('change',renderVehicles);
 })();

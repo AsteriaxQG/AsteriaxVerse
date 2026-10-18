@@ -5,11 +5,11 @@
   const clone=value=>typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value));
   const canonical=input=>{const url=new URL(input,location.href);if(url.origin!==location.origin||!defaultTtl[url.pathname])return url.href;const revision=url.pathname==='/api/ships'?url.searchParams.get('catalog'):null;return url.pathname+(revision?'?catalog='+encodeURIComponent(revision):'')};
   const storageKey=key=>`ax_api_v3:${key}`;
-  function readSession(key,ttl,now){try{const hit=JSON.parse(sessionStorage.getItem(storageKey(key))||'null');return hit&&now-hit.savedAt<ttl?hit:null}catch{return null}}
+  function readSession(key,ttl,now){try{const hit=JSON.parse(sessionStorage.getItem(storageKey(key))||'null');return hit&&Number.isFinite(hit.savedAt)&&now>=hit.savedAt&&now-hit.savedAt<ttl&&Object.hasOwn(hit,'data')?hit:null}catch{return null}}
   function writeSession(key,entry){try{sessionStorage.setItem(storageKey(key),JSON.stringify(entry))}catch{}}
 
   async function getJson(input,{force=false,ttlMs}={}){
-    const key=canonical(input),ttl=Number.isFinite(ttlMs)?ttlMs:(defaultTtl[key]||30000),now=Date.now();
+    const key=canonical(input),ttl=Number.isFinite(ttlMs)?Math.max(0,ttlMs):(defaultTtl[new URL(input,location.href).pathname]||30000),now=Date.now();
     if(!force){
       const hit=cached.get(key);
       if(hit&&now-hit.savedAt<ttl)return clone(hit.data);
@@ -19,8 +19,8 @@
     }
     const task=fetch(input,{headers:{Accept:'application/json'},cache:force?'no-store':'default'})
       .then(response=>{if(!response.ok)throw new Error(`API ${response.status}`);return response.json()})
-      .then(data=>{const entry={savedAt:Date.now(),data};cached.set(key,entry);writeSession(key,entry);return data})
-      .finally(()=>pending.delete(key));
+      .then(data=>{if(pending.get(key)===task){const entry={savedAt:Date.now(),data};cached.set(key,entry);writeSession(key,entry)}return data})
+      .finally(()=>{if(pending.get(key)===task)pending.delete(key)});
     pending.set(key,task);
     return task.then(clone);
   }

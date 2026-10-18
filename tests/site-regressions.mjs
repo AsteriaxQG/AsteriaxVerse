@@ -12,6 +12,28 @@ const revised=await apiContext.window.AsteriaxApi.getJson('/api/ships?catalog=v2
 assert.equal(revised.items[0].gold_standard,true,'A new catalogue revision must bypass an older session cache');
 await apiContext.window.AsteriaxApi.getJson('/api/ships?catalog=v22',{ttlMs:120000});assert.equal(apiFetches,1);
 await apiContext.window.AsteriaxApi.getJson('/api/ships?catalog=v23',{ttlMs:120000});assert.equal(apiFetches,2);
+// Force refresh must win even when an earlier request finishes last.
+const requests=[];
+apiContext.fetch=()=>new Promise(resolve=>requests.push(resolve));
+const older=apiContext.window.AsteriaxApi.getJson('/api/status');
+const newer=apiContext.window.AsteriaxApi.getJson('/api/status',{force:true});
+requests[1]({ok:true,json:async()=>({version:'new'})});await newer;
+requests[0]({ok:true,json:async()=>({version:'old'})});await older;
+assert.equal((await apiContext.window.AsteriaxApi.getJson('/api/status')).version,'new');
+// An obsolete request must not remove the pending refresh and cause duplicates.
+const first=apiContext.window.AsteriaxApi.getJson('/api/news');
+const refresh=apiContext.window.AsteriaxApi.getJson('/api/news',{force:true});
+requests[2]({ok:true,json:async()=>({version:'old'})});await first;
+const joined=apiContext.window.AsteriaxApi.getJson('/api/news');
+assert.equal(requests.length,4);
+requests[3]({ok:true,json:async()=>({version:'new'})});await refresh;
+assert.equal((await joined).version,'new');
+// Versioned catalogues keep the endpoint TTL; future-dated caches are rejected.
+apiStored.set('ax_api_v3:/api/ships?catalog=ttl',JSON.stringify({savedAt:Date.now()-60000,data:{cached:true}}));
+assert.equal((await apiContext.window.AsteriaxApi.getJson('/api/ships?catalog=ttl')).cached,true);
+apiStored.set('ax_api_v3:/api/launcher',JSON.stringify({savedAt:Date.now()+60000,data:{stale:true}}));
+const launcher=apiContext.window.AsteriaxApi.getJson('/api/launcher');
+assert.equal(requests.length,5);requests[4]({ok:true,json:async()=>({fresh:true})});assert.equal((await launcher).fresh,true);
 const nodes=new Map(),created=[];
 class Element {
   constructor(){this.listeners={};this.dataset={};this.value='';this.hidden=false;this.isConnected=false;this.innerHTML='';this.classList={remove(){},toggle(){}};this.attributes={};}

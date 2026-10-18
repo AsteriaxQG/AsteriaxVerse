@@ -1,4 +1,4 @@
-export const SITE = 'https://asteriaxverse.pages.dev';
+export const SITE = 'https://asteriaxverse.fr';
 export const categories = [['new','✨ Nouveautés','✨ New'],['ui','🎨 Interface','🎨 Interface'],['fixes','🐛 Corrections','🐛 Fixes'],['technical','⚙️ Technique','⚙️ Technical']];
 const localized = value => value && ['fr','en'].every(lang => typeof value[lang] === 'string' && value[lang].trim().length > 0 && value[lang].length <= 500);
 export function releases(data) {

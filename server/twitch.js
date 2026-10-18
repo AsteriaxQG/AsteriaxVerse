@@ -1,5 +1,5 @@
 // Server-only helpers. Never bundle this file into website/.
-export const ORIGIN='https://asteriaxverse.pages.dev';
+export const ORIGIN='https://asteriaxverse.fr';
 export const CALLBACK=ORIGIN+'/api/twitch/callback';
 export const CHANNEL='asteriaxttv';
 export const SESSION_COOKIE='__Host-ax_session';

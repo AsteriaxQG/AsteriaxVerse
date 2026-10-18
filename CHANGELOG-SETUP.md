@@ -25,7 +25,7 @@ La même route possède un mode de diagnostic authentifié qui **n’envoie aucu
 Requête :
 
 ```bash
-curl -X POST "https://asteriaxverse.pages.dev/api/changelog/publish" \
+curl -X POST "https://asteriaxverse.fr/api/changelog/publish" \
   -H "Authorization: Bearer $CHANGELOG_PUBLISH_TOKEN" \
   -H "X-Changelog-Action: diagnose"
 ```
@@ -34,7 +34,7 @@ Exemple PowerShell :
 
 ```powershell
 Invoke-RestMethod -Method Post `
-  -Uri "https://asteriaxverse.pages.dev/api/changelog/publish" `
+  -Uri "https://asteriaxverse.fr/api/changelog/publish" `
   -Headers @{ Authorization = "Bearer $env:CHANGELOG_PUBLISH_TOKEN"; "X-Changelog-Action" = "diagnose" }
 ```
 
@@ -45,12 +45,12 @@ Un diagnostic prêt à publier doit notamment retourner `databaseReady: true` et
 1. Ajouter une nouvelle version dans `data/changelog.json` avec les changements réels FR/EN. Ne pas modifier une version déjà annoncée ; créer une nouvelle version.
 2. Déployer sur Pages et vérifier que `/api/changelog` retourne la nouvelle version.
 3. Exécuter le diagnostic ci-dessus.
-4. Si tout est prêt, appeler `POST https://asteriaxverse.pages.dev/api/changelog/publish` avec `Authorization: Bearer <CHANGELOG_PUBLISH_TOKEN>`. Aucun corps nécessaire.
+4. Si tout est prêt, appeler `POST https://asteriaxverse.fr/api/changelog/publish` avec `Authorization: Bearer <CHANGELOG_PUBLISH_TOKEN>`. Aucun corps nécessaire.
 
 Exemple :
 
 ```bash
-curl -X POST "https://asteriaxverse.pages.dev/api/changelog/publish" \
+curl -X POST "https://asteriaxverse.fr/api/changelog/publish" \
   -H "Authorization: Bearer $CHANGELOG_PUBLISH_TOKEN"
 ```
 

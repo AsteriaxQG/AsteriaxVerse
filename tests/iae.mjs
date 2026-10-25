@@ -14,6 +14,10 @@ assert.match(html,/assets\/iae\/rental-schedule-full\.webp/);
 assert.match(html,/assets\/iae\/floor-plan\.webp/);
 assert.match(html,/assets\/iae\/manufacturers\.webp/);
 assert.match(html,/<dialog id="iaeImageDialog"/);
+assert.match(html,/class="iae-lightbox-stage"/);
+assert.match(html,/data-iae-zoom-in/);
+assert.match(html,/data-iae-zoom-out/);
+assert.match(html,/data-iae-zoom-reset/);
 assert.match(html,/data-iae-image/);
 assert.doesNotMatch(html,/<a href="assets\/iae\/[^"]+" target="_blank"/);
 assert.match(html,/RSI Constellation Mk V Andromeda/);
@@ -38,8 +42,11 @@ const current=await render([{title:'IAE 2956',publishedAt:'2026-11-01',url:'http
 assert.match(current.grid.innerHTML,/IAE 2956/);
 assert.doesNotMatch(current.grid.innerHTML,/example\.com/);
 assert.match(current.status.textContent,/1 annonce/);
-const image={src:'',alt:''},handlers={},documentHandlers={},dialogHandlers={},closeButton={addEventListener:(name,fn)=>handlers.closeButton=fn};
-const dialog={showModal(){handlers.opened=true},close(){handlers.closed=true},querySelector:()=>closeButton,addEventListener:(name,fn)=>dialogHandlers[name]=fn};
+const image={src:'',alt:'',style:{},clientWidth:800,clientHeight:600},handlers={},documentHandlers={},dialogHandlers={},stageHandlers={},level={textContent:''};
+const button=name=>({addEventListener:(event,fn)=>handlers[name]=fn});
+const stage={clientWidth:800,clientHeight:600,addEventListener:(event,fn)=>stageHandlers[event]=fn,setPointerCapture(){},classList:{add(){},remove(){}}};
+const controls={'.iae-lightbox-stage':stage,img:image,'[data-iae-zoom-level]':level,'[data-iae-zoom-in]':button('in'),'[data-iae-zoom-out]':button('out'),'[data-iae-zoom-reset]':button('reset'),'.iae-lightbox-close':button('closeButton')};
+const dialog={showModal(){handlers.opened=true},close(){handlers.closed=true},querySelector:s=>controls[s],addEventListener:(name,fn)=>dialogHandlers[name]=fn};
 const link={href:'https://asteriaxverse.fr/assets/iae/floor-plan.webp',querySelector:()=>({alt:'Plan IAE'})};
 vm.runInNewContext(code,{
   URL,location:{hash:''},
@@ -52,6 +59,9 @@ assert.equal(prevented,true);
 assert.equal(image.src,link.href);
 assert.equal(image.alt,'Plan IAE');
 assert.equal(handlers.opened,true);
+handlers.in();assert.equal(level.textContent,'150 %');
+stageHandlers.wheel({deltaY:-1,preventDefault(){prevented=true}});assert.equal(level.textContent,'180 %');
+handlers.reset();assert.equal(level.textContent,'100 %');
 handlers.closeButton();
 assert.equal(handlers.closed,true);
 handlers.closed=false;

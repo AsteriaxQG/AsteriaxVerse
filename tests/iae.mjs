@@ -4,6 +4,7 @@ import vm from 'node:vm';
 
 const html=readFileSync(new URL('../website/index.html',import.meta.url),'utf8');
 assert.match(html,/data-view="iae"/);
+assert.match(html,/data-view="home"[^>]*>Accueil<\/button><button class="nav-btn iae-nav" data-view="iae"[^>]*>IAE<\/button>/);
 assert.match(html,/id="iae" class="view/);
 assert.match(html,/data-go="iae"/);
 const code=readFileSync(new URL('../website/iae.js',import.meta.url),'utf8');

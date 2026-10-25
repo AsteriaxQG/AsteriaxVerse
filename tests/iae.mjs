@@ -8,10 +8,16 @@ assert.match(html,/data-view="home"[^>]*>Accueil<\/button><button class="nav-btn
 assert.match(html,/id="iae" class="view/);
 assert.match(html,/data-go="iae"/);
 assert.match(html,/Programme prévisionnel · à confirmer/);
+assert.match(html,/13 novembre à 17 h 00/);
+assert.match(html,/16 h 00 UTC · à confirmer pour 2956/);
 assert.match(html,/assets\/iae\/rental-schedule-full\.webp/);
 assert.match(html,/assets\/iae\/floor-plan\.webp/);
 assert.match(html,/assets\/iae\/manufacturers\.webp/);
+assert.match(html,/<dialog id="iaeImageDialog"/);
+assert.match(html,/data-iae-image/);
+assert.doesNotMatch(html,/<a href="assets\/iae\/[^"]+" target="_blank"/);
 assert.match(html,/RSI Constellation Mk V Andromeda/);
+assert.match(html,/<li class="iae-ship-available"><a href="https:\/\/robertsspaceindustries\.com\/en\/pledge\/Standalone-Ships\/Constellation-Mk-V-Centaurus-Warbond"[^>]*><strong>RSI Skylark<\/strong>/);
 assert.doesNotMatch(html.replace(/<[^>]*>/g,' '),/\bLEAK\b|\bdivulgué/i);
 const code=readFileSync(new URL('../website/iae.js',import.meta.url),'utf8');
 async function render(items){
@@ -32,4 +38,23 @@ const current=await render([{title:'IAE 2956',publishedAt:'2026-11-01',url:'http
 assert.match(current.grid.innerHTML,/IAE 2956/);
 assert.doesNotMatch(current.grid.innerHTML,/example\.com/);
 assert.match(current.status.textContent,/1 annonce/);
+const image={src:'',alt:''},handlers={},documentHandlers={},dialogHandlers={},closeButton={addEventListener:(name,fn)=>handlers.closeButton=fn};
+const dialog={showModal(){handlers.opened=true},close(){handlers.closed=true},querySelector:()=>closeButton,addEventListener:(name,fn)=>dialogHandlers[name]=fn};
+const link={href:'https://asteriaxverse.fr/assets/iae/floor-plan.webp',querySelector:()=>({alt:'Plan IAE'})};
+vm.runInNewContext(code,{
+  URL,location:{hash:''},
+  window:{AsteriaxI18n:{isEnglish:()=>false}},
+  document:{querySelector:s=>s==='#iaeImageDialog'?dialog:s==='#iaeImageDialog img'?image:null,addEventListener:(name,fn)=>documentHandlers[name]=fn}
+});
+let prevented=false;
+documentHandlers.click({target:{closest:()=>link},preventDefault(){prevented=true}});
+assert.equal(prevented,true);
+assert.equal(image.src,link.href);
+assert.equal(image.alt,'Plan IAE');
+assert.equal(handlers.opened,true);
+handlers.closeButton();
+assert.equal(handlers.closed,true);
+handlers.closed=false;
+dialogHandlers.click({target:dialog});
+assert.equal(handlers.closed,true);
 console.log('PASS: IAE navigation, pending information, current-year announcements and official link validation');

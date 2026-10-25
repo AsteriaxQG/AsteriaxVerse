@@ -5,8 +5,8 @@
       "date": "2026-10-25",
       "title": {"fr": "Aperçu de l'IAE 2956", "en": "IAE 2956 preview"},
       "new": [{"fr": "L'onglet IAE présente un calendrier prévisionnel, un plan d'étage, les vaisseaux notables et un visuel des constructeurs, consultables en grand.", "en": "The IAE tab now shows a provisional schedule, floor plan, notable ships and manufacturer artwork, all viewable full size."}],
-      "ui": [{"fr": "Les visuels restent lisibles sur mobile ; le calendrier est également retranscrit en texte.", "en": "Images remain usable on mobile; the schedule is also available as text."}],
-      "fixes": [],
+      "ui": [{"fr": "Les visuels s'ouvrent dans une visionneuse fermable par croix, Échap ou clic à l'extérieur. Le calendrier est retranscrit en texte et l'ouverture prévue à 17 h, heure de Paris, est indiquée.", "en": "Images open in a viewer that can be closed with the button, Escape or an outside click. The schedule is available as text and the expected 5 PM Paris-time opening is shown."}],
+      "fixes": [{"fr": "La disponibilité du Skylark est précisée : il est proposé avec la Constellation Mk V Centaurus, sans indication trompeuse d'une vente séparée.", "en": "Skylark availability is clarified: it is offered with the Constellation Mk V Centaurus, without implying a separate sale."}],
       "technical": [{"fr": "Les informations prévisionnelles sont distinguées des annonces officielles et peuvent être révisées.", "en": "Provisional details are kept separate from official announcements and can be revised."}]
     },
     {

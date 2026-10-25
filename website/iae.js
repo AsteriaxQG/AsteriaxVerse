@@ -6,7 +6,6 @@
   let articles=[],loaded=false;
   function render(){
     const grid=q('#iaeNewsGrid'),status=q('#iaeNewsStatus');if(!grid||!status)return;
-    status.textContent=articles.length?(fr()?articles.length+' annonce(s) officielle(s)':articles.length+' official announcement(s)'):(fr()?'De plus amples informations à venir.':'More information coming soon.');
     status.textContent=articles.length?(fr()?'${count} annonce(s) officielle(s)'.replace('${count}',articles.length):'${count} official announcement(s)'.replace('${count}',articles.length)):(fr()?'De plus amples informations à venir.':'More information coming soon.');
     grid.innerHTML=articles.map(a=>'<a class="iae-news-card" href="'+esc(a.link)+'" target="_blank" rel="noopener noreferrer"><time>'+esc(a.date)+'</time><h3>'+esc(a.title)+'</h3><p>'+esc(a.excerpt||'Roberts Space Industries')+'</p></a>').join('');
   }
@@ -18,5 +17,20 @@
   }
   document.addEventListener('asteriax:language-change',render);
   document.addEventListener('asteriax:view-change',event=>{if(event.detail==='iae'&&!loaded)load()});
+  const dialog=q('#iaeImageDialog');
+  if(dialog){
+    document.addEventListener('click',event=>{
+      const link=event.target.closest?.('#iae a[data-iae-image]');
+      if(link){
+        event.preventDefault();
+        const image=q('#iaeImageDialog img');
+        image.src=link.href;
+        image.alt=link.querySelector('img')?.alt||'IAE';
+        dialog.showModal();
+      }
+    });
+    dialog.querySelector('.iae-lightbox-close')?.addEventListener('click',()=>dialog.close());
+    dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close()});
+  }
   if(location.hash==='#iae')load();
 })();

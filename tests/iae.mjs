@@ -10,6 +10,7 @@ assert.match(html,/data-go="iae"/);
 assert.match(html,/Programme prévisionnel · à confirmer/);
 assert.match(html,/assets\/iae\/rental-schedule-full\.webp/);
 assert.match(html,/assets\/iae\/floor-plan\.webp/);
+assert.match(html,/assets\/iae\/manufacturers\.webp/);
 assert.match(html,/RSI Constellation Mk V Andromeda/);
 assert.doesNotMatch(html.replace(/<[^>]*>/g,' '),/\bLEAK\b|\bdivulgué/i);
 const code=readFileSync(new URL('../website/iae.js',import.meta.url),'utf8');

@@ -4,7 +4,7 @@
       "version": "1.5.25",
       "date": "2026-10-25",
       "title": {"fr": "Aperçu de l'IAE 2956", "en": "IAE 2956 preview"},
-      "new": [{"fr": "L'onglet IAE présente un calendrier prévisionnel, un plan d'étage consultable en grand et les vaisseaux notables mentionnés.", "en": "The IAE tab now shows a provisional schedule, a full-size floor plan and notable ships mentioned."}],
+      "new": [{"fr": "L'onglet IAE présente un calendrier prévisionnel, un plan d'étage, les vaisseaux notables et un visuel des constructeurs, consultables en grand.", "en": "The IAE tab now shows a provisional schedule, floor plan, notable ships and manufacturer artwork, all viewable full size."}],
       "ui": [{"fr": "Les visuels restent lisibles sur mobile ; le calendrier est également retranscrit en texte.", "en": "Images remain usable on mobile; the schedule is also available as text."}],
       "fixes": [],
       "technical": [{"fr": "Les informations prévisionnelles sont distinguées des annonces officielles et peuvent être révisées.", "en": "Provisional details are kept separate from official announcements and can be revised."}]

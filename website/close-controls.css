@@ -1,0 +1,20 @@
+/* Keep every close icon centered independently of the font's × glyph metrics. */
+:is(.modal-close,.iae-lightbox-close,.ax-changelog-close,.lb-dialog [data-lb-close]){
+  font-size:0!important;
+  line-height:0!important;
+}
+:is(.ax-changelog-close,.lb-dialog [data-lb-close]){position:relative}
+:is(.modal-close,.iae-lightbox-close,.ax-changelog-close,.lb-dialog [data-lb-close])::before,
+:is(.modal-close,.iae-lightbox-close,.ax-changelog-close,.lb-dialog [data-lb-close])::after{
+  content:"";
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:18px;
+  height:2px;
+  border-radius:2px;
+  background:currentColor;
+  pointer-events:none;
+}
+:is(.modal-close,.iae-lightbox-close,.ax-changelog-close,.lb-dialog [data-lb-close])::before{transform:translate(-50%,-50%) rotate(45deg)}
+:is(.modal-close,.iae-lightbox-close,.ax-changelog-close,.lb-dialog [data-lb-close])::after{transform:translate(-50%,-50%) rotate(-45deg)}

@@ -15,7 +15,40 @@
       articles=(data.items||[]).filter(a=>/\bIAE\b|Intergalactic Aerospace Expo/i.test(a.title+' '+(a.excerpt||''))).filter(a=>/2026/.test(a.publishedAt||a.posted||'')||/2956/.test(a.title||'')).map(a=>({title:a.title,excerpt:a.excerpt,date:a.posted||'',link:official(a.url)})).filter(a=>a.link).slice(0,6);
     }catch{articles=[]}loaded=true;render();
   }
-  document.addEventListener('asteriax:language-change',render);
+  const start=Date.UTC(2026,10,13,16);
+  const end=Date.UTC(2026,10,30,16);
+  const schedule=[
+    ['RSI',13],['Origin',14],['Anvil',15],['Crusader · Tumbril',16],
+    ['Drake',17],['Argo · Consolidated Outland · Greycat',18],
+    ['Kruger · Mirai · MISC',19],['Aegis',20],
+    ['Aopoa · Banu · Esperia · Gatac',21],['Best in Show',22],['Finale',23]
+  ].map(([name,date])=>({name,time:Date.UTC(2026,10,date,16)}));
+  function renderFollow(now=Date.now()){
+    const label=q('#iaeFollowLabel'),main=q('#iaeFollowMain'),next=q('#iaeFollowNext');
+    if(!label||!main||!next)return;
+    const french=fr();
+    const when=time=>new Intl.DateTimeFormat(french?'fr-FR':'en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Paris'}).format(time);
+    if(now<start){
+      const minutes=Math.ceil((start-now)/60000);
+      const days=Math.floor(minutes/1440),hours=Math.floor(minutes%1440/60),mins=minutes%60;
+      label.textContent=french?'Ouverture prévue dans':'Expected opening in';
+      main.textContent=french?`${days} j ${hours} h ${mins} min`:`${days}d ${hours}h ${mins}m`;
+      next.textContent=french?`13 novembre · 17 h 00, heure de Paris`:`November 13 · 5:00 PM Paris time`;
+    }else if(now<end){
+      const index=schedule.findLastIndex(entry=>entry.time<=now);
+      const current=schedule[Math.max(0,index)],upcoming=schedule[index+1];
+      label.textContent=french?'Constructeur du jour · prévisionnel':'Today’s manufacturer · provisional';
+      main.textContent=current.name;
+      next.textContent=upcoming?(french?'Prochain changement : ':'Next change: ')+upcoming.name+' · '+when(upcoming.time):(french?'Fin prévue : ':'Expected end: ')+when(end);
+    }else{
+      label.textContent=french?'IAE 2956':'IAE 2956';
+      main.textContent=french?'Événement terminé':'Event ended';
+      next.textContent=french?'Consulte les annonces officielles RSI pour le bilan.':'See official RSI announcements for the recap.';
+    }
+  }
+  renderFollow();
+  setInterval(renderFollow,60000);
+  document.addEventListener('asteriax:language-change',()=>{render();renderFollow()});
   document.addEventListener('asteriax:view-change',event=>{if(event.detail==='iae'&&!loaded)load()});
   const dialog=q('#iaeImageDialog');
   if(dialog){

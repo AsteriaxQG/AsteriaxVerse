@@ -6,6 +6,8 @@ const html=readFileSync(new URL('../website/index.html',import.meta.url),'utf8')
 assert.match(html,/data-view="iae"/);
 assert.match(html,/data-view="home"[^>]*>Accueil<\/button><button class="nav-btn iae-nav" data-view="iae"[^>]*>IAE<\/button>/);
 assert.match(html,/id="iae" class="view/);
+assert.match(html,/id="iaeFollowMain"/);
+assert.match(html,/Calendrier prévisionnel · à confirmer par RSI/);
 assert.match(html,/data-go="iae"/);
 assert.match(html,/Programme prévisionnel · à confirmer/);
 assert.match(html,/13 novembre à 17 h 00/);
@@ -28,6 +30,7 @@ async function render(items){
   const grid={innerHTML:''},status={textContent:''},listeners={};
   const context={
     URL,location:{hash:'#iae'},
+    setInterval(){},
     window:{AsteriaxI18n:{isEnglish:()=>false},AsteriaxApi:{getJson:async()=>({items})}},
     document:{querySelector:s=>s==='#iaeNewsGrid'?grid:s==='#iaeNewsStatus'?status:null,addEventListener:(name,fn)=>listeners[name]=fn}
   };
@@ -50,6 +53,7 @@ const dialog={showModal(){handlers.opened=true},close(){handlers.closed=true},qu
 const link={href:'https://asteriaxverse.fr/assets/iae/floor-plan.webp',querySelector:()=>({alt:'Plan IAE'})};
 vm.runInNewContext(code,{
   URL,location:{hash:''},
+  setInterval(){},
   window:{AsteriaxI18n:{isEnglish:()=>false}},
   document:{querySelector:s=>s==='#iaeImageDialog'?dialog:s==='#iaeImageDialog img'?image:null,addEventListener:(name,fn)=>documentHandlers[name]=fn}
 });
@@ -67,4 +71,18 @@ assert.equal(handlers.closed,true);
 handlers.closed=false;
 dialogHandlers.click({target:dialog});
 assert.equal(handlers.closed,true);
+function followAt(time){
+  const label={textContent:''},main={textContent:''},next={textContent:''};
+  class ClockDate extends Date{static now(){return time}}
+  vm.runInNewContext(code,{
+    URL,Date:ClockDate,location:{hash:''},setInterval(){},
+    window:{AsteriaxI18n:{isEnglish:()=>false}},
+    document:{querySelector:s=>({'#iaeFollowLabel':label,'#iaeFollowMain':main,'#iaeFollowNext':next})[s]||null,addEventListener(){} }
+  });
+  return{label:label.textContent,main:main.textContent,next:next.textContent};
+}
+assert.match(followAt(Date.UTC(2026,10,13,15,59)).main,/1 min/);
+assert.equal(followAt(Date.UTC(2026,10,13,16)).main,'RSI');
+assert.equal(followAt(Date.UTC(2026,10,14,16)).main,'Origin');
+assert.equal(followAt(Date.UTC(2026,10,30,16)).main,'Événement terminé');
 console.log('PASS: IAE navigation, pending information, current-year announcements and official link validation');

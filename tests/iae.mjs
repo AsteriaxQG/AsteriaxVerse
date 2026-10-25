@@ -7,6 +7,11 @@ assert.match(html,/data-view="iae"/);
 assert.match(html,/data-view="home"[^>]*>Accueil<\/button><button class="nav-btn iae-nav" data-view="iae"[^>]*>IAE<\/button>/);
 assert.match(html,/id="iae" class="view/);
 assert.match(html,/data-go="iae"/);
+assert.match(html,/Programme prévisionnel · à confirmer/);
+assert.match(html,/assets\/iae\/rental-schedule-full\.webp/);
+assert.match(html,/assets\/iae\/floor-plan\.webp/);
+assert.match(html,/RSI Constellation Mk V Andromeda/);
+assert.doesNotMatch(html.replace(/<[^>]*>/g,' '),/\bLEAK\b|\bdivulgué/i);
 const code=readFileSync(new URL('../website/iae.js',import.meta.url),'utf8');
 async function render(items){
   const grid={innerHTML:''},status={textContent:''},listeners={};

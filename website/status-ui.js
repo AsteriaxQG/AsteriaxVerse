@@ -1,5 +1,7 @@
 (()=>{
   const q=s=>document.querySelector(s);
+  const access={Ptu:'',Eptu:''};
+  function renderAccess(){for(const prefix of ['Ptu','Eptu']){const el=q(`#home${prefix}Wave`);if(!el)continue;const raw=access[prefix],all=/^all waves$/i.test(raw),number=raw.match(/^wave\s*(\d+)$/i)?.[1],evocati=/^evocati$/i.test(raw);el.hidden=!all&&!number&&!evocati;if(!el.hidden)el.textContent=evocati?'Evocati':all?(window.AsteriaxI18n?.isEnglish?.()?'All waves':'Toutes les vagues'):(window.AsteriaxI18n?.isEnglish?.()?`Wave ${number}`:`Vague ${number}`)}}
   const norm=v=>String(v??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   const tone=value=>{const s=norm(value);if(s.includes('operationnel')||s.includes('en ligne'))return'good';if(s.includes('incident majeur')||s.includes('hors ligne')||s.includes('non disponible'))return'bad';if(s.includes('degrade')||s.includes('maintenance')||s.includes('incident partiel'))return'warn';return'neutral'};
   function decorate(el,value){if(!el)return;el.classList.add('status-indicator');el.classList.remove('indicator-good','indicator-warn','indicator-bad','indicator-neutral');el.classList.add(`indicator-${tone(value)}`)}
@@ -8,16 +10,17 @@
   async function refresh(){
     try{
       const data=await window.AsteriaxApi.getJson('/api/status',{ttlMs:15000});if(!data.ok)throw 0;
-      setEnv('Live',data.live,'Version LIVE officielle');setEnv('Hotfix',data.hotfix,'Aucun hotfix actif');setEnv('Ptu',data.ptu,'Public Test Universe');setEnv('Eptu',data.eptu,'Experimental PTU');
+      setEnv('Live',data.live,'Version LIVE officielle');setEnv('Hotfix',data.hotfix,'Aucun hotfix actif');setEnv('Ptu',data.ptu,'Public Test Universe');setEnv('Eptu',data.eptu,'Experimental PTU');for(const prefix of ['Ptu','Eptu'])access[prefix]=data[prefix.toLowerCase()]?.status==='En ligne'?String(data[prefix.toLowerCase()].access||''):'';renderAccess();
       setText('#homePuStatus',data.services?.persistentUniverse||'Inconnu');setText('#homePlatformStatus',data.services?.platform||'Inconnu');setText('#homeArenaStatus',data.services?.arenaCommander||'Inconnu');
       q('#homePlayers')?.closest('div')?.remove();
       let overallText=data.live?.status||data.services?.persistentUniverse||'Inconnu';if(norm(overallText)==='operationnel')overallText='En ligne';const overall=q('#verseOverallStatus');if(overall){overall.textContent=overallText;overall.className=`verse-overall ${tone(overallText)} status-indicator indicator-${tone(overallText)}`}
       if(q('#verseStatusSummary'))q('#verseStatusSummary').textContent=`Persistent Universe : ${data.services?.persistentUniverse||'Inconnu'} · LIVE ${data.live?.version?`Alpha ${data.live.version}`:'version inconnue'}`;
       if(q('#verseSourceNote')){const d=new Date(data.updatedAt);q('#verseSourceNote').textContent=`Sources officielles RSI · actualisé ${d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}`}
-    }catch(e){const overall=q('#verseOverallStatus');if(overall){overall.textContent='Statut indisponible';overall.className='verse-overall warn status-indicator indicator-warn'}}
+    }catch(e){access.Ptu='';access.Eptu='';renderAccess();const overall=q('#verseOverallStatus');if(overall){overall.textContent='Statut indisponible';overall.className='verse-overall warn status-indicator indicator-warn'}}
   }
   const ids=['#verseOverallStatus','#homeLiveStatus','#homeHotfixStatus','#homePtuStatus','#homeEptuStatus','#homePuStatus','#homePlatformStatus','#homeArenaStatus'];
   function watch(){for(const id of ids){const el=q(id);if(!el)continue;decorate(el,el.textContent);new MutationObserver(()=>decorate(el,el.textContent)).observe(el,{childList:true,characterData:true,subtree:true})}}
+  document.addEventListener('asteriax:language-change',renderAccess);
   q('#homePlayers')?.closest('div')?.remove();watch();refresh();setInterval(refresh,120000);
 })();
 

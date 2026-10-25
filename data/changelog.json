@@ -1,6 +1,15 @@
 {
   "versions": [
     {
+      "version": "1.5.23",
+      "date": "2026-10-25",
+      "title": {"fr": "Accès PTU et Evocati visibles", "en": "PTU access and Evocati visibility"},
+      "new": [{"fr": "La carte PTU affiche la vague d’accès annoncée officiellement. La carte EPTU indique Evocati lorsque l’annonce officielle le confirme.", "en": "The PTU card shows the officially announced access wave. The EPTU card shows Evocati when confirmed by an official announcement."}],
+      "ui": [{"fr": "Un badge compact s’affiche sous la version, en français ou en anglais selon la langue du site.", "en": "A compact badge appears below the version, in French or English to match the site language."}],
+      "fixes": [],
+      "technical": [{"fr": "L’accès disparaît automatiquement lorsqu’aucun environnement de test actif n’est confirmé.", "en": "The access label disappears automatically when no active test environment is confirmed."}]
+    },
+    {
       "version": "1.5.22",
       "date": "2026-10-18",
       "title": {"fr": "Actualisations fiables et navigation soignée", "en": "Reliable refreshes and navigation polish"},

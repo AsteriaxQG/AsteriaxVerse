@@ -59,8 +59,9 @@ export function testEnvironment(threads,label,liveVersion,now=Date.now()){
   const sequence=subject.match(/(?:Patch|Release) Notes\s+(\d{6,})\b/i)?.[1]||'';
   const source=`https://robertsspaceindustries.com/spectrum/community/SC/forum/190048/thread/${t.slug}`;
   if(/\b(?:offline|closed|shutdown)\b/i.test(subject))return{status:'Hors ligne',version,build:'',source};
-  if(!t.is_pinned||Number(t.time_created)<=latestLive||!version||compareVersions(version,liveVersion)<0||!/\[(?:all waves|wave\s*\d+)\]/i.test(subject))return{status:'Non vérifié',version:'',build:''};
-  return{status:'En ligne',version,build:sequence?`${version}-${label.toLowerCase()}.${sequence}`:'',access:/all waves/i.test(subject)?'Toutes les vagues':subject.match(/wave\s*\d+/i)?.[0]||'',source};
+  const access=subject.match(/\[(?:all waves|wave\s*\d+|evocati)\]/i)?.[0]?.slice(1,-1)||'';
+  if(!t.is_pinned||Number(t.time_created)<=latestLive||!version||compareVersions(version,liveVersion)<0||!access)return{status:'Non vérifié',version:'',build:''};
+  return{status:'En ligne',version,build:sequence?`${version}-${label.toLowerCase()}.${sequence}`:'',access:/^all waves$/i.test(access)?'All waves':/^evocati$/i.test(access)?'Evocati':access,source};
 }
 
 export async function onRequestGet(context){

@@ -44,3 +44,6 @@ jobs:
       - run: node --check website/launcher.js
       - run: node tests/launcher.mjs
       - run: node tests/news-api.mjs
+      - run: node --check website/status-ui.js
+      - run: node --check functions/api/status.js
+      - run: node tests/status-access.mjs

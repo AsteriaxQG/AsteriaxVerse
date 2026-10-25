@@ -1,5 +1,7 @@
 /* Mobile layout corrections applied after the shared glass and seasonal styles. */
 @media (max-width:900px){
+  .nav{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+  .nav-btn,.nav-btn.active{font-size:8.5px!important}
   html,body{overflow-x:clip!important}
   .topbar{position:sticky!important;top:0!important}
   .home-hero>div:first-child{padding-top:48px}
@@ -9,10 +11,10 @@
   .news-card-content,.card-body,.home-news-content{min-width:0;overflow-wrap:anywhere}
 }
 @media (max-width:650px){
+  .nav-btn,.nav-btn.active{font-size:8.5px!important}
   #loadoutRoot .lb-tabs{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;overflow:visible!important;padding:4px 0 12px!important}
   #loadoutRoot .lb-tabs .lb-button{width:100%!important;min-width:0!important;white-space:normal!important;line-height:1.2!important}
   #loadoutRoot .lb-tabs .lb-button:last-child:nth-child(odd){grid-column:1/-1}
-  .nav-btn,.nav-btn.active{font-size:9.5px!important}
 }
 @media (max-width:370px){
   #home>.stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}

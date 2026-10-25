@@ -1,6 +1,15 @@
 {
   "versions": [
     {
+      "version": "1.5.24",
+      "date": "2026-10-25",
+      "title": {"fr": "Espace IAE en préparation", "en": "IAE hub in preparation"},
+      "new": [{"fr": "Un onglet IAE et une mise en avant sur l'accueil préparent la prochaine édition. Les annonces officielles récentes y apparaîtront automatiquement.", "en": "A dedicated IAE tab and homepage highlight prepare the next edition. Recent official announcements will appear automatically."}],
+      "ui": [{"fr": "L'espace IAE conserve le design glass du site, avec une navigation adaptée au mobile.", "en": "The IAE hub keeps the site's glass design, with mobile-friendly navigation."}],
+      "fixes": [],
+      "technical": [{"fr": "Aucune date ni offre n'est affichée avant confirmation officielle.", "en": "No dates or offers are shown before official confirmation."}]
+    },
+    {
       "version": "1.5.23",
       "date": "2026-10-25",
       "title": {"fr": "Accès PTU et Evocati visibles", "en": "PTU access and Evocati visibility"},

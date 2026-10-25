@@ -47,3 +47,5 @@ jobs:
       - run: node --check website/status-ui.js
       - run: node --check functions/api/status.js
       - run: node tests/status-access.mjs
+      - run: node --check website/iae.js
+      - run: node tests/iae.mjs

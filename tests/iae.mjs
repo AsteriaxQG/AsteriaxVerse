@@ -23,6 +23,7 @@ assert.match(html,/data-iae-zoom-reset/);
 assert.match(html,/data-iae-image/);
 assert.doesNotMatch(html,/<a href="assets\/iae\/[^"]+" target="_blank"/);
 assert.match(html,/RSI Constellation Mk V Andromeda/);
+assert.doesNotMatch(html,/Greycat MFC|Anvil HM6 Auxilia/);
 assert.match(html,/<li class="iae-ship-available"><a href="https:\/\/robertsspaceindustries\.com\/en\/pledge\/Standalone-Ships\/Constellation-Mk-V-Centaurus-Warbond"[^>]*><strong>RSI Skylark<\/strong>/);
 assert.doesNotMatch(html.replace(/<[^>]*>/g,' '),/\bLEAK\b|\bdivulgué/i);
 const code=readFileSync(new URL('../website/iae.js',import.meta.url),'utf8');

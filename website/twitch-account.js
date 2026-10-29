@@ -67,9 +67,9 @@
     const en=english();
     stream.classList.toggle('live',streamIsLive);
     stream.classList.toggle('offline',!streamIsLive);
-    streamLabel.textContent=streamIsLive?(en?'LIVE ON TWITCH':'EN LIVE SUR TWITCH'):(en?'TWITCH CHANNEL':'CHAÎNE TWITCH');
-    stream.setAttribute('aria-label',streamIsLive?(en?'Watch AsteriaxTTV live on Twitch':'Voir AsteriaxTTV en direct sur Twitch'):(en?'Open the AsteriaxTTV Twitch channel':'Ouvrir la chaîne Twitch AsteriaxTTV'));
-    stream.title=streamIsLive&&streamTitle?streamTitle:(en?'Open the Twitch channel':'Voir la chaîne Twitch');
+    streamLabel.textContent=streamIsLive?(en?'LIVE ON TWITCH':'EN LIVE SUR TWITCH'):(en?'TWITCH · OFFLINE':'TWITCH · HORS LIGNE');
+    stream.setAttribute('aria-label',streamIsLive?(en?'Watch AsteriaxTTV live on Twitch':'Voir AsteriaxTTV en direct sur Twitch'):(en?'AsteriaxTTV is offline. Open the Twitch channel':'AsteriaxTTV est hors ligne. Ouvrir la chaîne Twitch'));
+    stream.title=streamIsLive&&streamTitle?streamTitle:(en?'Offline · watch past streams on Twitch':'Hors ligne · voir la chaîne et les rediffusions Twitch');
     paintPopup();
   }
 

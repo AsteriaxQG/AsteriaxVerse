@@ -14,7 +14,7 @@
   document.querySelector('.nav')?.insertAdjacentElement('afterend',headerActions);
 
   const streamLabel=stream.querySelector('.ax-stream-label');
-  let streamIsLive=false,streamTitle='',streamId='',livePopup=null,popupTimer;
+  let streamIsLive=false,streamTitle='',streamId='',livePopup=null,popupTimer,refreshInFlight=false;
   const english=()=>window.AsteriaxI18n?.isEnglish?.()===true;
   const popupKey=()=>`ax_live_popup_collapsed_${streamId||new Date().toISOString().slice(0,10)}`;
 
@@ -74,6 +74,8 @@
   }
 
   async function refreshLive(){
+    if(refreshInFlight)return;
+    refreshInFlight=true;
     try{
       const response=await fetch('/api/twitch/live',{cache:'no-store',signal:AbortSignal.timeout(8000)});
       if(!response.ok)throw Error('Unavailable');
@@ -83,16 +85,14 @@
       streamTitle=typeof data.title==='string'?data.title:'';
       streamId=streamIsLive&&typeof data.streamId==='string'?data.streamId:'';
     }catch{
-      streamIsLive=false;
-      streamTitle='';
-      streamId='';
-    }finally{paint()}
+      // A brief Twitch/API outage must not hide an already confirmed live stream.
+    }finally{refreshInFlight=false;paint()}
   }
 
   document.addEventListener('asteriax:language-change',()=>{adoptLanguageToggle();paint()});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)void refreshLive()});
   window.addEventListener('online',refreshLive);
-  setInterval(()=>{if(!document.hidden)void refreshLive()},60000);
+  setInterval(()=>{if(!document.hidden)void refreshLive()},15000);
   adoptLanguageToggle();
   paint();
   void refreshLive();

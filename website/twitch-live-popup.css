@@ -7,6 +7,12 @@
 .ax-live-popup-watch:hover{filter:brightness(1.2);transform:translateY(-1px)}
 .ax-live-popup-close{position:absolute;top:10px;right:11px;display:grid;place-items:center;width:32px;height:32px;border:1px solid rgba(117,178,195,.34);border-radius:50%;background:rgba(8,31,42,.8);color:#dff8ff;font:400 22px/1 Arial,sans-serif;cursor:pointer}
 .ax-live-popup-close:hover{background:rgba(22,69,83,.9)}
+.ax-live-popup-reopen{display:none}
+.ax-live-popup.is-collapsed{width:auto;min-width:77px;padding:0;border-radius:999px}
+.ax-live-popup.is-collapsed>*:not(.ax-live-popup-reopen){display:none}
+.ax-live-popup.is-collapsed .ax-live-popup-reopen{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-width:77px;min-height:49px;padding:0 15px;border:0;border-radius:999px;background:transparent;color:#efffff;font:900 11px/1 var(--font-ui,Inter,"Segoe UI",system-ui,sans-serif);letter-spacing:.09em;cursor:pointer}
+.ax-live-popup.is-collapsed .ax-live-popup-reopen .ax-stream-dot{background:#43ed83;box-shadow:0 0 11px rgba(67,237,131,.8);animation:ax-live-pulse 1.2s ease-in-out infinite}
+.ax-live-popup.is-collapsed .ax-live-popup-reopen:hover{background:rgba(62,174,197,.13)}
 .ax-live-popup :focus-visible{outline:2px solid #79eaff;outline-offset:3px}
 @keyframes ax-live-popup-in{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:600px){.ax-live-popup{right:16px;bottom:calc(16px + env(safe-area-inset-bottom));padding:17px}}

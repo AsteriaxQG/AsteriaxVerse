@@ -16,26 +16,38 @@
   const streamLabel=stream.querySelector('.ax-stream-label');
   let streamIsLive=false,streamTitle='',streamId='',livePopup=null,popupTimer;
   const english=()=>window.AsteriaxI18n?.isEnglish?.()===true;
-  const popupKey=()=>`ax_live_popup_seen_${streamId||new Date().toISOString().slice(0,10)}`;
+  const popupKey=()=>`ax_live_popup_collapsed_${streamId||new Date().toISOString().slice(0,10)}`;
 
-  function dismissPopup(){
+  function collapsePopup(){
     clearTimeout(popupTimer);
     if(streamId||streamIsLive)try{sessionStorage.setItem(popupKey(),'1')}catch{}
-    livePopup?.remove();livePopup=null;
+    livePopup?.classList.add('is-collapsed');
+  }
+
+  function expandPopup(){
+    try{sessionStorage.removeItem(popupKey())}catch{}
+    livePopup?.classList.remove('is-collapsed');
+    clearTimeout(popupTimer);
+    popupTimer=setTimeout(collapsePopup,15000);
   }
 
   function paintPopup(){
     if(!streamIsLive){clearTimeout(popupTimer);livePopup?.remove();livePopup=null;return}
-    try{if(sessionStorage.getItem(popupKey())==='1')return}catch{}
+    if(livePopup&&livePopup.dataset.streamId!==streamId){clearTimeout(popupTimer);livePopup.remove();livePopup=null}
     if(!livePopup){
       livePopup=document.createElement('aside');
       livePopup.className='ax-live-popup';
+      livePopup.dataset.streamId=streamId;
       livePopup.setAttribute('aria-label','AsteriaxTTV sur Twitch');
-      livePopup.innerHTML='<button class="ax-live-popup-close" type="button" aria-label="Fermer la notification">×</button><span class="ax-live-popup-kicker"><span class="ax-stream-dot" aria-hidden="true"></span><span class="ax-live-popup-status"></span></span><strong class="ax-live-popup-heading"></strong><p class="ax-live-popup-title"></p><a class="ax-live-popup-watch" href="https://www.twitch.tv/asteriaxttv" target="_blank" rel="noopener noreferrer"></a>';
-      livePopup.querySelector('.ax-live-popup-close').addEventListener('click',dismissPopup);
-      livePopup.querySelector('.ax-live-popup-watch').addEventListener('click',dismissPopup);
+      livePopup.innerHTML='<button class="ax-live-popup-reopen" type="button"><span class="ax-stream-dot" aria-hidden="true"></span><span>LIVE</span></button><button class="ax-live-popup-close" type="button" aria-label="Réduire la notification">×</button><span class="ax-live-popup-kicker"><span class="ax-stream-dot" aria-hidden="true"></span><span class="ax-live-popup-status"></span></span><strong class="ax-live-popup-heading"></strong><p class="ax-live-popup-title"></p><a class="ax-live-popup-watch" href="https://www.twitch.tv/asteriaxttv" target="_blank" rel="noopener noreferrer"></a>';
+      livePopup.querySelector('.ax-live-popup-close').addEventListener('click',collapsePopup);
+      livePopup.querySelector('.ax-live-popup-reopen').addEventListener('click',expandPopup);
+      livePopup.querySelector('.ax-live-popup-watch').addEventListener('click',collapsePopup);
       document.body.append(livePopup);
-      popupTimer=setTimeout(dismissPopup,15000);
+      let collapsed=false;
+      try{collapsed=sessionStorage.getItem(popupKey())==='1'}catch{}
+      if(collapsed)livePopup.classList.add('is-collapsed');
+      else popupTimer=setTimeout(collapsePopup,15000);
     }
     const en=english();
     livePopup.querySelector('.ax-live-popup-status').textContent=en?'LIVE NOW':'EN DIRECT';
@@ -43,6 +55,7 @@
     const title=livePopup.querySelector('.ax-live-popup-title');
     title.textContent=streamTitle|| (en?'Join the stream on Twitch.':'Rejoins le live sur Twitch.');
     livePopup.querySelector('.ax-live-popup-watch').textContent=en?'Watch the stream ↗':'Voir le live ↗';
+    livePopup.querySelector('.ax-live-popup-reopen').setAttribute('aria-label',en?'Open live stream notification':'Ouvrir la notification du direct');
   }
 
   function adoptLanguageToggle(){

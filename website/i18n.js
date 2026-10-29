@@ -88,6 +88,13 @@
     "Version officielle en cours":"Official version in progress",
     "Correctif LIVE en test":"LIVE fix under testing",
     "Aucun hotfix actif":"No active hotfix",
+    "Session de test spéciale":"Special test session",
+    "Notes officielles RSI ↗":"Official RSI notes ↗",
+    "Tech Preview : suivi du canal":"Tech Preview: channel tracking",
+    "Tech Preview : annonce MOTD, heure à confirmer":"Tech Preview: launcher MOTD, time to be confirmed",
+    "Prévue":"Planned",
+    "Ce soir":"Tonight",
+    "29 octobre · horaire à confirmer":"October 29 · time to be confirmed",
     "Sources officielles RSI · actualisation automatique":"Official RSI sources · auto-refresh",
     "Sources officielles RSI":"Official RSI sources",
     "actualisé":"updated",
@@ -258,6 +265,7 @@
     "Opérationnel":"Operational",
     "Dégradé":"Degraded",
     "Hors ligne":"Offline",
+    "En ligne":"Online",
     "Inconnu":"Unknown",
     "Persistent Universe":"Persistent Universe",
     "Plateforme RSI":"RSI platform",
@@ -289,6 +297,8 @@
     if(language==='fr'&&!replacement&&(match=value.match(/^(\d+) (?:hour|hours|day|days|week|weeks) ago$/u)))replacement=`il y a ${match[1]} ${match[0].includes('week')?'semaine':match[0].includes('day')?'jour':'heure'}${Number(match[1])>1?'s':''}`;
     if(language==='en'&&(match=value.match(/^Sources officielles RSI · actualisé (.+)$/u)))replacement=`Official RSI sources · updated ${match[1]}`;
     if(language==='fr'&&!replacement&&(match=value.match(/^Official RSI sources · updated (.+)$/u)))replacement=`Sources officielles RSI · actualisé ${match[1]}`;
+    if(language==='en'&&!replacement&&(match=value.match(/^Sources officielles RSI · (Tech Preview : .+) · actualisé (.+)$/u)))replacement=`Official RSI sources · ${FR_TO_EN[match[1]]||match[1]} · updated ${match[2]}`;
+    if(language==='fr'&&!replacement&&(match=value.match(/^Official RSI sources · (Tech Preview: .+) · updated (.+)$/u)))replacement=`Sources officielles RSI · ${EN_TO_FR[match[1]]||match[1]} · actualisé ${match[2]}`;
     if(language==='en'&&(match=value.match(/^Persistent Universe\s*:\s*(Opérationnel|Dégradé|Hors ligne|Inconnu)\s*·\s*LIVE(.*)$/u)))replacement=`Persistent Universe: ${FR_TO_EN[match[1]]||match[1]} · LIVE${match[2]}`;
     if(language==='fr'&&!replacement&&(match=value.match(/^Persistent Universe:\s*(Operational|Degraded|Offline|Unknown)\s*·\s*LIVE(.*)$/u)))replacement=`Persistent Universe : ${EN_TO_FR[match[1]]||match[1]} · LIVE${match[2]}`;
     if(language==='en'&&!replacement&&(match=value.match(/^il y a (\d+) (heure|heures|jour|jours)$/u)))replacement=`${match[1]} ${match[2].startsWith('jour')?'day':'hour'}${Number(match[1])>1?'s':''} ago`;

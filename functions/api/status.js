@@ -37,6 +37,21 @@ export function hotfixFrom(releaseBody='',hotfixBody='',liveVersion='',liveBuild
   const sequence=Math.max(0,...sequences),online=channelOnline&&Boolean(liveBuild)&&sequence>buildSequence(liveBuild);
   return{status:online?'En ligne':'Hors ligne',version:online?liveVersion:'',build:online&&liveVersion?`${liveVersion}-hotfix.${sequence}`:'',source:PATCH_FORUM};
 }
+export function techPreviewFrom(releaseBody='',now=Date.now()){
+  const normalized=String(releaseBody).replace(/\\"/g,'"');
+  const record=normalized.match(/\{[^{}]{0,1500}"channel":"TECH-PREVIEW"[^{}]{0,1500}\}/i)?.[0];
+  let preview;
+  try{preview=record?JSON.parse(record):null}catch{preview=null}
+  const updated=Date.parse(preview?.updated_at||'');
+  const age=now-updated;
+  const active=preview?.is_active===true&&String(preview.status).toUpperCase()==='ONLINE'&&Number.isFinite(age)&&age>=0&&age<=7*86400000;
+  const source=String(preview?.patch_notes_url||'');
+  const official=/^https:\/\/robertsspaceindustries\.com\//i.test(source)?source:'';
+  if(active)return{status:'En ligne',version:String(preview.version||''),build:String(preview.version_full||''),source:official};
+  // Community-reported session; expires overnight and never masquerades as an active channel.
+  if(now>=Date.parse('2026-10-28T23:00:00Z')&&now<Date.parse('2026-10-29T23:00:00Z'))return{status:'Prévue',version:'Ce soir',build:'29 octobre · horaire à confirmer',source:''};
+  return{status:'Hors ligne',version:'',build:'',source:''};
+}
 function ptuStateFrom(body=''){return body.match(/PTU STATUS\s*:\s*([^|]{1,50})/i)?.[1]?.trim()||''}
 function environmentStatus(raw='',hasBuild=false){const s=String(raw).trim();if(hasBuild)return frStatus(s||'Online');if(!s||/unknown|not published|not available/i.test(s))return'Non publié';return frStatus(s)}
 function overallFromServices(noIssues,...services){if(noIssues)return'Operational';const joined=services.join(' ');if(/Major Outage/i.test(joined))return'Major Outage';if(/Partial Outage/i.test(joined))return'Partial Outage';if(/Degraded/i.test(joined))return'Degraded';if(/Maintenance/i.test(joined))return'Maintenance';if(services.every(x=>/Operational/i.test(x)))return'Operational';return'Unknown'}
@@ -66,7 +81,7 @@ export function testEnvironment(threads,label,liveVersion,now=Date.now()){
 
 export async function onRequestGet(context){
   const cache=caches.default;
-  const cacheKey=new Request(new URL('/api/status?cache=v16',context.request.url).toString());
+  const cacheKey=new Request(new URL('/api/status?cache=v17',context.request.url).toString());
   const cached=await cache.match(cacheKey);if(cached)return cached;
   const settled=await Promise.allSettled([fetchText(STATUS_URL),fetchText(PTU_FAQ),fetchText(PTU_INSTALL),fetchText(LOANER_MATRIX),fetchText(PATCH_FORUM),fetchPatchThreads(),fetchText(RELEASE_MIRROR),fetchText(HOTFIX_MIRROR),fetchText(PU_STATUS_URL)]);
   const statusBody=settled[0].status==='fulfilled'?text(settled[0].value):'';
@@ -96,6 +111,7 @@ export async function onRequestGet(context){
     updatedAt:new Date().toISOString(),
     live:{version:liveVersion,build:liveBuild,status:frStatus(overall)},
     hotfix:hotfixFrom(releaseMirrorBody,hotfixMirrorBody,liveVersion,liveBuild),
+    techPreview:techPreviewFrom(releaseMirrorBody),
     ptu:testEnvironment(settled[5].status==='fulfilled'?settled[5].value:[],'PTU',liveVersion),
     eptu:testEnvironment(settled[5].status==='fulfilled'?settled[5].value:[],'EPTU',liveVersion),
     services:{platform:frStatus(platform),persistentUniverse:frStatus(pu),arenaCommander:frStatus(arena)},

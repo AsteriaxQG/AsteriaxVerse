@@ -1,6 +1,15 @@
 {
   "versions": [
     {
+      "version": "1.5.26",
+      "date": "2026-10-29",
+      "title": {"fr": "Suivi IAE et Tech Preview", "en": "IAE and Tech Preview tracking"},
+      "new": [{"fr": "La page d'accueil peut afficher une Tech Preview annoncée ou active, avec son état et les notes RSI lorsqu'un lien officiel est disponible.", "en": "The homepage can show an announced or active Tech Preview, including its status and RSI notes when an official link is available."}, {"fr": "Le bloc IAE « À suivre » affiche un compte à rebours puis le constructeur du jour selon le calendrier prévisionnel.", "en": "The IAE coming-up panel shows a countdown, then the manufacturer of the day based on the provisional schedule."}],
+      "ui": [{"fr": "Les images IAE peuvent être zoomées avec les boutons, la molette ou un pincement, puis déplacées.", "en": "IAE images can be zoomed with buttons, the mouse wheel or pinch gestures, then panned."}],
+      "fixes": [{"fr": "Les anciennes Tech Previews marquées ONLINE par un miroir ne sont pas présentées comme actives sans confirmation récente.", "en": "Old Tech Previews marked ONLINE by a mirror are not shown as active without recent confirmation."}],
+      "technical": [{"fr": "L'annonce prévue le 29 octobre expire automatiquement si aucun canal Tech Preview actif n'est détecté.", "en": "The October 29 planned notice expires automatically if no active Tech Preview channel is detected."}]
+    },
+    {
       "version": "1.5.25",
       "date": "2026-10-25",
       "title": {"fr": "Aperçu de l'IAE 2956", "en": "IAE 2956 preview"},

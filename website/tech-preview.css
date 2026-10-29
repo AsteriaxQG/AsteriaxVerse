@@ -1,0 +1,8 @@
+.verse-env.tech-preview[hidden]{display:none!important}
+.verse-env.tech-preview{border-color:rgba(171,123,255,.42);background:linear-gradient(145deg,rgba(32,25,57,.74),rgba(9,25,36,.78))}
+.verse-env.tech-preview .verse-env-head span{color:#c6a7ff}
+.verse-env.tech-preview.is-planned{border-color:rgba(255,191,94,.42);background:linear-gradient(145deg,rgba(55,38,24,.74),rgba(9,25,36,.78))}
+.verse-env.tech-preview.is-planned .verse-env-head span,.verse-env.tech-preview.is-planned .verse-env-head b{color:#ffd18a}
+.verse-env.tech-preview>a{display:inline-block;margin-top:10px;color:#b5dfff;font-size:10px;font-weight:700;text-decoration:none}
+.verse-env.tech-preview>a[hidden]{display:none}
+.verse-env.tech-preview>a:hover{text-decoration:underline}

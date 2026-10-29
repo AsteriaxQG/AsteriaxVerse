@@ -48,8 +48,8 @@ export function techPreviewFrom(releaseBody='',now=Date.now()){
   const source=String(preview?.patch_notes_url||'');
   const official=/^https:\/\/robertsspaceindustries\.com\//i.test(source)?source:'';
   if(active)return{status:'En ligne',version:String(preview.version||''),build:String(preview.version_full||''),source:official};
-  // Community-reported session; expires overnight and never masquerades as an active channel.
-  if(now>=Date.parse('2026-10-28T23:00:00Z')&&now<Date.parse('2026-10-29T23:00:00Z'))return{status:'Prévue',version:'Ce soir',build:'29 octobre · horaire à confirmer',source:''};
+  // User-reported Evocati notes are not proof that the channel is open.
+  if(now>=Date.parse('2026-10-28T23:00:00Z')&&now<Date.parse('2026-11-02T23:00:00Z'))return{status:'Evocati',version:'Phase Evocati',build:'Ouverture non confirmée',source:''};
   return{status:'Hors ligne',version:'',build:'',source:''};
 }
 function ptuStateFrom(body=''){return body.match(/PTU STATUS\s*:\s*([^|]{1,50})/i)?.[1]?.trim()||''}
@@ -81,7 +81,7 @@ export function testEnvironment(threads,label,liveVersion,now=Date.now()){
 
 export async function onRequestGet(context){
   const cache=caches.default;
-  const cacheKey=new Request(new URL('/api/status?cache=v17',context.request.url).toString());
+  const cacheKey=new Request(new URL('/api/status?cache=v18',context.request.url).toString());
   const cached=await cache.match(cacheKey);if(cached)return cached;
   const settled=await Promise.allSettled([fetchText(STATUS_URL),fetchText(PTU_FAQ),fetchText(PTU_INSTALL),fetchText(LOANER_MATRIX),fetchText(PATCH_FORUM),fetchPatchThreads(),fetchText(RELEASE_MIRROR),fetchText(HOTFIX_MIRROR),fetchText(PU_STATUS_URL)]);
   const statusBody=settled[0].status==='fulfilled'?text(settled[0].value):'';

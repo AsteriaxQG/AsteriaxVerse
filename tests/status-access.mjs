@@ -26,13 +26,14 @@ assert.equal(techPreviewFrom(mirror({...techRecord,updated_at:'2026-06-17T17:25:
 assert.equal(techPreviewFrom(mirror({...techRecord,patch_notes_url:'https://example.com/fake'}),now).source,'');
 assert.equal(techPreviewFrom('unavailable',now).status,'Hors ligne');
 const previewEvening=Date.parse('2026-10-29T18:00:00Z');
-assert.equal(techPreviewFrom('unavailable',previewEvening).status,'Prévue');
+assert.equal(techPreviewFrom('unavailable',previewEvening).status,'Evocati');
+assert.equal(techPreviewFrom('unavailable',previewEvening).version,'Phase Evocati');
 assert.equal(techPreviewFrom(mirror({...techRecord,is_active:true,updated_at:new Date(previewEvening-3600000).toISOString()}),previewEvening).status,'En ligne');
-assert.equal(techPreviewFrom('unavailable',Date.parse('2026-10-29T23:00:00Z')).status,'Hors ligne');
+assert.equal(techPreviewFrom('unavailable',Date.parse('2026-11-02T23:00:00Z')).status,'Hors ligne');
 const html=readFileSync(new URL('../website/index.html',import.meta.url),'utf8');
 const ui=readFileSync(new URL('../website/status-ui.js',import.meta.url),'utf8');
 assert.match(html,/class="verse-env tech-preview" hidden/);
 assert.match(html,/id="homeTechPreviewStatus"/);
 assert.match(ui,/setEnv\('TechPreview',data\.techPreview/);
-assert.match(ui,/\['en ligne','prevue'\]/);
+assert.match(ui,/\['en ligne','evocati'\]/);
 console.log('PASS: PTU wave changes, all waves, confirmed Evocati, and stale/unverified announcements');

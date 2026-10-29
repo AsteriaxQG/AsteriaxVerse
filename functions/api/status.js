@@ -6,7 +6,7 @@ const LOANER_MATRIX='https://support.robertsspaceindustries.com/hc/en-us/article
 const PATCH_FORUM='https://robertsspaceindustries.com/spectrum/community/SC/forum/190048?page=1&sort=newest';
 const RELEASE_MIRROR='https://scstarter.guide/';
 const HOTFIX_MIRROR='https://t.me/s/starcitizenru_news?q=%23patchnotes';
-const VERIFIED_LIVE_BUILDS={'4.10.1':'4.10.1-live.12660092'};
+const VERIFIED_LIVE_BUILDS={'4.10.1':'4.10.1-live.12660092','4.10.2':'4.10.2-live.12881860'};
 
 function decode(s=''){return String(s).replace(/&nbsp;|&#160;/gi,' ').replace(/&amp;/gi,'&').replace(/&quot;/gi,'"').replace(/&#39;|&apos;/gi,"'").replace(/&lt;/gi,'<').replace(/&gt;/gi,'>')}
 function text(html=''){return decode(html.replace(/<script[\s\S]*?<\/script>/gi,' ').replace(/<style[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim())}
@@ -30,7 +30,16 @@ function firstMatchingBuild(builds,version=''){const unique=[...new Set(builds.f
 function liveStatusVersion(body=''){return body.match(/LIVE STATUS\s*:\s*(\d+(?:\.\d+){1,3})/i)?.[1]||''}
 function deploymentVersions(body=''){return [...body.matchAll(/(?:deploy|deployed|deployment of)\s+Star Citizen Alpha\s+(\d+(?:\.\d+){1,3})/ig)].map(m=>m[1])}
 function matrixVersion(body=''){return body.match(/Last Updated:[^|]{0,120}\|\s*(\d+(?:\.\d+){1,3})-live\.\d+/i)?.[1]||''}
-function mirrorLiveBuild(body=''){const m=body.match(/(\d+(?:\.\d+){1,3})-LIVE\s*\|\s*CL\s*(\d{6,})/i);return m?`${m[1]}-live.${m[2]}`:''}
+export function mirrorLiveBuild(body=''){
+  const normalized=String(body).replace(/\\"/g,'"');
+  const record=normalized.match(/\{[^{}]{0,1500}"channel":"LIVE"[^{}]{0,1500}\}/i)?.[0];
+  let live;
+  try{live=record?JSON.parse(record):null}catch{live=null}
+  const current=String(live?.version_full||'').match(/^(\d+(?:\.\d+){1,3})-LIVE\.(\d{6,})$/i);
+  if(current&&String(live?.status).toUpperCase()==='ONLINE')return`${current[1]}-live.${current[2]}`;
+  const legacy=body.match(/(\d+(?:\.\d+){1,3})-LIVE\s*\|\s*CL\s*(\d{6,})/i);
+  return legacy?`${legacy[1]}-live.${legacy[2]}`:'';
+}
 export function hotfixFrom(releaseBody='',hotfixBody='',liveVersion='',liveBuild=''){
   const channelOnline=/\\?"channel\\?":\\?"HOTFIX\\?"[\s\S]{0,500}?\\?"status\\?":\\?"ONLINE/i.test(releaseBody);
   const sequences=[...hotfixBody.matchAll(/LIVE Client CL:\s*\d{6,}\s*\((?:CL\s*)?(\d{6,})[^)]*HOTFIX/ig)].map(match=>Number(match[1])||0);
@@ -81,7 +90,7 @@ export function testEnvironment(threads,label,liveVersion,now=Date.now()){
 
 export async function onRequestGet(context){
   const cache=caches.default;
-  const cacheKey=new Request(new URL('/api/status?cache=v18',context.request.url).toString());
+  const cacheKey=new Request(new URL('/api/status?cache=v19',context.request.url).toString());
   const cached=await cache.match(cacheKey);if(cached)return cached;
   const settled=await Promise.allSettled([fetchText(STATUS_URL),fetchText(PTU_FAQ),fetchText(PTU_INSTALL),fetchText(LOANER_MATRIX),fetchText(PATCH_FORUM),fetchPatchThreads(),fetchText(RELEASE_MIRROR),fetchText(HOTFIX_MIRROR),fetchText(PU_STATUS_URL)]);
   const statusBody=settled[0].status==='fulfilled'?text(settled[0].value):'';

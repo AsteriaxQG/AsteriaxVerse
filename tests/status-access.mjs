@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {testEnvironment,techPreviewFrom} from '../functions/api/status.js';
+import {testEnvironment,techPreviewFrom,mirrorLiveBuild} from '../functions/api/status.js';
 
 const now=Date.parse('2026-10-25T12:00:00Z');
 const thread=(label,access,ageHours=1)=>({
@@ -19,6 +19,10 @@ assert.equal(testEnvironment([{...thread('EPTU','Evocati'),is_pinned:false}],'EP
 assert.equal(testEnvironment([thread('EPTU','Evocati')],'EPTU','4.11.0',now).status,'Non vérifié');
 const techRecord={channel:'TECH-PREVIEW',version:'Genesis',version_full:'Genesis Planet Tech V5',status:'ONLINE',is_active:true,updated_at:new Date(now-3600000).toISOString(),patch_notes_url:'https://robertsspaceindustries.com/spectrum/community/AVOCADO/forum/31515/thread/instancing-tech-preview'};
 const mirror=record=>`<script>${JSON.stringify(record).replaceAll('"','\\"')}</script>`;
+const liveRecord={channel:'LIVE',version:'4.10.2',version_full:'4.10.2-LIVE.12913470',status:'ONLINE'};
+assert.equal(mirrorLiveBuild(mirror(liveRecord)),'4.10.2-live.12913470');
+assert.equal(mirrorLiveBuild(mirror({...liveRecord,status:'OFFLINE'})),'');
+assert.equal(mirrorLiveBuild('4.10.2-LIVE | CL 12913470'),'4.10.2-live.12913470');
 assert.equal(techPreviewFrom(mirror(techRecord),now).status,'En ligne');
 assert.equal(techPreviewFrom(mirror(techRecord),now).version,'Genesis');
 assert.equal(techPreviewFrom(mirror({...techRecord,is_active:false}),now).status,'Hors ligne');

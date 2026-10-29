@@ -1,0 +1,13 @@
+.ax-live-popup{position:fixed;right:24px;bottom:24px;z-index:5000;width:min(360px,calc(100vw - 32px));padding:20px 20px 18px;border:1px solid rgba(83,218,236,.5);border-radius:22px;background:radial-gradient(circle at 85% 0,rgba(75,220,231,.2),transparent 55%),linear-gradient(145deg,rgba(8,32,45,.94),rgba(8,19,32,.96));box-shadow:0 18px 55px rgba(0,0,0,.42),inset 0 1px 0 rgba(215,250,255,.1);backdrop-filter:blur(22px) saturate(135%);-webkit-backdrop-filter:blur(22px) saturate(135%);color:#eefaff;animation:ax-live-popup-in .35s ease-out both}
+.ax-live-popup-kicker{display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;color:#78f4ac;font:800 10px/1 var(--font-ui,Inter,"Segoe UI",system-ui,sans-serif);letter-spacing:.16em}
+.ax-live-popup .ax-stream-dot{background:#43ed83;box-shadow:0 0 11px rgba(67,237,131,.8);animation:ax-live-pulse 1.2s ease-in-out infinite}
+.ax-live-popup-heading{display:block;padding-right:20px;font:800 19px/1.25 var(--font-ui,Inter,"Segoe UI",system-ui,sans-serif)}
+.ax-live-popup-title{margin:7px 0 16px;color:#a9c4d0;font:500 13px/1.45 var(--font-ui,Inter,"Segoe UI",system-ui,sans-serif);display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.ax-live-popup-watch{display:inline-flex;align-items:center;justify-content:center;min-height:39px;padding:0 15px;border:1px solid rgba(93,212,236,.5);border-radius:999px;background:linear-gradient(135deg,#0d6883,#124765);color:#f3fdff;font:800 12px/1 var(--font-ui,Inter,"Segoe UI",system-ui,sans-serif);text-decoration:none;transition:filter .18s ease,transform .18s ease}
+.ax-live-popup-watch:hover{filter:brightness(1.2);transform:translateY(-1px)}
+.ax-live-popup-close{position:absolute;top:10px;right:11px;display:grid;place-items:center;width:32px;height:32px;border:1px solid rgba(117,178,195,.34);border-radius:50%;background:rgba(8,31,42,.8);color:#dff8ff;font:400 22px/1 Arial,sans-serif;cursor:pointer}
+.ax-live-popup-close:hover{background:rgba(22,69,83,.9)}
+.ax-live-popup :focus-visible{outline:2px solid #79eaff;outline-offset:3px}
+@keyframes ax-live-popup-in{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){.ax-live-popup{right:16px;bottom:calc(16px + env(safe-area-inset-bottom));padding:17px}}
+@media(prefers-reduced-motion:reduce){.ax-live-popup,.ax-live-popup .ax-stream-dot{animation:none}.ax-live-popup-watch{transition:none}}

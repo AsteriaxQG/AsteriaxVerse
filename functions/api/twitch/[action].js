@@ -20,7 +20,7 @@ export async function onRequest(ctx){
     const data=await response.json();
     if(!Array.isArray(data.data))throw Error('Invalid stream response');
     const stream=data.data.find(entry=>entry.user_login?.toLowerCase()===CHANNEL&&entry.type==='live');
-    const result=json({configured:true,live:!!stream,channel:CHANNEL,title:stream?.title||'',checkedAt:new Date().toISOString()});
+    const result=json({configured:true,live:!!stream,channel:CHANNEL,title:stream?.title||'',streamId:stream?.id||'',checkedAt:new Date().toISOString()});
     result.headers.set('Cache-Control','public, max-age=30, s-maxage=60');
     ctx.waitUntil(cache.put(key,result.clone()));
     return result;

@@ -1,0 +1,17 @@
+(()=>{
+const panel=document.querySelector('#hangarAccount'),home=document.querySelector('#homeHangarAccount');
+if(!panel)return;
+let account=null,checking=true,pending=[];
+const message=(text,error=false)=>{const el=panel.querySelector('[data-account-message]');el.textContent=text;el.classList.toggle('error',error)};
+const api=async(action,data)=>{const r=await fetch(`/api/account/${action}`,{method:data?'POST':'GET',credentials:'same-origin',headers:data?{'content-type':'application/json'}:{},body:data?JSON.stringify(data):undefined,cache:'no-store'});const result=await r.json();if(!r.ok)throw Error(result.error||'Service indisponible');return result};
+const local=()=>window.AsteriaxHangar?.read()||{owned:[],wishlist:[]};
+function render(){panel.dataset.connected=account?'true':'false';panel.querySelector('[data-account-forms]').hidden=!!account;panel.querySelector('[data-account-connected]').hidden=!account;panel.querySelector('[data-account-name]').textContent=account?.display_name||'';home.textContent=account?`Hangar synchronisé avec le compte ${account.display_name}`:'Connecte-toi pour retrouver ton Hangar sur tous tes appareils.';}
+async function sync(data){if(data.newAccount){const current=local();if(current.owned.length||current.wishlist.length){await api('hangar',{import:true,...current});message('Ton Hangar de cet appareil a été ajouté à ton compte.')}}else window.AsteriaxHangar?.replace(data.hangar||{owned:[],wishlist:[]});account=data.user;checking=false;render();for(const change of pending.splice(0)) await sendChange(change);}
+async function sendChange(change){try{await api('hangar',change);message('Hangar synchronisé.')}catch(e){message(`Sauvegarde en ligne impossible : ${e.message}`,true)}}
+document.addEventListener('asteriax:hangar-change',e=>{if(checking)pending.push(e.detail);else if(account)sendChange(e.detail)});
+panel.querySelectorAll('[data-account-mode]').forEach(button=>button.addEventListener('click',()=>{const register=button.dataset.accountMode==='register';panel.querySelector('[data-register-fields]').hidden=!register;panel.querySelector('[data-account-submit]').textContent=register?'Créer mon compte':'Se connecter';panel.querySelectorAll('[data-account-mode]').forEach(x=>x.setAttribute('aria-pressed',String(x===button)));message('')}));
+panel.querySelector('form').addEventListener('submit',async e=>{e.preventDefault();const form=e.currentTarget,submit=panel.querySelector('[data-account-submit]'),register=panel.querySelector('[data-register-fields]').hidden===false;submit.disabled=true;message('Connexion en cours…');try{const data=await api(register?'register':'login',{name:form.elements.name.value,email:form.elements.email.value,password:form.elements.password.value});form.reset();await sync(data);message('Hangar synchronisé.')}catch(error){message(error.message,true)}finally{submit.disabled=false}});
+panel.querySelector('[data-account-logout]').addEventListener('click',async()=>{try{await api('logout',{});account=null;window.AsteriaxHangar?.replace({owned:[],wishlist:[]});render();message('Déconnecté. Les vaisseaux du compte restent sauvegardés en ligne.')}catch(e){message(e.message,true)}});
+api('session').then(data=>{if(data.user)return sync(data);checking=false;render();pending=[]}).catch(()=>{checking=false;render();message('Connexion au service de sauvegarde indisponible.',true)});
+render();
+})();

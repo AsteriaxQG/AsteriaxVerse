@@ -6,9 +6,9 @@
   .shell{padding:18px 14px 32px!important}
   .topbar{padding:9px 14px!important;row-gap:7px!important}
   .global-search{height:44px!important}
-  .nav{grid-template-columns:repeat(5,minmax(0,1fr))!important;height:calc(var(--mobile-nav-height) + env(safe-area-inset-bottom))!important;padding:5px 7px calc(5px + env(safe-area-inset-bottom))!important;gap:4px!important;background:rgba(6,18,27,.96)!important;border-top:1px solid rgba(92,203,231,.28)!important}
+  .nav{grid-template-columns:repeat(3,minmax(0,1fr))!important;height:calc(var(--mobile-nav-height) + env(safe-area-inset-bottom))!important;padding:5px 7px calc(5px + env(safe-area-inset-bottom))!important;gap:7px!important;background:rgba(6,18,27,.96)!important;border-top:1px solid rgba(92,203,231,.28)!important}
   .nav-primary,.nav-secondary{display:contents!important}
-  .nav-btn[data-view="iae"],.nav-btn[data-view="news"]{display:none!important}
+  .nav-btn[data-view="iae"],.nav-btn[data-view="vehicles"],.nav-btn[data-view="equipment"],.nav-btn[data-view="news"]{display:none!important}
   .nav-btn,.nav-btn.active,.mobile-menu-toggle{height:58px!important;min-height:58px!important;max-height:58px!important;border-radius:13px!important;font-size:11px!important;line-height:1.15!important;white-space:normal!important;letter-spacing:0!important}
   .nav-btn::before,.mobile-menu-toggle::before{font-size:20px!important;line-height:1!important}
   .mobile-menu-toggle{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:100%;padding:4px 2px;border:0;background:transparent;color:#a4c3d0;font-weight:750;cursor:pointer}
@@ -39,19 +39,17 @@
   #vehicles .ship-status-filter{grid-column:1/-1!important;padding-top:2px!important;margin:0!important}
   .card-grid,.equipment-grid,#news .news-grid{min-width:0!important}
   .modal-panel{padding-top:max(68px,env(safe-area-inset-top) + 62px)!important}
-  #loadoutRoot .lb-tabs{display:flex!important;gap:8px!important;overflow-x:auto!important;scroll-snap-type:x proximity;padding:4px 0 12px!important}
-  #loadoutRoot .lb-tabs .lb-button,#loadoutRoot .lb-tabs .lb-button:last-child:nth-child(odd){grid-column:auto!important;flex:0 0 auto!important;width:auto!important;min-width:106px!important;max-width:160px!important;padding-inline:13px!important;scroll-snap-align:start;white-space:nowrap!important}
+  #loadoutRoot .lb-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important;overflow:visible!important;padding:4px 0 12px!important}
+  #loadoutRoot .lb-tabs .lb-button,#loadoutRoot .lb-tabs .lb-button:last-child:nth-child(odd){grid-column:auto!important;flex:auto!important;width:100%!important;min-width:0!important;max-width:none!important;min-height:46px!important;padding:6px 4px!important;white-space:normal!important;overflow-wrap:anywhere!important;line-height:1.2!important;font-size:11px!important}
   #loadoutRoot .lb-mobile-nav .lb-button{font-size:11px!important;overflow-wrap:anywhere}
+  #loadoutRoot .lb-panel h3,#loadoutRoot .lb-item-copy,#loadoutRoot .lb-slot,#loadoutRoot .lb-source{min-width:0!important;overflow-wrap:anywhere!important}
   #loadoutRoot .lb-heading{margin-top:0!important}
   #loadoutRoot .lb-workspace,#loadoutRoot .lb-bottom{min-width:0!important}
   #loadoutRoot .lb-panel{overflow:hidden}
 }
 @media(max-width:370px){
-  .nav-btn,.nav-btn.active,.mobile-menu-toggle{font-size:10px!important}
+  .nav-btn,.nav-btn.active,.mobile-menu-toggle{font-size:12px!important}
   .nav-btn::before,.mobile-menu-toggle::before{font-size:18px!important}
-  .nav-btn[data-view="equipment"]{font-size:0!important}
-  .nav-btn[data-view="equipment"]::after{content:"Équip.";font-size:10px;line-height:1.15}
-  html[lang="en"] .nav-btn[data-view="equipment"]::after{content:"Gear"}
   .ax-changelog-link{display:flex;width:100%;justify-content:space-between;flex-wrap:nowrap;gap:6px;padding:10px 12px;font-size:12px;white-space:nowrap}
   .ax-changelog-link [data-changelog-badge]{font-size:9px}
   .home-hero{padding-inline:16px!important}

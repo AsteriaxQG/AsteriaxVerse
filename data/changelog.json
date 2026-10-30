@@ -1,6 +1,15 @@
 {
   "versions": [
     {
+      "version": "1.5.29",
+      "date": "2026-10-30",
+      "title": {"fr": "Navigation mobile simplifiée", "en": "Simplified mobile navigation"},
+      "new": [],
+      "ui": [{"fr": "Sur mobile, la barre conserve Accueil et Hangar. Vaisseaux, Équipements, IAE et Actus sont accessibles depuis Menu.", "en": "On mobile, the bar keeps Home and Hangar. Ships, Equipment, IAE and News are available from Menu."}],
+      "fixes": [{"fr": "Les modes du Builder tiennent sur deux rangées et les noms longs reviennent à la ligne sans déborder.", "en": "Builder modes fit into two rows and long names wrap without overflowing."}],
+      "technical": []
+    },
+    {
       "version": "1.5.28",
       "date": "2026-10-30",
       "title": {"fr": "Navigation mobile repensée", "en": "Redesigned mobile navigation"},

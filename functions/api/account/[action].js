@@ -28,7 +28,7 @@ export async function onRequest(context) {
     if(action==='register'&&method==='POST') {
       if(!await rate(db,request,'register')) return json({error:'Trop de tentatives. Réessaie dans 15 minutes.'},429);
       const data=await body(request), email=String(data.email||'').trim().toLowerCase(), name=String(data.name||'').trim(), password=String(data.password||'');
-      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254||name.length<2||name.length>60||password.length<12||password.length>128) return json({error:'Indique un nom, un e-mail valide et un mot de passe de 12 caractères minimum.'},400);
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254||name.length<2||name.length>60||Array.from(password).length<12||password.length>128) return json({error:'Indique un nom, un e-mail valide et un mot de passe de 12 caractères minimum.'},400);
       if(await db.prepare('SELECT id FROM ax_hangar_users WHERE email=?').bind(email).first()) return json({error:'Cette adresse possède déjà un compte.'},409);
       const id=crypto.randomUUID(),salt=hex(bytes(16)),hash=await passwordHash(password,salt);
       await db.prepare('INSERT INTO ax_hangar_users(id,email,display_name,password_salt,password_hash,created_at) VALUES(?,?,?,?,?,?)').bind(id,email,name,salt,hash,Date.now()).run();

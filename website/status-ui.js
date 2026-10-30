@@ -1,7 +1,7 @@
 (()=>{
   const q=s=>document.querySelector(s);
   const access={Ptu:'',Eptu:''};
-  function renderAccess(){for(const prefix of ['Ptu','Eptu']){const el=q(`#home${prefix}Wave`);if(!el)continue;const raw=access[prefix],all=/^all waves$/i.test(raw),number=raw.match(/^wave\s*(\d+)$/i)?.[1],evocati=/^evocati$/i.test(raw),en=window.AsteriaxI18n?.isEnglish?.();el.hidden=!all&&!number&&!evocati;if(!el.hidden)el.textContent=evocati?'Evocati':all?(en?'Open to all':'Ouvert à tous'):(en?`Wave ${number}${number==='5'?' · open to all':''}`:`Vague ${number}${number==='5'?' · ouvert à tous':''}`)}}
+  function renderAccess(){for(const prefix of ['Ptu','Eptu']){const el=q(`#home${prefix}Wave`);if(!el)continue;const raw=access[prefix],all=/^all waves$/i.test(raw),number=raw.match(/^wave\s*(\d+)$/i)?.[1],evocati=/^evocati$/i.test(raw),en=window.AsteriaxI18n?.isEnglish?.();el.hidden=!all&&!number&&!evocati;if(!el.hidden)el.textContent=evocati?'Evocati':all?(en?'Wave 5 · Open to all':'Vague 5 · Ouvert à tous'):(en?`Wave ${number}${number==='5'?' · open to all':''}`:`Vague ${number}${number==='5'?' · ouvert à tous':''}`)}}
   const norm=v=>String(v??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   const tone=value=>{const s=norm(value);if(s.includes('operationnel')||s.includes('en ligne'))return'good';if(s.includes('incident majeur')||s.includes('hors ligne')||s.includes('non disponible'))return'bad';if(s.includes('degrade')||s.includes('maintenance')||s.includes('incident partiel')||s.includes('evocati'))return'warn';return'neutral'};
   function decorate(el,value){if(!el)return;el.classList.add('status-indicator');el.classList.remove('indicator-good','indicator-warn','indicator-bad','indicator-neutral');el.classList.add(`indicator-${tone(value)}`)}

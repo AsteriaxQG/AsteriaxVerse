@@ -1,6 +1,15 @@
 {
   "versions": [
     {
+      "version": "1.5.27",
+      "date": "2026-10-30",
+      "title": {"fr": "Affichage mobile et données plus claires", "en": "Mobile layout and clearer data"},
+      "new": [],
+      "ui": [{"fr": "Les panneaux mobiles disposent de davantage d'espace et les dernières sorties renvoient à leur annonce RSI.", "en": "Mobile panels have more space, and latest releases link to their RSI announcement."}],
+      "fixes": [{"fr": "Correction de l'espacement du grand bloc d'accueil et des débordements de cartes et d'onglets du Builder.", "en": "Fixed homepage hero spacing and card and Builder tab overflow."}],
+      "technical": [{"fr": "Le catalogue distingue sa date de vérification de la provenance des prix. Les grandes images des vaisseaux sont chargées après l'aperçu.", "en": "The catalogue separates its check date from price provenance. Full-size ship images load after the preview."}]
+    },
+    {
       "version": "1.5.26",
       "date": "2026-10-29",
       "title": {"fr": "Suivi IAE et Tech Preview", "en": "IAE and Tech Preview tracking"},

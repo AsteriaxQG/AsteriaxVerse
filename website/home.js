@@ -107,6 +107,14 @@
   function renderFeaturedShips(){
     const grid=q('#homeShipGrid');if(!grid||typeof vehicleCard!=='function')return false;
     const list=pickFeaturedShips();
+    const source=q('#homeReleaseSource');
+    if(source){
+      const article=homeNewsItems.find(item=>list.some(ship=>isLaunchArticle(ship,item)));
+      const en=window.AsteriaxI18n?.isEnglish?.()===true;
+      const published=article&&new Date(article.publishedAt||article.date||'');
+      const date=published&&Number.isFinite(published.getTime())?published.toLocaleDateString(en?'en-GB':'fr-FR',{dateStyle:'medium'}):'';
+      source.innerHTML=article?`${en?'Official RSI announcement':'Annonce officielle RSI'}${date?' · '+escHome(date):''} · <a href="${escHome(article.url)}" target="_blank" rel="noopener">${escHome(article.title||'RSI')}</a>`:'';
+    }
     document.dispatchEvent(new CustomEvent('asteriax:verified-new-releases',{detail:{ids:list.map(v=>String(v.id))}}));
     if(!list.length){grid.innerHTML='<p class="home-loading">Aucune nouvelle sortie confirmée dans les annonces officielles récentes.</p>';return true}
     grid.innerHTML=list.map(vehicleCard).join('');if(typeof bindCards==='function')bindCards(grid);return true;
@@ -148,4 +156,6 @@
   document.addEventListener('click',e=>{if(e.target.closest('[data-card-owned],[data-card-wish],[data-hangar-owned],[data-hangar-wish]'))setTimeout(renderHangarSummary,30)});
   window.addEventListener('storage',renderHangarSummary);
   document.addEventListener('asteriax:catalog-updated',renderFeaturedShips);
+  document.addEventListener('asteriax:language-change',renderFeaturedShips);
 })();
+

@@ -1,7 +1,7 @@
 (()=>{
 const owned=new Set(readStored('ax_hangar_owned',[]));
 const wished=new Set(readStored('ax_hangar_wishlist',[]));
-let ready=false,loading=false,hangarMode='owned',catalogUpdatedAt='';
+let ready=false,loading=false,hangarMode='owned',catalogUpdatedAt='',catalogMeta={};
 const newestVehicleIds=new Set();
 const human=(v,depth=0)=>{if(v===null||v===undefined||depth>4)return'';if(typeof v==='string'||typeof v==='number'||typeof v==='boolean')return String(v).trim();if(Array.isArray(v))return v.map(x=>human(x,depth+1)).find(Boolean)||'';if(typeof v==='object'){for(const k of ['name','display_name','label','value','title','code','slug','status','type','size','url','src']){const t=human(v[k],depth+1);if(t)return t}}return''};
 const normName=v=>human(v).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
@@ -27,7 +27,18 @@ const statusClass=s=>human(s).toLowerCase().replace(/[^a-z0-9]+/g,'-')||'unknown
 const key=v=>String(v.id);
 function refreshNewestVehicleIds(ids=[]){newestVehicleIds.clear();for(const id of ids)newestVehicleIds.add(String(id))}
 document.addEventListener('asteriax:verified-new-releases',event=>{refreshNewestVehicleIds(event.detail?.ids||[]);if(viewFromHash()==='vehicles'&&ready)renderVehicles()});
-function renderCatalogUpdated(){const target=document.querySelector('#vehicleDataUpdated');if(!target||!catalogUpdatedAt)return;const date=new Date(catalogUpdatedAt);if(!Number.isFinite(date.getTime()))return;const english=window.AsteriaxI18n?.isEnglish?.()===true;target.textContent=english?`Data updated ${date.toLocaleString('en-GB',{dateStyle:'long',timeStyle:'short'})}`:`Données mises à jour le ${date.toLocaleString('fr-FR',{dateStyle:'long',timeStyle:'short'})}`}
+function renderCatalogUpdated(){
+ const target=document.querySelector('#vehicleDataUpdated'),source=document.querySelector('#vehicleDataSource'),prices=document.querySelector('#vehiclePriceSource');
+ const en=window.AsteriaxI18n?.isEnglish?.()===true,locale=en?'en-GB':'fr-FR';
+ const checked=new Date(catalogUpdatedAt),snapshot=new Date(catalogMeta.store_updated_at||'');
+ if(target)target.textContent=Number.isFinite(checked.getTime())?(en?'Catalogue checked ':'Catalogue vérifié le ')+checked.toLocaleString(locale,{dateStyle:'medium',timeStyle:'short'}):(en?'Catalogue check date unavailable':'Date de vérification du catalogue indisponible');
+ if(source)source.textContent=(en?'Ship source: ':'Source vaisseaux : ')+(catalogMeta.source||'RSI / catalogue local');
+ if(prices){
+  const pledge=catalogMeta.store_live?(en?'RSI pledge store checked with the catalogue':'boutique Pledge RSI vérifiée avec le catalogue'):(en?'RSI pledge store unavailable; last recorded prices':'boutique Pledge RSI indisponible ; derniers prix relevés');
+  const snapshotDate=Number.isFinite(snapshot.getTime())?' · '+snapshot.toLocaleDateString(locale,{dateStyle:'medium'}):'';
+  prices.textContent=(en?'Pledge prices: ':'Prix Pledge : ')+pledge+(!catalogMeta.store_live?snapshotDate:'')+(en?' · In-game prices: local database, collection date unknown':' · Prix en jeu : base locale, date de relevé inconnue');
+ }
+}
 const save=()=>{writeStored('ax_hangar_owned',[...owned]);writeStored('ax_hangar_wishlist',[...wished])};
 function setHangar(id,mode){id=String(id);if(mode==='owned'){owned.has(id)?owned.delete(id):owned.add(id);wished.delete(id)}else{wished.has(id)?wished.delete(id):wished.add(id);owned.delete(id)}save();const view=viewFromHash();if(view==='vehicles')renderVehicles();else if(view==='hangar')renderHangar();toast(mode==='owned'?(owned.has(id)?'Ajouté à mes vaisseaux':'Retiré de mes vaisseaux'):(wished.has(id)?'Ajouté à la Liste d’envie':'Retiré de la Liste d’envie'))}
 window.AsteriaxHangar={read:()=>({owned:[...owned],wishlist:[...wished]}),replace:snapshot=>{owned.clear();wished.clear();snapshot.owned.forEach(id=>owned.add(String(id)));snapshot.wishlist.forEach(id=>{if(!owned.has(String(id)))wished.add(String(id))});save();if(state.db)renderActiveCatalog()}};
@@ -41,11 +52,6 @@ function imageOf(v){return imageSourcesOf(v)[0]||''}
 function cardImageOf(v){
  const full=imageOf(v);if(!full)return'';
  try{const url=new URL(full,location.href);if(url.hostname==='media.robertsspaceindustries.com')url.pathname=url.pathname.replace(/\/(?:source|store_slideshow_large|store_hub_large)(\.[^/.]+)$/i,'/store_small$1');return url.href}catch{return full}
-}
-const warmedImages=new Set();
-function warmCatalogImages(items){
- const warm=()=>items.slice(0,12).forEach(v=>{const src=cardImageOf(v);if(!src||warmedImages.has(src))return;warmedImages.add(src);const img=new Image();img.decoding='async';img.fetchPriority='low';img.src=src});
- if('requestIdleCallback'in window)requestIdleCallback(warm,{timeout:1400});else setTimeout(warm,500)
 }
 function inGamePurchase(v){return Number(v?.price_min)>0?'Disponible':'Indisponible'}
 function pledgePurchase(v){const name=normName(v?.name);const collector=v?.pledge_collector===true||/^aurora mk i(?!i)/.test(name)||/^f7.* mk i(?!i)/.test(name);return collector?'Indisponible · Collector':v?.pledge_available===true?'Disponible':v?.pledge_available===false?'Pas en vente':'Non vérifié'}
@@ -77,10 +83,13 @@ openVehicle=function(id){
  if(description){const descriptionId=descriptionHash(description);const target=document.querySelector('.ship-description');if(target){target.dataset.descriptionId=descriptionId;target.dataset.descriptionSource=description;target.textContent=document.documentElement.lang==='en'?description:'Traduction française en cours…';}translateDescription(description).then(translated=>{const current=document.querySelector('.ship-description[data-description-id="'+descriptionId+'"]');if(current){current.dataset.descriptionFr=translated||'';if(document.documentElement.lang!=='en')current.textContent=translated||'Description française indisponible pour le moment.'}})}
  const detailImage=document.querySelector('.detail-vehicle-image img');
  if(detailImage){
-  const loaded=()=>detailImage.parentElement?.classList.replace('is-loading','is-loaded');
+  const loaded=()=>{
+   detailImage.parentElement?.classList.replace('is-loading','is-loaded');
+   const full=detailImage.dataset.full;
+   if(full&&full!==detailImage.src){const high=new Image();high.decoding='async';high.onload=()=>{if(detailImage.isConnected){detailImage.src=full;delete detailImage.dataset.full}};high.src=full}
+  };
   if(detailImage.complete)loaded();else detailImage.addEventListener('load',loaded,{once:true});
   detailImage.addEventListener('error',e=>{const img=e.currentTarget,list=JSON.parse(img.dataset.imageFallbacks||'[]'),next=list.shift();img.dataset.imageFallbacks=JSON.stringify(list);if(next){img.src=next;return}img.parentElement.innerHTML=fallbackImage(name)});
-  const full=detailImage.dataset.full;if(full&&full!==detailImage.src){const high=new Image();high.decoding='async';high.onload=()=>{detailImage.src=full;delete detailImage.dataset.full};high.src=full}
  }
  document.querySelector('[data-hangar-owned]')?.addEventListener('click',e=>{setHangar(e.currentTarget.dataset.hangarOwned,'owned');openVehicle(id)});
  document.querySelector('[data-hangar-wish]')?.addEventListener('click',e=>{setHangar(e.currentTarget.dataset.hangarWish,'wish');openVehicle(id)});
@@ -88,7 +97,7 @@ openVehicle=function(id){
 renderHangar=function(){const list=state.vehicles.filter(v=>hangarMode==='owned'?owned.has(key(v)):wished.has(key(v)));$('#hangarCount').textContent=`${list.length} vaisseau${list.length>1?'x':''}`;$('#hangarGrid').innerHTML=list.length?list.map(vehicleCard).join(''):`<div class="empty">${hangarMode==='owned'?'Aucun vaisseau enregistré dans Mes vaisseaux.':'Ta Liste d’envie est vide.'}</div>`;bindCards($('#hangarGrid'))}
 function bindHangarTabs(){document.querySelectorAll('[data-hangar-level]').forEach(b=>b.addEventListener('click',()=>{hangarMode=b.dataset.hangarLevel;document.querySelectorAll('[data-hangar-level]').forEach(x=>x.classList.toggle('active',x===b));renderHangar()}))}
 async function loadCatalog(){if(loading||ready)return;loading=true;try{
- const data=await window.AsteriaxApi.getJson('/api/ships?catalog=v22',{ttlMs:120000});if(!data.ok||!data.items?.length)throw 0;catalogUpdatedAt=data.updatedAt||data.store_updated_at||'';renderCatalogUpdated();
+ const data=await window.AsteriaxApi.getJson('/api/ships?catalog=v22',{ttlMs:120000});if(!data.ok||!data.items?.length)throw 0;catalogUpdatedAt=data.updatedAt||'';catalogMeta={source:data.source,store_live:data.store_live,store_updated_at:data.store_updated_at};renderCatalogUpdated();
  const local=state.vehicles.filter(v=>!NON_HULL_ENTRIES.has(catalogKey(v)));
  const byName=new Map();for(const v of local){const k=catalogMatchKey(normalizedName(v));if(k&&!byName.has(k))byName.set(k,v)}
  const merged=[],seen=new Set();
@@ -107,7 +116,7 @@ async function loadCatalog(){if(loading||ready)return;loading=true;try{
  state.vehicles=merged.sort((a,b)=>human(a.name).localeCompare(human(b.name),'fr',{numeric:true}));document.dispatchEvent(new Event('asteriax:catalog-updated'));
  state.manufacturers=[...new Set([...state.manufacturers.map(x=>human(x.name)),...state.vehicles.map(v=>human(v.manufacturer)).filter(Boolean)])].sort((a,b)=>a.localeCompare(b)).map(name=>({name,n:state.vehicles.filter(v=>human(v.manufacturer)===name).length+state.items.filter(v=>human(v.manufacturer)===name).length}));
  const vehicleManufacturers=[...new Set(state.vehicles.map(v=>human(v.manufacturer)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr'));
- setOptions($('#vehicleManufacturer'),vehicleManufacturers,'Tous les constructeurs');$('#statVehicles').textContent=state.vehicles.length;warmCatalogImages(state.vehicles);renderActiveCatalog();ready=true;document.dispatchEvent(new CustomEvent('asteriax:catalog-ready',{detail:{source:'catalog'}}));
+ setOptions($('#vehicleManufacturer'),vehicleManufacturers,'Tous les constructeurs');$('#statVehicles').textContent=state.vehicles.length;renderActiveCatalog();ready=true;document.dispatchEvent(new CustomEvent('asteriax:catalog-ready',{detail:{source:'catalog'}}));
 }catch(e){console.warn('Catalogue complet indisponible',e);if(state.db&&viewFromHash()==='vehicles')renderVehicles()}finally{loading=false}}
 function maybeLoadCatalog(){if(state.db)loadCatalog()}
 document.addEventListener('asteriax:view-change',e=>maybeLoadCatalog(e.detail));

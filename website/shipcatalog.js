@@ -95,7 +95,28 @@ openVehicle=function(id){
  document.querySelector('[data-hangar-owned]')?.addEventListener('click',e=>{setHangar(e.currentTarget.dataset.hangarOwned,'owned');openVehicle(id)});
  document.querySelector('[data-hangar-wish]')?.addEventListener('click',e=>{setHangar(e.currentTarget.dataset.hangarWish,'wish');openVehicle(id)});
 }
-renderHangar=function(){const list=state.vehicles.filter(v=>hangarMode==='owned'?owned.has(key(v)):wished.has(key(v)));$('#hangarCount').textContent=`${list.length} vaisseau${list.length>1?'x':''}`;$('#hangarGrid').innerHTML=list.length?list.map(vehicleCard).join(''):`<div class="empty">${hangarMode==='owned'?'Aucun vaisseau enregistré dans Mes vaisseaux.':'Ta Liste d’envie est vide.'}</div>`;bindCards($('#hangarGrid'));if(hangarMode==='owned')for(const v of list){const card=[...$('#hangarGrid').querySelectorAll('.ship-card')].find(el=>el.dataset.vehicleId===String(v.id)),body=card?.querySelector('.card-body');if(!body)continue;const label=document.createElement('label');label.className='hangar-insurance';label.textContent='Assurance du vaisseau';const select=document.createElement('select');select.setAttribute('aria-label',`Assurance de ${human(v.name)}`);select.innerHTML='<option value="">Non renseignée</option><option value="6m">6 mois</option><option value="24m">24 mois</option><option value="120m">120 mois</option><option value="lti">LTI</option>';select.value=insurance[String(v.id)]||'';select.addEventListener('click',e=>e.stopPropagation());select.addEventListener('change',e=>{e.stopPropagation();if(select.value)insurance[String(v.id)]=select.value;else delete insurance[String(v.id)];writeStored('ax_hangar_insurance',insurance);document.dispatchEvent(new CustomEvent('asteriax:hangar-change',{detail:{id:String(v.id),insurance:select.value}}));toast('Assurance mise à jour')});label.append(select);body.append(label)}}
+renderHangar=function(){
+ const list=state.vehicles.filter(v=>hangarMode==='owned'?owned.has(key(v)):wished.has(key(v)));
+ $('#hangarCount').textContent=`${list.length} vaisseau${list.length>1?'x':''}`;
+ $('#hangarGrid').innerHTML=list.length?list.map(vehicleCard).join(''):`<div class="empty">${hangarMode==='owned'?'Aucun vaisseau enregistré dans Mes vaisseaux.':'Ta Liste d’envie est vide.'}</div>`;
+ bindCards($('#hangarGrid'));
+ if(hangarMode!=='owned')return;
+ const labels={'':'Choisir une assurance','6m':'6 mois','24m':'24 mois','120m':'120 mois',lti:'LTI'};
+ for(const v of list){
+  const card=[...$('#hangarGrid').querySelectorAll('.ship-card')].find(el=>el.dataset.vehicleId===String(v.id)),body=card?.querySelector('.card-body');
+  if(!body)continue;
+  const block=document.createElement('div');block.className='hangar-insurance';
+  const title=document.createElement('span');title.className='hangar-insurance-title';title.textContent='Assurance du vaisseau';
+  const trigger=document.createElement('button');trigger.type='button';trigger.className='hangar-insurance-trigger';trigger.setAttribute('aria-label',`Assurance de ${human(v.name)}`);trigger.setAttribute('aria-expanded','false');
+  const menu=document.createElement('div');menu.className='hangar-insurance-menu';menu.hidden=true;
+  const selected=insurance[String(v.id)]||'';
+  function showSelected(value){trigger.innerHTML=`<span class="hangar-insurance-value ${value?'chosen':''}">${esc(labels[value])}</span><span class="hangar-insurance-chevron" aria-hidden="true">⌄</span>`;menu.querySelectorAll('button').forEach(button=>button.setAttribute('aria-selected',String(button.dataset.insurance===value)))}
+  for(const [value,label] of Object.entries(labels)){const option=document.createElement('button');option.type='button';option.dataset.insurance=value;option.textContent=label;option.addEventListener('click',e=>{e.stopPropagation();if(value)insurance[String(v.id)]=value;else delete insurance[String(v.id)];writeStored('ax_hangar_insurance',insurance);showSelected(value);menu.hidden=true;trigger.setAttribute('aria-expanded','false');document.dispatchEvent(new CustomEvent('asteriax:hangar-change',{detail:{id:String(v.id),insurance:value}}));toast('Assurance mise à jour')});menu.append(option)}
+  trigger.addEventListener('click',e=>{e.stopPropagation();document.querySelectorAll('.hangar-insurance-menu').forEach(other=>{if(other!==menu)other.hidden=true});menu.hidden=!menu.hidden;trigger.setAttribute('aria-expanded',String(!menu.hidden))});
+  block.addEventListener('click',e=>e.stopPropagation());block.append(title,trigger,menu);body.append(block);showSelected(selected);
+ }
+}
+document.addEventListener('click',()=>document.querySelectorAll('.hangar-insurance-menu').forEach(menu=>{menu.hidden=true;menu.parentElement.querySelector('.hangar-insurance-trigger')?.setAttribute('aria-expanded','false')}));
 function bindHangarTabs(){document.querySelectorAll('[data-hangar-level]').forEach(b=>b.addEventListener('click',()=>{hangarMode=b.dataset.hangarLevel;document.querySelectorAll('[data-hangar-level]').forEach(x=>x.classList.toggle('active',x===b));renderHangar()}))}
 async function loadCatalog(){if(loading||ready)return;loading=true;try{
  const data=await window.AsteriaxApi.getJson('/api/ships?catalog=v22',{ttlMs:120000});if(!data.ok||!data.items?.length)throw 0;catalogUpdatedAt=data.updatedAt||'';catalogMeta={source:data.source,store_live:data.store_live,store_updated_at:data.store_updated_at};renderCatalogUpdated();

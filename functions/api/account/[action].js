@@ -3,7 +3,7 @@ const json = (body, status = 200, headers = {}) => new Response(JSON.stringify(b
 const bytes = n => { const b = new Uint8Array(n); crypto.getRandomValues(b); return b; };
 const hex = b => Array.from(b, x => x.toString(16).padStart(2, '0')).join('');
 const digest = async s => hex(new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(s))));
-const passwordHash = async (password, salt) => { const key = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']); return hex(new Uint8Array(await crypto.subtle.deriveBits({name:'PBKDF2',salt:Uint8Array.from(salt.match(/../g).map(x=>parseInt(x,16))),iterations:240000,hash:'SHA-256'},key,256))); };
+const passwordHash = async (password, salt) => { const key = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']); return hex(new Uint8Array(await crypto.subtle.deriveBits({name:'PBKDF2',salt:Uint8Array.from(salt.match(/../g).map(x=>parseInt(x,16))),iterations:100000,hash:'SHA-256'},key,256))); };
 const same = (a,b) => { if (a.length !== b.length) return false; let d=0; for(let i=0;i<a.length;i++) d|=a.charCodeAt(i)^b.charCodeAt(i); return d===0; };
 const cookie = (token, maxAge) => `ax_hangar_session=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`;
 const getToken = request => /(?:^|;\s*)ax_hangar_session=([a-f0-9]{64})(?:;|$)/.exec(request.headers.get('cookie')||'')?.[1];

@@ -24,6 +24,11 @@
   .home-hero h1{font-size:clamp(30px,8.2vw,40px)!important;letter-spacing:-1.5px!important;line-height:1.08!important}
   .home-hero .hero-copy{margin:16px 0!important}
   .home-section{padding:24px 0!important}
+  #home .home-section[aria-labelledby="homeNewsTitle"] .home-section-head,
+  #home .home-section[aria-labelledby="homeShipsTitle"] .home-section-head{padding:18px 16px!important;gap:15px!important}
+  #home .home-section[aria-labelledby="homeNewsTitle"] .home-section-head .eyebrow,
+  #home .home-section[aria-labelledby="homeShipsTitle"] .home-section-head .eyebrow{margin-bottom:9px!important}
+  #home .home-section[aria-labelledby="homeShipsTitle"] .home-release-source{margin-top:11px!important;line-height:1.55!important}
   #home>.stats{margin:-12px auto 0!important}
   .section-head{margin-top:0!important}
   .filters{gap:9px!important;padding:10px!important}

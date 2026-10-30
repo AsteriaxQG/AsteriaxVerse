@@ -107,13 +107,15 @@ renderHangar=function(){
   if(!body)continue;
   const block=document.createElement('div');block.className='hangar-insurance';
   const title=document.createElement('span');title.className='hangar-insurance-title';title.textContent='Assurance du vaisseau';
-  const trigger=document.createElement('button');trigger.type='button';trigger.className='hangar-insurance-trigger';trigger.setAttribute('aria-label',`Assurance de ${human(v.name)}`);trigger.setAttribute('aria-expanded','false');
+  const display=document.createElement('div');display.className='hangar-insurance-display';
+  const badge=document.createElement('strong');badge.className='hangar-insurance-badge';
+  const trigger=document.createElement('button');trigger.type='button';trigger.className='hangar-insurance-trigger';trigger.setAttribute('aria-label',`Modifier l’assurance de ${human(v.name)}`);trigger.setAttribute('aria-expanded','false');
   const menu=document.createElement('div');menu.className='hangar-insurance-menu';menu.hidden=true;
   const selected=insurance[String(v.id)]||'';
-  function showSelected(value){trigger.innerHTML=`<span class="hangar-insurance-value ${value?'chosen':''}">${esc(labels[value])}</span><span class="hangar-insurance-chevron" aria-hidden="true">⌄</span>`;menu.querySelectorAll('button').forEach(button=>button.setAttribute('aria-selected',String(button.dataset.insurance===value)))}
+  function showSelected(value){badge.hidden=!value;badge.textContent=labels[value];display.classList.toggle('has-insurance',!!value);trigger.innerHTML=value?'<span>Modifier</span><span aria-hidden="true">✎</span>':'<span>Choisir une assurance</span><span aria-hidden="true">＋</span>';menu.querySelectorAll('button').forEach(button=>button.setAttribute('aria-selected',String(button.dataset.insurance===value)))}
   for(const [value,label] of Object.entries(labels)){const option=document.createElement('button');option.type='button';option.dataset.insurance=value;option.textContent=label;option.addEventListener('click',e=>{e.stopPropagation();if(value)insurance[String(v.id)]=value;else delete insurance[String(v.id)];writeStored('ax_hangar_insurance',insurance);showSelected(value);menu.hidden=true;trigger.setAttribute('aria-expanded','false');document.dispatchEvent(new CustomEvent('asteriax:hangar-change',{detail:{id:String(v.id),insurance:value}}));toast('Assurance mise à jour')});menu.append(option)}
   trigger.addEventListener('click',e=>{e.stopPropagation();document.querySelectorAll('.hangar-insurance-menu').forEach(other=>{if(other!==menu)other.hidden=true});menu.hidden=!menu.hidden;trigger.setAttribute('aria-expanded',String(!menu.hidden))});
-  block.addEventListener('click',e=>e.stopPropagation());block.append(title,trigger,menu);body.append(block);showSelected(selected);
+  block.addEventListener('click',e=>e.stopPropagation());display.append(badge,trigger);block.append(title,display,menu);body.append(block);showSelected(selected);
  }
 }
 document.addEventListener('click',()=>document.querySelectorAll('.hangar-insurance-menu').forEach(menu=>{menu.hidden=true;menu.parentElement.querySelector('.hangar-insurance-trigger')?.setAttribute('aria-expanded','false')}));

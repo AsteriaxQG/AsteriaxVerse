@@ -47,10 +47,10 @@ export async function onRequest(context) {
     if(action==='hangar'&&method==='POST') {
       const user=await userFor(db,request); if(!user) return json({error:'Connexion nécessaire'},401);
       const data=await body(request);
-      if(data.import===true) { const owned=Array.isArray(data.owned)?data.owned:[],wishlist=Array.isArray(data.wishlist)?data.wishlist:[]; if(owned.length+wishlist.length>1000) return json({error:'Liste trop grande'},400); const statements=[]; for(const [status,ids] of [['owned',owned],['wishlist',wishlist]]) for(const id of ids) { if(typeof id!=='string'||id.length>120||!id) return json({error:'Vaisseau invalide'},400); statements.push(db.prepare('INSERT INTO ax_hangar_items(user_id,ship_id,status,updated_at) VALUES(?,?,?,?) ON CONFLICT(user_id,ship_id) DO UPDATE SET status=excluded.status,updated_at=excluded.updated_at').bind(user.id,id,status,Date.now())); } if(statements.length) await db.batch(statements); return json({hangar:await list(db,user.id)}); }
+      if(data.import===true) { const owned=Array.isArray(data.owned)?data.owned:[],wishlist=Array.isArray(data.wishlist)?data.wishlist:[]; if(owned.length+wishlist.length>1000) return json({error:'Liste trop grande'},400); for(const [status,ids] of [['owned',owned],['wishlist',wishlist]]) for(const id of ids) { if(typeof id!=='string'||id.length>120||!id) return json({error:'Vaisseau invalide'},400); await db.prepare('INSERT OR REPLACE INTO ax_hangar_items(user_id,ship_id,status,updated_at) VALUES(?,?,?,?)').bind(user.id,id,status,Date.now()).run(); } return json({hangar:await list(db,user.id)}); }
       const id=data.id,status=data.status; if(typeof id!=='string'||!id||id.length>120||!['owned','wishlist','none'].includes(status)) return json({error:'Modification invalide'},400);
       if(status==='none') await db.prepare('DELETE FROM ax_hangar_items WHERE user_id=? AND ship_id=?').bind(user.id,id).run();
-      else await db.prepare('INSERT INTO ax_hangar_items(user_id,ship_id,status,updated_at) VALUES(?,?,?,?) ON CONFLICT(user_id,ship_id) DO UPDATE SET status=excluded.status,updated_at=excluded.updated_at').bind(user.id,id,status,Date.now()).run();
+      else await db.prepare('INSERT OR REPLACE INTO ax_hangar_items(user_id,ship_id,status,updated_at) VALUES(?,?,?,?)').bind(user.id,id,status,Date.now()).run();
       return json({ok:true});
     }
     return json({error:'Route introuvable'},404);

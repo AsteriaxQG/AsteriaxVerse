@@ -83,14 +83,16 @@ export function testEnvironment(threads,label,liveVersion,now=Date.now()){
   const sequence=subject.match(/(?:Patch|Release) Notes\s+(\d{6,})\b/i)?.[1]||'';
   const source=`https://robertsspaceindustries.com/spectrum/community/SC/forum/190048/thread/${t.slug}`;
   if(/\b(?:offline|closed|shutdown)\b/i.test(subject))return{status:'Hors ligne',version,build:'',source};
-  const access=subject.match(/\[(?:all waves|wave\s*\d+|evocati)\]/i)?.[0]?.slice(1,-1)||'';
-  if(!t.is_pinned||Number(t.time_created)<=latestLive||!version||compareVersions(version,liveVersion)<0||!access)return{status:'Non vérifié',version:'',build:''};
-  return{status:'En ligne',version,build:sequence?`${version}-${label.toLowerCase()}.${sequence}`:'',access:/^all waves$/i.test(access)?'All waves':/^evocati$/i.test(access)?'Evocati':access,source};
+  const access=subject.match(/\[(?:all waves?|all backers?|open (?:ptu|wave)|wave\s*\d+|evocati)\]/i)?.[0]?.slice(1,-1)||'';
+  // Official developer patch notes are valid even when Spectrum has not pinned them yet.
+  if(Number(t.time_created)<=latestLive||!version||compareVersions(version,liveVersion)<0||!access)return{status:'Non vérifié',version:'',build:''};
+  const all=/^(?:all waves?|all backers?|open (?:ptu|wave))$/i.test(access);
+  return{status:'En ligne',version,build:sequence?`${version}-${label.toLowerCase()}.${sequence}`:'',access:all?'All waves':/^evocati$/i.test(access)?'Evocati':access,source};
 }
 
 export async function onRequestGet(context){
   const cache=caches.default;
-  const cacheKey=new Request(new URL('/api/status?cache=v19',context.request.url).toString());
+  const cacheKey=new Request(new URL('/api/status?cache=v20',context.request.url).toString());
   const cached=await cache.match(cacheKey);if(cached)return cached;
   const settled=await Promise.allSettled([fetchText(STATUS_URL),fetchText(PTU_FAQ),fetchText(PTU_INSTALL),fetchText(LOANER_MATRIX),fetchText(PATCH_FORUM),fetchPatchThreads(),fetchText(RELEASE_MIRROR),fetchText(HOTFIX_MIRROR),fetchText(PU_STATUS_URL)]);
   const statusBody=settled[0].status==='fulfilled'?text(settled[0].value):'';

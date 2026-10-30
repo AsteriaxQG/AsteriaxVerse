@@ -12,10 +12,13 @@ const thread=(label,access,ageHours=1)=>({
 assert.equal(testEnvironment([thread('PTU','Wave 1')],'PTU','4.10.2',now).access,'Wave 1');
 assert.equal(testEnvironment([thread('PTU','Wave 5')],'PTU','4.10.2',now).access,'Wave 5');
 assert.equal(testEnvironment([thread('PTU','All Waves')],'PTU','4.10.2',now).access,'All waves');
+const latestOfficial={...thread('PTU','All Waves',.5),subject:'[All Waves] Star Citizen Alpha 4.10.3 PTU Patch Notes 13055118',is_pinned:false,slug:'star-citizen-alpha-4-10-3-ptu-patch-notes-2'};
+assert.deepEqual(testEnvironment([thread('PTU','Wave 1',48),latestOfficial],'PTU','4.10.2',now),{status:'En ligne',version:'4.10.3',build:'4.10.3-ptu.13055118',access:'All waves',source:'https://robertsspaceindustries.com/spectrum/community/SC/forum/190048/thread/star-citizen-alpha-4-10-3-ptu-patch-notes-2'});
+assert.equal(testEnvironment([thread('PTU','All Backer')],'PTU','4.10.2',now).access,'All waves');
 assert.equal(testEnvironment([thread('EPTU','Evocati')],'EPTU','4.10.2',now).access,'Evocati');
 assert.equal(testEnvironment([thread('EPTU','Wave 1')],'EPTU','4.10.2',now).access,'Wave 1');
 assert.equal(testEnvironment([thread('EPTU','Evocati',8*24)],'EPTU','4.10.2',now).status,'Non vérifié');
-assert.equal(testEnvironment([{...thread('EPTU','Evocati'),is_pinned:false}],'EPTU','4.10.2',now).status,'Non vérifié');
+assert.equal(testEnvironment([{...thread('EPTU','Evocati'),is_pinned:false}],'EPTU','4.10.2',now).status,'En ligne');
 assert.equal(testEnvironment([thread('EPTU','Evocati')],'EPTU','4.11.0',now).status,'Non vérifié');
 const techRecord={channel:'TECH-PREVIEW',version:'Genesis',version_full:'Genesis Planet Tech V5',status:'ONLINE',is_active:true,updated_at:new Date(now-3600000).toISOString(),patch_notes_url:'https://robertsspaceindustries.com/spectrum/community/AVOCADO/forum/31515/thread/instancing-tech-preview'};
 const mirror=record=>`<script>${JSON.stringify(record).replaceAll('"','\\"')}</script>`;

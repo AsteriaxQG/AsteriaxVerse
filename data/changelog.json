@@ -1,6 +1,15 @@
 {
   "versions": [
     {
+      "version": "1.5.30",
+      "date": "2026-10-30",
+      "title": {"fr": "PTU ouvert à tous détecté", "en": "Open PTU detected"},
+      "new": [],
+      "ui": [{"fr": "La carte PTU indique « Ouvert à tous » pour les notes officielles All Waves et rappelle qu’une vague 5 est ouverte à tous.", "en": "The PTU card shows Open to all for official All Waves notes and clarifies that Wave 5 is open to all."}],
+      "fixes": [{"fr": "Les notes de patch CIG non épinglées sont désormais prises en compte. La version 4.10.3 PTU et son dernier build peuvent donc remplacer l’ancienne vague 1.", "en": "Unpinned CIG patch notes are now recognized. PTU 4.10.3 and its latest build can replace the old Wave 1."}],
+      "technical": [{"fr": "La validation conserve les contrôles de fraîcheur, de version et de source officielle ; le cache du statut est renouvelé.", "en": "Validation retains freshness, version and official-source checks; the status cache is refreshed."}]
+    },
+    {
       "version": "1.5.29",
       "date": "2026-10-30",
       "title": {"fr": "Navigation mobile simplifiée", "en": "Simplified mobile navigation"},

@@ -44,6 +44,11 @@
 @media(max-width:370px){
   .nav-btn,.nav-btn.active,.mobile-menu-toggle{font-size:10px!important}
   .nav-btn::before,.mobile-menu-toggle::before{font-size:18px!important}
+  .nav-btn[data-view="equipment"]{font-size:0!important}
+  .nav-btn[data-view="equipment"]::after{content:"Équip.";font-size:10px;line-height:1.15}
+  html[lang="en"] .nav-btn[data-view="equipment"]::after{content:"Gear"}
+  .ax-changelog-link{display:flex;width:100%;justify-content:space-between;flex-wrap:nowrap;gap:6px;padding:10px 12px;font-size:12px;white-space:nowrap}
+  .ax-changelog-link [data-changelog-badge]{font-size:9px}
   .home-hero{padding-inline:16px!important}
   .home-catalog-status{left:16px!important;right:16px!important;max-width:calc(100% - 32px)!important}
 }

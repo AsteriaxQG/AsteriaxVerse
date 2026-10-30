@@ -1,6 +1,15 @@
 {
   "versions": [
     {
+      "version": "1.5.28",
+      "date": "2026-10-30",
+      "title": {"fr": "Navigation mobile repensée", "en": "Redesigned mobile navigation"},
+      "new": [],
+      "ui": [{"fr": "La barre mobile présente quatre destinations directes et un menu pour l’IAE et les actualités. Les filtres du catalogue se déplient à la demande et les onglets du Builder défilent horizontalement.", "en": "The mobile bar shows four direct destinations and a menu for IAE and news. Catalogue filters expand on demand and Builder tabs scroll horizontally."}],
+      "fixes": [{"fr": "Le grand bloc d’accueil n’ajoute plus de vide excessif au-dessus du titre. La navigation et les contrôles restent lisibles sur les petits écrans.", "en": "The homepage hero no longer leaves excessive empty space above the title. Navigation and controls remain readable on small screens."}],
+      "technical": [{"fr": "Une feuille mobile finale centralise les règles de mise en page sans modifier l’affichage ordinateur.", "en": "A final mobile stylesheet centralizes layout rules without changing the desktop view."}]
+    },
+    {
       "version": "1.5.27",
       "date": "2026-10-30",
       "title": {"fr": "Affichage mobile et données plus claires", "en": "Mobile layout and clearer data"},
